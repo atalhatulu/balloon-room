@@ -22,12 +22,11 @@ window/stretch/aspect="expand"
 
 [physics]
 
+common/max_physics_steps_per_frame=4
 3d/physics_engine="Jolt Physics"
-3d/solver/solver_iterations=6
 3d/sleep_threshold_linear=0.2
 3d/sleep_threshold_angular=0.2
-common/physics_ticks_per_second=60
-common/max_physics_steps_per_frame=4
+3d/solver/solver_iterations=6
 
 [rendering]
 

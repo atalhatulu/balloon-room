@@ -44,12 +44,12 @@ size = Vector3(16, 0.5, 16)
 [sub_resource type="BoxShape3D" id="BoxShape3D_main_ceiling"]
 size = Vector3(16, 0.5, 16)
 
-[sub_resource type="BoxMesh" id="BoxMesh_main_ceiling"]
-size = Vector3(16, 0.5, 16)
-
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_wall_mat"]
 albedo_color = Color(0.42, 0.48, 0.55, 1)
 roughness = 0.65
+
+[sub_resource type="BoxMesh" id="BoxMesh_main_ceiling"]
+size = Vector3(16, 0.5, 16)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_main_wall_z"]
 size = Vector3(16, 6, 0.5)
@@ -182,7 +182,10 @@ emission_energy_multiplier = 0.8
 size = Vector3(0.3, 0.65, 0.9)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_desk_area"]
-size = Vector3(3.5, 2.5, 3.5)
+size = Vector3(1.8, 1.8, 2.6)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_terminal_area"]
+size = Vector3(1.2, 2.2, 1.2)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_micro_panel"]
 bg_color = Color(0.06, 0.08, 0.12, 0.65)
@@ -246,7 +249,6 @@ environment = SubResource("Environment_room")
 transform = Transform3D(0.866025, -0.353553, 0.353553, 0, 0.707107, 0.707107, -0.5, -0.612372, 0.612372, 8, 12, 8)
 light_color = Color(1, 0.96, 0.9, 1)
 light_energy = 0.9
-shadow_enabled = false
 
 [node name="MainRoomLight" type="OmniLight3D" parent="." unique_id=1048935766]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.3, 0)
@@ -504,6 +506,12 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.35, 1.25, 0)
 light_color = Color(1, 0.65, 0.2, 1)
 omni_range = 3.0
 
+[node name="TerminalArea" type="Area3D" parent="Environment/GravityTerminal" unique_id=1948201948]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.0, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Environment/GravityTerminal/TerminalArea" unique_id=1948201949]
+shape = SubResource("BoxShape3D_terminal_area")
+
 [node name="SideOffice" type="Node3D" parent="Environment" unique_id=274891305]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13.5, 0, 0)
 
@@ -571,7 +579,7 @@ material_override = SubResource("StandardMaterial3D_screen")
 mesh = SubResource("BoxMesh_monitor")
 
 [node name="DeskArea" type="Area3D" parent="Environment/SideOffice/ComputerDesk" unique_id=1746666927]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 1, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0)
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Environment/SideOffice/ComputerDesk/DeskArea" unique_id=1534204069]
 shape = SubResource("BoxShape3D_desk_area")
@@ -637,7 +645,6 @@ layout_mode = 2
 theme_override_styles/background = SubResource("StyleBoxFlat_crosshair_stamina_bg")
 theme_override_styles/fill = SubResource("StyleBoxFlat_crosshair_stamina_fill")
 max_value = 1000000.0
-value = 0.0
 show_percentage = false
 
 [node name="GrandGoalLabel" type="Label" parent="UI/HUD/TopLeft/Margin/VBox" unique_id=1849103959]
@@ -710,8 +717,6 @@ custom_minimum_size = Vector2(0, 6)
 layout_mode = 2
 theme_override_styles/background = SubResource("StyleBoxFlat_crosshair_stamina_bg")
 theme_override_styles/fill = SubResource("StyleBoxFlat_crosshair_stamina_fill")
-max_value = 100.0
-value = 0.0
 show_percentage = false
 
 [node name="CrosshairContainer" type="CenterContainer" parent="UI/HUD" unique_id=147273076]

@@ -112,6 +112,9 @@ var is_victory_shown: bool = false
 
 var is_near_desk: bool = false
 var is_near_grav_terminal: bool = false
+var raycast_target_type: String = "" # "desk", "gravity_terminal", "device", ""
+var raycast_target_device: Node3D = null
+var raycast_target_name: String = ""
 var current_filter: String = "upgrades"
 var auto_save_timer: float = 0.0
 var active_vent_positions: Array[Vector3] = []
@@ -646,8 +649,95 @@ func _process(delta: float) -> void:
 				desk_prompt.visible = true
 		return
 		
-	# 2. Check for nearby devices to pick up or interact
+	# 2. Precision Raycast Targeting (Aim directly with crosshair to interact from distance)
+	update_raycast_interaction()
+
+func update_raycast_interaction() -> void:
+	raycast_target_type = ""
+	raycast_target_device = null
+	raycast_target_name = ""
 	nearby_device = null
+	
+	if not player or not is_instance_valid(player):
+		if desk_prompt: desk_prompt.visible = false
+		return
+		
+	var cam: Camera3D = player.get_node_or_null("Head/Camera3D")
+	if not cam:
+		if desk_prompt: desk_prompt.visible = false
+		return
+		
+	var from = cam.global_position
+	var to = from + (-cam.global_transform.basis.z * 5.2)
+	
+	var world = get_world_3d()
+	if not world: return
+	var space_state = world.direct_space_state
+	if not space_state: return
+	
+	var query = PhysicsRayQueryParameters3D.create(from, to)
+	query.collide_with_areas = true
+	query.collide_with_bodies = true
+	query.exclude = [player.get_rid()]
+	
+	var result = space_state.intersect_ray(query)
+	if result:
+		var col = result.collider
+		if col and is_instance_valid(col):
+			# 1. Looking at Computer Desk / Monitor
+			if _is_desk(col):
+				raycast_target_type = "desk"
+				is_near_desk = true
+				if desk_prompt:
+					desk_prompt.text = "[E] Bilgisayarı Aç / Dükkana Gir"
+					desk_prompt.visible = true
+				return
+				
+			# 2. Looking at Gravity Terminal
+			if _is_gravity_terminal(col):
+				raycast_target_type = "gravity_terminal"
+				is_near_grav_terminal = true
+				var g_mode = gravity_mode_names[clamp(current_gravity_idx, 0, gravity_mode_names.size() - 1)]
+				if desk_prompt:
+					desk_prompt.text = "[E] Yerçekimi Değiştir (Mevcut: " + g_mode + ")"
+					desk_prompt.visible = true
+				return
+				
+			# 3. Looking at Automation Device
+			var dev = _get_device_from_collider(col)
+			if not dev.is_empty():
+				raycast_target_type = "device"
+				raycast_target_device = dev["node"]
+				raycast_target_name = dev["name"]
+				nearby_device = dev["node"]
+				if desk_prompt:
+					desk_prompt.text = "[E] " + dev["name"] + " Taşı (Izgara Modu)"
+					desk_prompt.visible = true
+				return
+
+	if desk_prompt:
+		desk_prompt.visible = false
+
+func _is_desk(col: Object) -> bool:
+	if not col: return false
+	var n: Node = col as Node
+	while n and n != self and n != get_tree().root:
+		if n.name == "ComputerDesk" or n.name == "DeskArea" or n.name == "MonitorMesh" or n.name == "TableMesh" or n.is_in_group("computer_desk"):
+			return true
+		n = n.get_parent()
+	return false
+
+func _is_gravity_terminal(col: Object) -> bool:
+	if not col: return false
+	var n: Node = col as Node
+	while n and n != self and n != get_tree().root:
+		if n.name == "GravityTerminal" or n.name == "TerminalArea" or n.name == "TerminalBody" or n.name == "ButtonMesh" or n.name == "ScreenMesh" or n.is_in_group("gravity_terminal"):
+			return true
+		n = n.get_parent()
+	return false
+
+func _get_device_from_collider(col: Object) -> Dictionary:
+	if not col: return {}
 	var candidate_devices = [
 		{"node": spike_wall, "name": "Dikenli Zemin"},
 		{"node": electric_wall, "name": "Elektrikli Zemin Izgarası"},
@@ -655,37 +745,14 @@ func _process(delta: float) -> void:
 		{"node": conveyor_crusher, "name": "Makaralı Balon Öğütücü"},
 		{"node": corner_fan, "name": "Köşe Fanı"}
 	]
-	
-	var closest_dist = 3.6
-	var closest_name = ""
-	for item in candidate_devices:
-		var d_node = item.node
-		if d_node and is_instance_valid(d_node) and d_node.get("is_active"):
-			var dist = player.global_position.distance_to(d_node.global_position)
-			if dist < closest_dist:
-				closest_dist = dist
-				nearby_device = d_node
-				closest_name = item.name
-				
-	is_near_grav_terminal = false
-	if gravity_terminal and player and not is_near_desk and nearby_device == null:
-		var dist_to_term = player.global_position.distance_to(gravity_terminal.global_position)
-		if dist_to_term < 3.4:
-			is_near_grav_terminal = true
-			
-	if desk_prompt:
-		if is_near_desk:
-			desk_prompt.text = "[E] Bilgisayarı Aç / Markete Gir"
-			desk_prompt.visible = true
-		elif nearby_device != null:
-			desk_prompt.text = "[E] " + closest_name + " Taşı (Izgara Modu)"
-			desk_prompt.visible = true
-		elif is_near_grav_terminal:
-			var g_mode = gravity_mode_names[clamp(current_gravity_idx, 0, gravity_mode_names.size() - 1)]
-			desk_prompt.text = "[E] Yerçekimi Butonuna Bas (Mevcut: " + g_mode + ")"
-			desk_prompt.visible = true
-		else:
-			desk_prompt.visible = false
+	var n: Node = col as Node
+	while n and n != self and n != get_tree().root:
+		for item in candidate_devices:
+			if item.node and is_instance_valid(item.node) and item.node == n:
+				if item.node.get("is_active"):
+					return item
+		n = n.get_parent()
+	return {}
 
 func save_current_data() -> void:
 	if not is_inside_tree():
@@ -933,15 +1000,16 @@ func _input(event: InputEvent) -> void:
 				get_viewport().set_input_as_handled()
 				return
 				
-	# 2. Normal Interactions
+	# 2. Normal Interactions (Raycast crosshair aiming & distance reach)
 	if event is InputEventKey and event.pressed and not event.is_echo():
 		if event.keycode == KEY_E:
-			if is_near_desk:
+			if raycast_target_type == "desk" or is_near_desk:
 				toggle_shop_modal()
-			elif is_near_grav_terminal:
+			elif raycast_target_type == "gravity_terminal" or is_near_grav_terminal:
 				cycle_gravity_mode()
-			elif nearby_device != null:
-				start_carrying_device(nearby_device)
+			elif (raycast_target_type == "device" and raycast_target_device != null) or nearby_device != null:
+				var dev = raycast_target_device if raycast_target_device != null else nearby_device
+				start_carrying_device(dev)
 		elif event.keycode == KEY_G:
 			cycle_gravity_mode()
 		elif event.keycode == KEY_ESCAPE and shop_modal and shop_modal.visible:
