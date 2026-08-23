@@ -284,13 +284,13 @@ func execute_pop_hit(costs_energy: bool) -> void:
 				hit_pos = col.global_position
 			elif col and col is RigidBody3D:
 				var hit_dir = -camera.global_transform.basis.z.normalized()
-				col.apply_central_impulse(hit_dir * (5.0 if is_od else 2.0))
+				col.apply_central_impulse(hit_dir * 2.0)
 				
 		# Forgiving camera ray cone check if direct thin ray missed closely
 		if not target and camera:
 			var cam_pos = camera.global_position
 			var look_dir = -camera.global_transform.basis.z.normalized()
-			var reach = 12.0 if is_od else 5.0
+			var reach = 5.0
 			var balloons = get_tree().get_nodes_in_group("balloons")
 			var best_dot = 0.96 # ~16 degrees cone
 			for b in balloons:
@@ -307,9 +307,8 @@ func execute_pop_hit(costs_energy: bool) -> void:
 		if target and target.has_method("pop"):
 			target.pop("needle")
 			pop_triggered.emit(true)
-			var eff_splash = (splash_radius + 4.5) if is_od else splash_radius
-			if eff_splash > 0.0:
-				trigger_splash_pop(hit_pos, eff_splash)
+			if splash_radius > 0.0:
+				trigger_splash_pop(hit_pos, splash_radius)
 
 func trigger_splash_pop(origin: Vector3, custom_radius: float = 0.0) -> void:
 	var r = custom_radius if custom_radius > 0.0 else splash_radius
