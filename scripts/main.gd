@@ -3,6 +3,15 @@ extends Node3D
 @export var balloon_scene: PackedScene = preload("res://scenes/balloon.tscn")
 @export var coin_scene: PackedScene = preload("res://scenes/coin.tscn")
 
+const DEVICE_SCENES = {
+	"spike_wall": preload("res://scenes/spike_wall.tscn"),
+	"electric_wall": preload("res://scenes/electric_wall.tscn"),
+	"magnet_pylon": preload("res://scenes/magnet_pylon.tscn"),
+	"conveyor_crusher": preload("res://scenes/conveyor_crusher.tscn"),
+	"sentry_drone": preload("res://scenes/sentry_drone.tscn"),
+	"fan": preload("res://scenes/fan.tscn")
+}
+
 @onready var game_manager: Node = $GameManager
 @onready var sound_manager: Node = $SoundManager
 @onready var shop_manager: Node = $ShopManager
@@ -610,29 +619,65 @@ func _on_room_switched(room_id: String) -> void:
 	save_current_data()
 
 func _on_device_purchased(device_id: String, level: int) -> void:
+	var dev_node: Node3D = null
 	match device_id:
 		"electric_wall":
+			if not electric_wall and DEVICE_SCENES.has("electric_wall") and env_main_room:
+				electric_wall = DEVICE_SCENES["electric_wall"].instantiate()
+				env_main_room.add_child(electric_wall)
 			if electric_wall and electric_wall.has_method("setup_level"):
 				electric_wall.setup_level(level)
+			dev_node = electric_wall
 		"spike_wall":
+			if not spike_wall and DEVICE_SCENES.has("spike_wall") and env_main_room:
+				spike_wall = DEVICE_SCENES["spike_wall"].instantiate()
+				env_main_room.add_child(spike_wall)
 			if spike_wall and spike_wall.has_method("setup_level"):
 				spike_wall.setup_level(level)
+			dev_node = spike_wall
 		"magnet_pylon":
+			if not magnet_pylon and DEVICE_SCENES.has("magnet_pylon") and env_main_room:
+				magnet_pylon = DEVICE_SCENES["magnet_pylon"].instantiate()
+				env_main_room.add_child(magnet_pylon)
 			if magnet_pylon and magnet_pylon.has_method("setup_level"):
 				magnet_pylon.setup_level(level)
+			dev_node = magnet_pylon
 		"conveyor_crusher":
+			if not conveyor_crusher and DEVICE_SCENES.has("conveyor_crusher") and env_main_room:
+				conveyor_crusher = DEVICE_SCENES["conveyor_crusher"].instantiate()
+				env_main_room.add_child(conveyor_crusher)
 			if conveyor_crusher and conveyor_crusher.has_method("setup_level"):
 				conveyor_crusher.setup_level(level)
+			dev_node = conveyor_crusher
 		"sentry_drone":
+			if not sentry_drone and DEVICE_SCENES.has("sentry_drone") and env_main_room:
+				sentry_drone = DEVICE_SCENES["sentry_drone"].instantiate()
+				env_main_room.add_child(sentry_drone)
 			if sentry_drone and sentry_drone.has_method("setup_level"):
 				sentry_drone.setup_level(level)
+			dev_node = sentry_drone
+		"fan":
+			if not corner_fan and DEVICE_SCENES.has("fan") and env_main_room:
+				corner_fan = DEVICE_SCENES["fan"].instantiate()
+				env_main_room.add_child(corner_fan)
+			if corner_fan:
+				corner_fan.visible = true
+				corner_fan.set("is_active", true)
+			dev_node = corner_fan
 		"gravity_regulator":
 			max_unlocked_gravity_idx = level
 			if current_gravity_idx > max_unlocked_gravity_idx:
 				current_gravity_idx = max_unlocked_gravity_idx
 			apply_gravity_to_active_balloons()
+			
 	update_all_shop_cards()
 	save_current_data()
+	
+	# If newly bought (level == 1), close shop and give device into player's hand for placement!
+	if level == 1 and dev_node and is_instance_valid(dev_node):
+		if shop_modal and shop_modal.visible:
+			toggle_shop_modal()
+		start_carrying_device(dev_node)
 
 func _on_active_count_changed(active: int, max_cap: int) -> void:
 	var room_name = "ODA"
@@ -663,10 +708,11 @@ func _process(delta: float) -> void:
 	if startup_modal and startup_modal.visible:
 		return
 		
-	# Playtime & Speedrun Timer Tracking
+	# Playtime & Speedrun Timer Tracking with Total Coins
 	playtime_seconds += delta
 	if playtime_label:
-		playtime_label.text = "Süre: " + format_time(playtime_seconds)
+		var c_str = format_number(shop_manager.coins) if shop_manager else "0"
+		playtime_label.text = "Süre: %s  |  Kasa: %s Coin" % [format_time(playtime_seconds), c_str]
 		
 	# Floor Level Guard: Player can never sink below floor y = 0.0
 	if player and is_instance_valid(player) and player.global_position.y < -0.05:
@@ -940,6 +986,16 @@ func save_current_data() -> void:
 		devices_data["corner_fan_pos"] = [corner_fan.position.x, corner_fan.position.y, corner_fan.position.z]
 		devices_data["corner_fan_rot_y"] = corner_fan.rotation.y
 		
+	var coins_data: Array = []
+	if coin_container and is_instance_valid(coin_container) and coin_container.is_inside_tree():
+		for c in coin_container.get_children():
+			if is_instance_valid(c) and not c.is_queued_for_deletion():
+				coins_data.append({
+					"pos": [c.global_position.x, c.global_position.y, c.global_position.z],
+					"val": c.get("coin_value") if ("coin_value" in c) else 1,
+					"grounded": c.get("is_grounded") if ("is_grounded" in c) else true
+				})
+		
 	var full_state = {
 		"version": 4,
 		"current_room": shop_manager.current_room,
@@ -954,7 +1010,8 @@ func save_current_data() -> void:
 		"best_speedrun_time": best_speedrun_time,
 		"upgrades": upgrades_data,
 		"player": player_data,
-		"balloons": balloons_data
+		"balloons": balloons_data,
+		"floor_coins": coins_data
 	}
 	
 	save_manager.save_full_state(full_state)
@@ -1098,6 +1155,23 @@ func load_saved_data() -> void:
 				
 		if game_manager:
 			game_manager.active_balloons = loaded_balloons.size()
+			
+	# 5. Restore Active Floor Coins
+	var loaded_floor_coins = data.get("floor_coins", [])
+	if coin_container and is_instance_valid(coin_container):
+		for c in coin_container.get_children():
+			c.queue_free()
+		for cd in loaded_floor_coins:
+			if coin_scene:
+				var coin = coin_scene.instantiate()
+				coin_container.add_child(coin)
+				var pos_arr = cd.get("pos", [0, 0.08, 0])
+				var pos = Vector3(pos_arr[0], pos_arr[1], pos_arr[2])
+				var val = int(cd.get("val", 1))
+				coin.global_position = pos
+				coin.set("coin_value", val)
+				coin.set("is_grounded", cd.get("grounded", true))
+				coin.set("is_settled", true)
 			
 	update_pop_counter(loaded_pops)
 	update_ceiling_vents()
