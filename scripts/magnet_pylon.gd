@@ -57,37 +57,41 @@ func _physics_process(delta: float) -> void:
 		apply_magnetic_pull()
 
 func apply_magnetic_pull() -> void:
-	var world = get_world_3d()
-	if not world: return
-	var space_state = world.direct_space_state
-	if not space_state: return
-	
 	var idx = clamp(level, 1, pull_ranges.size() - 1)
 	var max_range = pull_ranges[idx]
 	var strength = pull_strengths[idx]
 	var center_pos = global_position + Vector3(0, 0.6, 0)
 	
-	var shape_query = PhysicsShapeQueryParameters3D.new()
-	var sphere = SphereShape3D.new()
-	sphere.radius = max_range
-	shape_query.shape = sphere
-	shape_query.transform = Transform3D(Basis(), center_pos)
-	shape_query.collision_mask = 2 # Balloons layer
-	shape_query.collide_with_bodies = true
-	shape_query.collide_with_areas = false
-	
-	var max_pull_targets = 40 + (level * 15)
-	var results = space_state.intersect_shape(shape_query, max_pull_targets)
-	for res in results:
-		var b = res.collider
-		if b is RigidBody3D and is_instance_valid(b) and not b.is_queued_for_deletion() and not b.get("is_popped"):
-			var diff = center_pos - b.global_position
-			var dist_sq = diff.length_squared()
-			if dist_sq > 0.35:
-				if b.has_method("wake_physics"):
-					b.wake_physics()
-				var dist = sqrt(dist_sq)
-				var dir = diff / dist
-				var falloff = clamp(1.0 - (dist / max_range), 0.2, 1.0)
-				var force = dir * (falloff * strength * 0.06)
-				b.apply_central_impulse(force)
+	var bm = get_node_or_null("/root/Main/BalloonContainer")
+	if bm and bm.has_method("apply_magnet_pull"):
+		bm.apply_magnet_pull(center_pos, max_range, strength)
+	else:
+		var world = get_world_3d()
+		if not world: return
+		var space_state = world.direct_space_state
+		if not space_state: return
+		
+		var shape_query = PhysicsShapeQueryParameters3D.new()
+		var sphere = SphereShape3D.new()
+		sphere.radius = max_range
+		shape_query.shape = sphere
+		shape_query.transform = Transform3D(Basis(), center_pos)
+		shape_query.collision_mask = 2
+		shape_query.collide_with_bodies = true
+		shape_query.collide_with_areas = false
+		
+		var max_pull_targets = 40 + (level * 15)
+		var results = space_state.intersect_shape(shape_query, max_pull_targets)
+		for res in results:
+			var b = res.collider
+			if b is RigidBody3D and is_instance_valid(b) and not b.is_queued_for_deletion() and not b.get("is_popped"):
+				var diff = center_pos - b.global_position
+				var dist_sq = diff.length_squared()
+				if dist_sq > 0.35:
+					if b.has_method("wake_physics"):
+						b.wake_physics()
+					var dist = sqrt(dist_sq)
+					var dir = diff / dist
+					var falloff = clamp(1.0 - (dist / max_range), 0.2, 1.0)
+					var force = dir * (falloff * strength * 0.06)
+					b.apply_central_impulse(force)

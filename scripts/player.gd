@@ -241,48 +241,27 @@ func execute_pop_hit(costs_energy: bool) -> void:
 	if costs_energy:
 		consume_energy(pop_hold_energy_cost)
 		
-	# Hit detection (force raycast update for high-speed continuous pop)
+	var bm = get_node_or_null("/root/Main/BalloonContainer")
+	if bm and bm.has_method("pop_nearest_at_ray"):
+		var cam_pos = camera.global_position
+		var look_dir = -camera.global_transform.basis.z.normalized()
+		var popped_idx = bm.pop_nearest_at_ray(cam_pos, look_dir, 5.2)
+		if popped_idx != -1:
+			pop_triggered.emit(true)
+			return
+			
+	# Fallback check
 	if interaction_ray:
 		interaction_ray.target_position = Vector3(0, 0, -5.0)
 		interaction_ray.force_raycast_update()
-		var target = null
-		var hit_pos = Vector3.ZERO
-		
 		if interaction_ray.is_colliding():
 			var col = interaction_ray.get_collider()
 			if col and col.is_in_group("balloons") and col.has_method("pop"):
-				target = col
-				hit_pos = col.global_position
-			elif col and col is RigidBody3D:
-				var hit_dir = -camera.global_transform.basis.z.normalized()
-				col.apply_central_impulse(hit_dir * 2.0)
+				col.pop("needle")
+				pop_triggered.emit(true)
+				return
 				
-		# Forgiving camera ray cone check if direct thin ray missed closely
-		if not target and camera:
-			var cam_pos = camera.global_position
-			var look_dir = -camera.global_transform.basis.z.normalized()
-			var reach = 5.0
-			var balloons = get_tree().get_nodes_in_group("balloons")
-			var best_dot = 0.96 # ~16 degrees cone
-			for b in balloons:
-				if b is RigidBody3D and is_instance_valid(b) and not b.get("is_popped") and not b.is_queued_for_deletion():
-					var to_b = b.global_position - cam_pos
-					var dist = to_b.length()
-					if dist <= reach and dist > 0.4:
-						var dot = look_dir.dot(to_b / dist)
-						if dot > best_dot:
-							best_dot = dot
-							target = b
-							hit_pos = b.global_position
-							
-		if target and target.has_method("pop"):
-			var target_color = target.get("balloon_color") if ("balloon_color" in target) else Color.WHITE
-			target.pop("needle")
-			pop_triggered.emit(true)
-			if splash_radius > 0.0:
-				trigger_splash_pop(hit_pos, target_color, splash_radius)
-		else:
-			pop_triggered.emit(false)
+	pop_triggered.emit(false)
 
 func trigger_splash_pop(origin: Vector3, match_color: Color = Color.WHITE, custom_radius: float = 0.0) -> void:
 	var r = custom_radius if custom_radius > 0.0 else splash_radius
@@ -342,15 +321,19 @@ func try_continuous_nudge(delta: float) -> void:
 	consume_energy(continuous_nudge_cost_per_sec * delta)
 	nudge_triggered.emit()
 		
+	var cam_pos = camera.global_position
+	var look_dir = -camera.global_transform.basis.z.normalized()
+	
+	var bm = get_node_or_null("/root/Main/BalloonContainer")
+	if bm and bm.has_method("apply_wind_force"):
+		bm.apply_wind_force(cam_pos, look_dir, 7.5, 0.82, 5.5 * nudge_power_mult)
+		
 	if nudge_cone:
 		var bodies = nudge_cone.get_overlapping_bodies()
-		var push_dir = -camera.global_transform.basis.z.normalized() + Vector3.UP * 0.15
+		var push_dir = look_dir + Vector3.UP * 0.15
 		push_dir = push_dir.normalized()
-		
 		for body in bodies:
 			if body.is_in_group("balloons") and body is RigidBody3D:
-				if body.has_method("wake_physics"):
-					body.wake_physics()
 				var dist = camera.global_position.distance_to(body.global_position)
 				var strength = clamp(1.0 - (dist / 6.5), 0.25, 1.0) * (3.2 * nudge_power_mult)
 				body.apply_central_force(push_dir * (strength * 12.0))

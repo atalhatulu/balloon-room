@@ -79,14 +79,19 @@ func _physics_process(delta: float) -> void:
 func process_electric_discharge() -> void:
 	var idx = clamp(level, 1, max_burst_caps.size() - 1)
 	var max_burst = max_burst_caps[idx]
-	var victims = get_targets_in_volume(max_burst)
+	var r = zap_radii[clamp(level, 1, zap_radii.size() - 1)]
 	var zapped_count = 0
 	
-	for body in victims:
-		if is_instance_valid(body) and not body.get("is_popped"):
-			if body.has_method("pop"):
-				body.pop("electric_grid")
-				zapped_count += 1
+	var bm = get_node_or_null("/root/Main/BalloonContainer")
+	if bm and bm.has_method("pop_in_radius"):
+		zapped_count = bm.pop_in_radius(global_position + Vector3(0, 1.2, 0), r, max_burst, "electric_grid")
+	else:
+		var victims = get_targets_in_volume(max_burst)
+		for body in victims:
+			if is_instance_valid(body) and not body.get("is_popped"):
+				if body.has_method("pop"):
+					body.pop("electric_grid")
+					zapped_count += 1
 				
 	if zapped_count > 0:
 		if sound_manager and sound_manager.has_method("play_zap"):

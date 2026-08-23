@@ -57,30 +57,46 @@ func _process(delta: float) -> void:
 		fire_laser_burst()
 
 func fire_laser_burst() -> void:
-	var world = get_world_3d()
-	if not world: return
-	var space_state = world.direct_space_state
-	if not space_state: return
-	
 	var idx = clamp(level - 1, 0, laser_ranges.size() - 1)
 	var max_range = laser_ranges[idx]
 	var max_shots = max_targets_per_burst[idx]
 	var my_pos = global_position
 	
-	var shape_query = PhysicsShapeQueryParameters3D.new()
-	var sphere = SphereShape3D.new()
-	sphere.radius = max_range
-	shape_query.shape = sphere
-	shape_query.transform = Transform3D(Basis(), my_pos)
-	shape_query.collision_mask = 2 # Balloons layer
-	shape_query.collide_with_bodies = true
-	shape_query.collide_with_areas = false
-	
-	var results = space_state.intersect_shape(shape_query, max_shots)
-	for res in results:
-		var target = res.collider
-		if target is RigidBody3D and is_instance_valid(target) and not target.get("is_popped") and not target.is_queued_for_deletion():
-			shoot_at_target(target)
+	var bm = get_node_or_null("/root/Main/BalloonContainer")
+	if bm and bm.has_method("pop_in_radius"):
+		var popped = bm.pop_in_radius(my_pos, max_range, max_shots, "sentry_drone")
+		if popped > 0:
+			var main_node = get_node_or_null("/root/Main")
+			if main_node and main_node.get("sound_manager"):
+				main_node.sound_manager.play_zap()
+			if laser_beam:
+				laser_beam.scale = Vector3(1, 1, min(max_range * 0.6, 5.0))
+				laser_beam.position = Vector3(0, -0.15, -min(max_range * 0.3, 2.5))
+				laser_beam.visible = true
+				get_tree().create_timer(0.06).timeout.connect(func():
+					if laser_beam and is_instance_valid(laser_beam):
+						laser_beam.visible = false
+				)
+	else:
+		var world = get_world_3d()
+		if not world: return
+		var space_state = world.direct_space_state
+		if not space_state: return
+		
+		var shape_query = PhysicsShapeQueryParameters3D.new()
+		var sphere = SphereShape3D.new()
+		sphere.radius = max_range
+		shape_query.shape = sphere
+		shape_query.transform = Transform3D(Basis(), my_pos)
+		shape_query.collision_mask = 2
+		shape_query.collide_with_bodies = true
+		shape_query.collide_with_areas = false
+		
+		var results = space_state.intersect_shape(shape_query, max_shots)
+		for res in results:
+			var target = res.collider
+			if target is RigidBody3D and is_instance_valid(target) and not target.get("is_popped") and not target.is_queued_for_deletion():
+				shoot_at_target(target)
 
 func shoot_at_target(target: RigidBody3D) -> void:
 	look_at(target.global_position, Vector3.UP)

@@ -120,25 +120,50 @@ func apply_vacuum_pull(idx: int) -> void:
 
 func check_direct_grind() -> void:
 	if is_cooling_down: return
-	var world = get_world_3d()
-	if not world: return
-	var space_state = world.direct_space_state
-	if not space_state: return
 	
-	var query = PhysicsShapeQueryParameters3D.new()
-	var box = BoxShape3D.new()
-	box.size = Vector3(2.2, 0.9, 1.1)
-	query.shape = box
-	query.transform = Transform3D(global_transform.basis, global_position + Vector3(0, 0.55, 0))
-	query.collision_mask = 2 # Balloons
-	query.collide_with_bodies = true
-	query.collide_with_areas = false
-	
-	var results = space_state.intersect_shape(query, 6)
-	for res in results:
-		var body = res.collider
-		if is_instance_valid(body) and not body.get("is_popped") and body.has_method("pop"):
-			_on_grind_body_entered(body)
+	var bm = get_node_or_null("/root/Main/BalloonContainer")
+	if bm and bm.has_method("pop_in_box"):
+		var idx = clamp(level - 1, 0, max_batch_limits.size() - 1)
+		var max_batch = max_batch_limits[idx] - crushed_in_batch
+		if max_batch <= 0:
+			is_cooling_down = true
+			cooldown_timer = 0.0
+			return
+			
+		var grind_pos = global_position + global_transform.basis.z * 0.4 + Vector3(0, 0.4, 0)
+		var popped = bm.pop_in_box(grind_pos, Vector3(2.4, 1.2, 1.4), min(max_batch, 8), "conveyor_crusher")
+		if popped > 0:
+			crushed_in_batch += popped
+			var main_node = get_node_or_null("/root/Main")
+			if main_node and main_node.get("sound_manager"):
+				main_node.sound_manager.play_crunch()
+			if main_node and main_node.get("shop_manager"):
+				var c_idx = clamp(level - 1, 0, coin_bonuses.size() - 1)
+				main_node.shop_manager.add_coins(coin_bonuses[c_idx] * popped)
+				
+			if crushed_in_batch >= max_batch_limits[idx]:
+				is_cooling_down = true
+				cooldown_timer = 0.0
+	else:
+		var world = get_world_3d()
+		if not world: return
+		var space_state = world.direct_space_state
+		if not space_state: return
+		
+		var query = PhysicsShapeQueryParameters3D.new()
+		var box = BoxShape3D.new()
+		box.size = Vector3(2.2, 0.9, 1.1)
+		query.shape = box
+		query.transform = Transform3D(global_transform.basis, global_position + Vector3(0, 0.55, 0))
+		query.collision_mask = 2
+		query.collide_with_bodies = true
+		query.collide_with_areas = false
+		
+		var results = space_state.intersect_shape(query, 6)
+		for res in results:
+			var body = res.collider
+			if is_instance_valid(body) and not body.get("is_popped") and body.has_method("pop"):
+				_on_grind_body_entered(body)
 
 func _on_grind_body_entered(body: Node3D) -> void:
 	if not is_active or is_cooling_down:
@@ -160,7 +185,3 @@ func _on_grind_body_entered(body: Node3D) -> void:
 			if crushed_in_batch >= max_batch_limits[idx]:
 				is_cooling_down = true
 				cooldown_timer = 0.0
-
-func update_position_for_room() -> void:
-	if position == Vector3.ZERO:
-		position = Vector3(0.0, 0.0, 3.5)
