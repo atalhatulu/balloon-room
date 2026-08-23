@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://jh0svxik88ix"]
 
 [ext_resource type="Script" uid="uid://d3syuw8evr4v7" path="res://scripts/main.gd" id="1_main_script"]
-[ext_resource type="PackedScene" path="res://scenes/player.tscn" id="2_player_scene"]
+[ext_resource type="PackedScene" uid="uid://bipgwsbhjamvu" path="res://scenes/player.tscn" id="2_player_scene"]
 [ext_resource type="Script" uid="uid://fbijudohprqj" path="res://scripts/game_manager.gd" id="7_gm_script"]
 [ext_resource type="Script" uid="uid://816yp32twgfs" path="res://scripts/sound_manager.gd" id="8_sm_script"]
 [ext_resource type="Script" uid="uid://b28ch66u8wmgb" path="res://scripts/shop_manager.gd" id="9_shop_script"]
