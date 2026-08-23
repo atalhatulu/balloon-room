@@ -105,6 +105,11 @@ func apply_upgrade(upgrade_id: String, level: int) -> void:
 			var limits = [0, 15, 30, 55, 90, 140, 220, 350]
 			splash_radius = radii[clamp(level, 0, radii.size() - 1)]
 			splash_max_targets = limits[clamp(level, 0, limits.size() - 1)]
+		"coin_magnet":
+			magnet_unlocked = (level > 0)
+			magnet_level = level
+			var ranges = [3.5, 5.5, 8.0, 12.0, 17.0, 24.0, 32.0, 45.0]
+			magnet_range = ranges[clamp(level - 1, 0, ranges.size() - 1)] if level > 0 else 3.5
 
 func _input(event: InputEvent) -> void:
 	if is_ui_open:

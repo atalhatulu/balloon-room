@@ -52,9 +52,7 @@ func _process(delta: float) -> void:
 		var dist = global_position.distance_to(p_pos)
 		
 		if is_grounded:
-			var magnet_lvl = player.get("magnet_level") if ("magnet_level" in player) else 0
-			var magnet_unlocked = player.get("magnet_unlocked") if ("magnet_unlocked" in player) else false
-			var pickup_range = 3.6 + (float(magnet_lvl) * 1.6 if magnet_unlocked else 0.0)
+			var pickup_range = player.get("magnet_range") if ("magnet_range" in player) else 3.5
 			if dist <= pickup_range:
 				is_collecting = true
 		else:

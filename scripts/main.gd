@@ -210,7 +210,7 @@ func _ready() -> void:
 		shop_manager.coins_changed.connect(_on_coins_changed)
 		shop_manager.upgrade_purchased.connect(_on_upgrade_purchased)
 		shop_manager.room_switched.connect(_on_room_switched)
-		shop_manager.device_purchased.connect(_on_device_purchased)
+		shop_manager.device_purchased.connect(func(dev_id, lvl): _on_device_purchased(dev_id, lvl, true))
 		
 	setup_shop_ui_events()
 	setup_startup_modal()
@@ -618,7 +618,7 @@ func _on_room_switched(room_id: String) -> void:
 		player.global_position = Vector3(11.0, 0.2, 0.0)
 	save_current_data()
 
-func _on_device_purchased(device_id: String, level: int) -> void:
+func _on_device_purchased(device_id: String, level: int, from_shop_ui: bool = false) -> void:
 	var dev_node: Node3D = null
 	match device_id:
 		"electric_wall":
@@ -673,8 +673,8 @@ func _on_device_purchased(device_id: String, level: int) -> void:
 	update_all_shop_cards()
 	save_current_data()
 	
-	# If newly bought (level == 1), close shop and give device into player's hand for placement!
-	if level == 1 and dev_node and is_instance_valid(dev_node):
+	# Only start carrying if the player just bought it newly from the active Shop UI!
+	if from_shop_ui and level == 1 and dev_node and is_instance_valid(dev_node):
 		if shop_modal and shop_modal.visible:
 			toggle_shop_modal()
 		start_carrying_device(dev_node)
@@ -1092,7 +1092,7 @@ func load_saved_data() -> void:
 			if shop_manager.devices.has(dev_id):
 				var lvl = int(loaded_devices[dev_id])
 				shop_manager.devices[dev_id]["level"] = lvl
-				_on_device_purchased(dev_id, lvl)
+				_on_device_purchased(dev_id, lvl, false)
 				
 		# Restore device positions and rotations
 		if loaded_devices.has("spike_wall_pos") and spike_wall:
@@ -1247,13 +1247,18 @@ func _input(event: InputEvent) -> void:
 	# 2. Normal Interactions (Raycast crosshair aiming & distance reach)
 	if event is InputEventKey and event.pressed and not event.is_echo():
 		if event.keycode == KEY_E:
-			if raycast_target_type == "desk" or is_near_desk:
-				toggle_shop_modal()
-			elif raycast_target_type == "gravity_terminal" or is_near_grav_terminal:
+			if raycast_target_type == "device" and raycast_target_device != null and is_instance_valid(raycast_target_device):
+				start_carrying_device(raycast_target_device)
+			elif raycast_target_type == "gravity_terminal":
 				cycle_gravity_mode()
-			elif (raycast_target_type == "device" and raycast_target_device != null) or nearby_device != null:
-				var dev = raycast_target_device if raycast_target_device != null else nearby_device
-				start_carrying_device(dev)
+			elif raycast_target_type == "desk":
+				toggle_shop_modal()
+			elif is_near_desk:
+				toggle_shop_modal()
+			elif is_near_grav_terminal:
+				cycle_gravity_mode()
+			elif nearby_device != null and is_instance_valid(nearby_device):
+				start_carrying_device(nearby_device)
 		elif event.keycode == KEY_G:
 			cycle_gravity_mode()
 		elif event.keycode == KEY_ESCAPE and shop_modal and shop_modal.visible:

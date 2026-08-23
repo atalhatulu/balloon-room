@@ -1426,6 +1426,39 @@ text = "Her iğne darbesinde şok dalgası oluşturup çevredeki birden çok bal
 layout_mode = 2
 text = "80 Coin"
 
+[node name="CardCoinMagnet" type="PanelContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid" unique_id=1948291188]
+custom_minimum_size = Vector2(365, 95)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_card")
+metadata/upgrade_id = "coin_magnet"
+
+[node name="Margin" type="MarginContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardCoinMagnet" unique_id=1948291189]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 8
+
+[node name="VBox" type="VBoxContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardCoinMagnet/Margin" unique_id=1948291190]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Title" type="Label" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardCoinMagnet/Margin/VBox" unique_id=1948291191]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.8, 1, 1)
+theme_override_font_sizes/font_size = 14
+text = "Manyetik Para Çekimi"
+
+[node name="Desc" type="Label" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardCoinMagnet/Margin/VBox" unique_id=1948291192]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.75, 0.8, 1)
+theme_override_font_sizes/font_size = 11
+text = "Yerdeki altın madeni paraları çok daha uzak mesafelerden otomatik olarak kendine çeker."
+
+[node name="BtnBuy" type="Button" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardCoinMagnet/Margin/VBox" unique_id=1948291193]
+layout_mode = 2
+text = "25 Coin"
+
 [node name="CardEnergyCap" type="PanelContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid" unique_id=1111990068]
 custom_minimum_size = Vector2(365, 95)
 layout_mode = 2

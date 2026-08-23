@@ -270,6 +270,16 @@ var upgrades: Dictionary = {
 		"title": "Sprint Efficiency",
 		"desc": "Basılı tutarak patlatma ve süpürme enerji harcamasını azaltır.",
 		"costs": [15, 45, 120, 320, 850, 2300, 6200, 16000]
+	},
+	"coin_magnet": {
+		"category": "upgrades",
+		"unlock_pops": 25,
+		"level": 0,
+		"max_level": 8,
+		"title": "Manyetik Para Çekimi (Coin Magnet)",
+		"desc": "Yerdeki altın madeni paraları çok daha uzak mesafelerden otomatik olarak kendine çeker.",
+		"ranges": ["3.5m Menzil", "5.5m Menzil", "8.0m Menzil", "12.0m Menzil", "17.0m Menzil", "24.0m Menzil", "32.0m Menzil", "45.0m (Oda Çapında Manyetik Çekim)"],
+		"costs": [25, 75, 220, 650, 1900, 5500, 16000, 48000]
 	}
 }
 
