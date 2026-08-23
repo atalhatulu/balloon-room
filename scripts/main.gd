@@ -797,14 +797,89 @@ func update_raycast_interaction() -> void:
 		if desk_prompt: desk_prompt.visible = false
 		return
 		
-	var from = cam.global_position
-	var to = from + (-cam.global_transform.basis.z * 5.2)
+	var cam_pos = cam.global_position
+	var look_dir = -cam.global_transform.basis.z.normalized()
 	
+	# -------------------------------------------------------------
+	# 1. X-Ray Device & Interactable Scan (Penetrates through balloons!)
+	# -------------------------------------------------------------
+	var best_target_type = ""
+	var best_target_dev: Node3D = null
+	var best_target_name = ""
+	var best_dot = 0.88 # ~30 degree cone
+	var best_dist = 6.5
+	
+	# Check Computer Desk in Office
+	var desk_node = get_node_or_null("Environment/ComputerDesk")
+	if desk_node and is_instance_valid(desk_node):
+		var to_desk = (desk_node.global_position + Vector3(0, 0.7, 0)) - cam_pos
+		var d_dist = to_desk.length()
+		if d_dist <= 5.5 and d_dist > 0.3:
+			var dot = look_dir.dot(to_desk / d_dist)
+			if dot > 0.85 and dot > best_dot:
+				best_target_type = "desk"
+				best_target_name = "Bilgisayar Masası"
+				best_dot = dot
+				best_dist = d_dist
+				
+	# Check Gravity Terminal
+	if gravity_terminal and is_instance_valid(gravity_terminal):
+		var to_gt = (gravity_terminal.global_position + Vector3(0, 1.2, 0)) - cam_pos
+		var g_dist = to_gt.length()
+		if g_dist <= 5.5 and g_dist > 0.3:
+			var dot = look_dir.dot(to_gt / g_dist)
+			if dot > 0.85 and dot > best_dot:
+				best_target_type = "gravity_terminal"
+				best_target_name = "Yerçekimi Terminali"
+				best_dot = dot
+				best_dist = g_dist
+				
+	# Check All Placed Devices on Floor / Flying in Room
+	for d_node in active_placed_devices:
+		if d_node and is_instance_valid(d_node) and d_node.visible:
+			var d_pos = d_node.global_position + Vector3(0, 0.35, 0)
+			var to_d = d_pos - cam_pos
+			var dist = to_d.length()
+			if dist <= 6.5 and dist > 0.3:
+				var dot = look_dir.dot(to_d / dist)
+				if dot > best_dot:
+					var d_type = d_node.get_meta("device_type") if d_node.has_meta("device_type") else ""
+					var d_name = _get_device_display_name(d_type)
+					best_target_type = "device"
+					best_target_dev = d_node
+					best_target_name = d_name
+					best_dot = dot
+					best_dist = dist
+					
+	if best_target_type != "":
+		raycast_target_type = best_target_type
+		raycast_target_device = best_target_dev
+		raycast_target_name = best_target_name
+		nearby_device = best_target_dev
+		
+		if desk_prompt:
+			if raycast_target_type == "desk":
+				desk_prompt.text = "[E] Bilgisayarı Aç / Dükkana Gir"
+			elif raycast_target_type == "gravity_terminal":
+				var g_mode = gravity_mode_names[clamp(current_gravity_idx, 0, gravity_mode_names.size() - 1)]
+				desk_prompt.text = "[E] Yerçekimi Değiştir (Mevcut: " + g_mode + ")"
+			elif raycast_target_type == "device" and best_target_dev:
+				desk_prompt.text = _get_device_interaction_prompt(best_target_dev, best_target_name)
+			desk_prompt.visible = true
+	else:
+		if desk_prompt:
+			desk_prompt.visible = false
+
+	# -------------------------------------------------------------
+	# 2. Balloon Target Check (For needle popping & pink reticle highlight)
+	# -------------------------------------------------------------
 	var world = get_world_3d()
 	if not world: return
 	var space_state = world.direct_space_state
 	if not space_state: return
 	
+	var from = cam.global_position
+	var to = from + (look_dir * 5.2)
 	var exclude_rids = [player.get_rid()]
 	var nudge_cone = player.get_node_or_null("Head/Camera3D/WindCone")
 	if nudge_cone:
@@ -819,27 +894,21 @@ func update_raycast_interaction() -> void:
 	var col = result.collider if result else null
 	var hit_balloon = null
 	
-	# Direct hit check for balloon
 	if col and is_instance_valid(col) and col.is_in_group("balloons"):
 		hit_balloon = col
-	elif not col or (not _is_desk(col) and not _is_gravity_terminal(col) and _get_device_from_collider(col).is_empty()):
-		# Forgiving camera ray cone check if direct thin ray barely missed balloon curve
-		var cam_pos = cam.global_position
-		var look_dir = -cam.global_transform.basis.z.normalized()
+	else:
 		var balloons = get_tree().get_nodes_in_group("balloons")
-		var best_dot = 0.980 # ~11 degree focused cone
-		var reach = 5.2
+		var b_best_dot = 0.980
 		for b in balloons:
 			if b is RigidBody3D and is_instance_valid(b) and not b.get("is_popped") and not b.is_queued_for_deletion():
 				var to_b = b.global_position - cam_pos
 				var dist = to_b.length()
-				if dist <= reach and dist > 0.4:
+				if dist <= 5.2 and dist > 0.4:
 					var dot = look_dir.dot(to_b / dist)
-					if dot > best_dot:
-						best_dot = dot
+					if dot > b_best_dot:
+						b_best_dot = dot
 						hit_balloon = b
 						
-	# 1. Looking at a Balloon (Targeting lock & Glowing Inverted Hull Outline)
 	if hit_balloon and is_instance_valid(hit_balloon):
 		if highlighted_balloon != hit_balloon:
 			_clear_balloon_highlight()
@@ -848,76 +917,13 @@ func update_raycast_interaction() -> void:
 				highlighted_balloon.set_highlight(true)
 		if reticle_ring: reticle_ring.modulate = Color(1.0, 0.3, 0.5, 0.9)
 		if crosshair_dot: crosshair_dot.color = Color(1.0, 0.4, 0.6, 1.0)
-		if desk_prompt: desk_prompt.visible = false
-		return
-		
-	_clear_balloon_highlight()
-	
-	if col and is_instance_valid(col):
-		# 2. Looking at Computer Desk / Monitor
-		if _is_desk(col):
-			raycast_target_type = "desk"
-			is_near_desk = true
-			if reticle_ring: reticle_ring.modulate = Color(0.2, 1.0, 0.6, 0.95)
-			if crosshair_dot: crosshair_dot.color = Color(0.2, 1.0, 0.6, 1.0)
-			if desk_prompt:
-				desk_prompt.text = "[E] Bilgisayarı Aç / Dükkana Gir"
-				desk_prompt.visible = true
-			return
-			
-		# 3. Looking at Gravity Terminal
-		if _is_gravity_terminal(col):
-			raycast_target_type = "gravity_terminal"
-			is_near_grav_terminal = true
-			var g_mode = gravity_mode_names[clamp(current_gravity_idx, 0, gravity_mode_names.size() - 1)]
-			if reticle_ring: reticle_ring.modulate = Color(1.0, 0.65, 0.2, 0.95)
-			if crosshair_dot: crosshair_dot.color = Color(1.0, 0.65, 0.2, 1.0)
-			if desk_prompt:
-				desk_prompt.text = "[E] Yerçekimi Değiştir (Mevcut: " + g_mode + ")"
-				desk_prompt.visible = true
-			return
-			
-		# 4. Looking at Automation Device (Direct Raycast Collision)
-		var dev = _get_device_from_collider(col)
-		if not dev.is_empty():
-			raycast_target_type = "device"
-			raycast_target_device = dev["node"]
-			raycast_target_name = dev["name"]
-			nearby_device = dev["node"]
+	else:
+		_clear_balloon_highlight()
+		if raycast_target_type != "":
 			if reticle_ring: reticle_ring.modulate = Color(0.3, 0.8, 1.0, 0.95)
 			if crosshair_dot: crosshair_dot.color = Color(0.3, 0.8, 1.0, 1.0)
-			if desk_prompt:
-				desk_prompt.text = _get_device_interaction_prompt(dev["node"], dev["name"])
-				desk_prompt.visible = true
-			return
-			
-	# 5. Looking at Automation Devices (Cone / Proximity Aim Check)
-	var cam_pos = cam.global_position
-	var look_dir = -cam.global_transform.basis.z.normalized()
-	for d_node in active_placed_devices:
-		if d_node and is_instance_valid(d_node) and d_node.visible:
-			var d_pos = d_node.global_position + Vector3(0, 0.35, 0)
-			var to_d = d_pos - cam_pos
-			var dist = to_d.length()
-			if dist <= 5.5 and dist > 0.3:
-				var dot = look_dir.dot(to_d / dist)
-				if dot > 0.92: # Looking towards device
-					var d_type = d_node.get_meta("device_type") if d_node.has_meta("device_type") else ""
-					var d_name = _get_device_display_name(d_type)
-					raycast_target_type = "device"
-					raycast_target_device = d_node
-					raycast_target_name = d_name
-					nearby_device = d_node
-					if reticle_ring: reticle_ring.modulate = Color(0.3, 0.8, 1.0, 0.95)
-					if crosshair_dot: crosshair_dot.color = Color(0.3, 0.8, 1.0, 1.0)
-					if desk_prompt:
-						desk_prompt.text = _get_device_interaction_prompt(d_node, d_name)
-						desk_prompt.visible = true
-					return
-
-	_reset_crosshair_style()
-	if desk_prompt:
-		desk_prompt.visible = false
+		else:
+			_reset_crosshair_style()
 
 func _get_device_interaction_prompt(d_node: Node3D, d_name: String) -> String:
 	if not d_node or not is_instance_valid(d_node): return ""
