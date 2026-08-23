@@ -89,86 +89,74 @@ var rooms: Dictionary = {
 	"small_room": {
 		"id": "small_room",
 		"name": "Küçük Salon (Small Room)",
-		"desc": "Başlangıç odası. 1.0x Coin çarpanı, standart %8 Altın / %6 Bomba balon şansı.",
+		"desc": "Başlangıç odası. 1.0x Coin çarpanı, standart akış.",
 		"cost": 0,
 		"unlock_pops": 0,
 		"floor_size": Vector2(16, 16),
 		"ceiling_height": 6.0,
 		"cap_bonus": 10,
 		"flow_mult": 1.0,
-		"coin_multiplier": 1.0,
-		"gold_chance": 0.08,
-		"bomb_chance": 0.06
+		"coin_multiplier": 1.0
 	},
 	"medium_room": {
 		"id": "medium_room",
 		"name": "Geniş Salon (Medium Room)",
-		"desc": "26x26m alan, 7.5m tavan. 1.5x Coin Çarpanı, %10 Altın / %8 Bomba balon şansı.",
+		"desc": "26x26m alan, 7.5m tavan. 1.5x Coin Çarpanı, +40 Balon Kapasitesi.",
 		"cost": 1500,
 		"unlock_pops": 1000,
 		"floor_size": Vector2(26, 26),
 		"ceiling_height": 7.5,
 		"cap_bonus": 40,
 		"flow_mult": 1.25,
-		"coin_multiplier": 1.5,
-		"gold_chance": 0.10,
-		"bomb_chance": 0.08
+		"coin_multiplier": 1.5
 	},
 	"large_room": {
 		"id": "large_room",
 		"name": "Büyük Kompleks (Large Room)",
-		"desc": "38x38m alan, 9m tavan. 2.2x Coin Çarpanı, %14 Altın / %10 Bomba balon şansı.",
+		"desc": "38x38m alan, 9m tavan. 2.2x Coin Çarpanı, +90 Balon Kapasitesi.",
 		"cost": 25000,
 		"unlock_pops": 10000,
 		"floor_size": Vector2(38, 38),
 		"ceiling_height": 9.0,
 		"cap_bonus": 90,
 		"flow_mult": 1.6,
-		"coin_multiplier": 2.2,
-		"gold_chance": 0.14,
-		"bomb_chance": 0.10
+		"coin_multiplier": 2.2
 	},
 	"warehouse": {
 		"id": "warehouse",
 		"name": "Sanayi Deposu (Warehouse)",
-		"desc": "54x54m alan, 11m tavan. 3.5x Mega Coin Çarpanı, %18 Altın / %14 Bomba balon yağmuru.",
+		"desc": "54x54m alan, 11m tavan. 3.5x Mega Coin Çarpanı, +180 Balon Kapasitesi.",
 		"cost": 150000,
 		"unlock_pops": 50000,
 		"floor_size": Vector2(54, 54),
 		"ceiling_height": 11.0,
 		"cap_bonus": 180,
 		"flow_mult": 2.2,
-		"coin_multiplier": 3.5,
-		"gold_chance": 0.18,
-		"bomb_chance": 0.14
+		"coin_multiplier": 3.5
 	},
 	"hangar": {
 		"id": "hangar",
 		"name": "Mega Hangar (Hangar)",
-		"desc": "75x75m alan, 14m tavan. 5.0x Hiper Coin Çarpanı, %24 Altın / %18 Bomba balon sağanağı!",
+		"desc": "72x72m dev alan, 14m tavan. 5.0x Mega Çarpan, +350 Balon Kapasitesi.",
 		"cost": 750000,
 		"unlock_pops": 200000,
-		"floor_size": Vector2(75, 75),
+		"floor_size": Vector2(72, 72),
 		"ceiling_height": 14.0,
 		"cap_bonus": 350,
 		"flow_mult": 3.0,
-		"coin_multiplier": 5.0,
-		"gold_chance": 0.24,
-		"bomb_chance": 0.18
+		"coin_multiplier": 5.0
 	},
 	"hyper_lab": {
 		"id": "hyper_lab",
-		"name": "Hyper Lab (Absürt Boyut)",
-		"desc": "95x95m sibernetik mega tesis, 18m tavan. 8.0x Kozmik Coin Çarpanı, %30 Altın / %24 Bomba balon kaosu!",
+		"name": "Hyper Lab (Absürt Aşama)",
+		"desc": "95x95m siber tesis, 18m tavan. 8.0x Nihai Çarpan, +800 Balon Kapasitesi.",
 		"cost": 3000000,
 		"unlock_pops": 500000,
 		"floor_size": Vector2(95, 95),
 		"ceiling_height": 18.0,
-		"cap_bonus": 700,
+		"cap_bonus": 800,
 		"flow_mult": 4.5,
-		"coin_multiplier": 8.0,
-		"gold_chance": 0.30,
-		"bomb_chance": 0.24
+		"coin_multiplier": 8.0
 	}
 }
 

@@ -84,39 +84,21 @@ func on_balloon_spawned(count: int = 1) -> void:
 	active_balloons += count
 	active_count_changed.emit(active_balloons, max_room_balloons)
 
-func on_balloon_popped(_pop_position: Vector3, _balloon_color: Color, combo_step: int = 0, b_type: int = 0) -> void:
+func on_balloon_popped(_pop_position: Vector3, _balloon_color: Color, combo_step: int = 0, _b_type: int = 0) -> void:
 	total_pops += 1
 	active_balloons = max(0, active_balloons - 1)
 	
-	var base_coin = 1
-	if b_type == 1: # GOLDEN
-		base_coin = 15
-		if sound_manager and sound_manager.has_method("play_gold_pop"):
-			sound_manager.play_gold_pop()
-	elif b_type == 2: # BOMB
-		base_coin = 5
-		if sound_manager and sound_manager.has_method("play_bomb_pop"):
-			sound_manager.play_bomb_pop()
-	elif b_type == 3: # PLASMA
-		base_coin = 8
-		if sound_manager and sound_manager.has_method("play_plasma_pop"):
-			sound_manager.play_plasma_pop()
-	else:
-		if sound_manager and sound_manager.has_method("play_pop"):
-			var pitch_idx = (combo_step if combo_step > 0 else (total_pops % 8))
-			sound_manager.play_pop(pitch_idx)
-			
-	# Color Chain Combo Bonus: +1 extra coin per chained domino pop
-	var combo_bonus = int(combo_step * 0.75)
-	var raw_coin = base_coin + combo_bonus
-	
+	if sound_manager and sound_manager.has_method("play_pop"):
+		var pitch_idx = (combo_step if combo_step > 0 else (total_pops % 8))
+		sound_manager.play_pop(pitch_idx)
+		
 	# Apply Room Tier Coin Multiplier (1.0x in Small -> 8.0x in Hyper Lab!)
 	var room_mult = 1.0
 	if shop_manager and shop_manager.has_method("get_current_room_data"):
 		var r_data = shop_manager.get_current_room_data()
 		room_mult = r_data.get("coin_multiplier", 1.0)
 		
-	var coin_reward = max(1, int(raw_coin * room_mult))
+	var coin_reward = max(1, int(1.0 * room_mult))
 	
 	if shop_manager and shop_manager.has_method("add_coins"):
 		shop_manager.add_coins(coin_reward)
