@@ -43,27 +43,23 @@ func _ready() -> void:
 func setup_tier(t: int) -> void:
 	tier = t
 	tier_value = t
-	custom_color_set = true
 	
 	match tier:
 		1:
 			scale = Vector3.ONE
-			setup_random_color()
 		5:
 			scale = Vector3(1.30, 1.30, 1.30)
-			balloon_color = Color("#00d2d3") # Emerald Cyan
-			_apply_cached_material()
 		10:
 			scale = Vector3(1.65, 1.65, 1.65)
-			balloon_color = Color("#ffd32a") # Pure Golden Yellow
-			_apply_cached_material()
 		50:
 			scale = Vector3(2.15, 2.15, 2.15)
-			balloon_color = Color("#9b59b6") # Royal Purple / Plasma
-			_apply_cached_material()
 		_:
 			scale = Vector3.ONE
-			setup_random_color()
+			
+	if not custom_color_set:
+		setup_random_color()
+	else:
+		_apply_cached_material()
 
 func wake_physics() -> void:
 	sleeping = false
