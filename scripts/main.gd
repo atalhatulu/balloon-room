@@ -12,6 +12,13 @@ extends Node3D
 @onready var coin_container: Node3D = $CoinContainer
 @onready var corner_fan: Node3D = $Environment/MainRoom/CornerFan
 
+# Automation Devices (Instantiated on demand)
+var electric_wall: Node3D = null
+var spike_wall: Node3D = null
+var magnet_pylon: Node3D = null
+var conveyor_crusher: Node3D = null
+var sentry_drone: Node3D = null
+
 var grid_ghost: MeshInstance3D = null
 var carried_device: Node3D = null
 var carried_original_pos: Vector3 = Vector3.ZERO
