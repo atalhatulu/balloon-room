@@ -2041,7 +2041,7 @@ func drop_balloons_from_vent(count: int) -> void:
 			)
 			
 		if game_manager and game_manager.has_method("on_balloon_spawned"):
-			game_manager.on_balloon_spawned(1)
+			game_manager.on_balloon_spawned(b_tier)
 			
 	vent_cycle_idx = (vent_cycle_idx + count) % max(1, active_vent_positions.size())
 

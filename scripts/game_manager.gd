@@ -83,6 +83,16 @@ func get_eta_to_target(target: int = 1000000) -> float:
 		return -1.0
 	return float(remaining) / effective_rate
 
+func get_total_effective_balloons() -> int:
+	var bc = get_node_or_null("../BalloonContainer")
+	if not bc or not is_instance_valid(bc):
+		return active_balloons
+	var total = 0
+	for child in bc.get_children():
+		if child and is_instance_valid(child) and not child.get("is_popped"):
+			total += child.get("tier_value") if ("tier_value" in child) else 1
+	return total
+
 func _process(delta: float) -> void:
 	# Calculate real-time Pops Per Second (rolling 1-second window)
 	var now = Time.get_ticks_msec() / 1000.0
@@ -94,9 +104,7 @@ func _process(delta: float) -> void:
 	if not is_game_started:
 		return
 		
-	var bc = get_node_or_null("../BalloonContainer")
-	if bc and is_instance_valid(bc):
-		active_balloons = bc.get_child_count()
+	active_balloons = get_total_effective_balloons()
 		
 	if active_balloons < max_room_balloons:
 		spawn_accumulator += delta * balloons_per_second
@@ -120,7 +128,7 @@ func on_balloon_spawned(count: int = 1) -> void:
 func on_balloon_popped(pop_position: Vector3, _balloon_color: Color, combo_step: int = 0, b_tier_val: int = 1) -> void:
 	var value = max(1, b_tier_val)
 	total_pops += value
-	active_balloons = max(0, active_balloons - 1)
+	active_balloons = max(0, active_balloons - value)
 	
 	for _i in range(min(value, 5)):
 		pop_history.append(Time.get_ticks_msec() / 1000.0)
