@@ -1743,132 +1743,125 @@ func update_all_shop_cards() -> void:
 		elif child.has_meta("upgrade_id"):
 			var u_id = child.get_meta("upgrade_id")
 			var up_data = shop_manager.upgrades.get(u_id)
-			if up_data:
-				var matches_filter = (current_filter == "upgrades")
-				child.visible = matches_filter
-				
-				if not matches_filter:
-					continue
-			else:
+			if up_data == null:
 				child.visible = false
 				continue
-					
-				var title_lbl = child.get_node_or_null("Margin/VBox/Title")
-				var desc_lbl = child.get_node_or_null("Margin/VBox/Desc")
-				var cost_btn: Button = child.get_node_or_null("Margin/VBox/BtnBuy")
 				
-				var unlock_req = up_data.get("unlock_pops", 0)
-				var is_unlocked = total_pops >= unlock_req
-				var lvl = up_data["level"]
-				var max_lvl = up_data["max_level"]
+			var matches_filter = (current_filter == "upgrades")
+			child.visible = matches_filter
+			
+			if not matches_filter:
+				continue
 				
-				if not is_unlocked:
-					sort_priority = 1000 + unlock_req
-					if title_lbl:
-						title_lbl.text = "🔒 " + up_data["title"].to_upper()
-						title_lbl.modulate = Color(0.65, 0.68, 0.72)
-					if desc_lbl:
-						var pct = int(clamp(float(total_pops) / float(max(1, unlock_req)), 0.0, 1.0) * 100)
-						desc_lbl.text = "🔒 KİLİTLİ — " + str(unlock_req) + " POP GEREKLİ\nİlerleme: " + str(total_pops) + " / " + str(unlock_req) + " (% " + str(pct) + ")"
-						desc_lbl.modulate = Color(1.0, 0.62, 0.25)
-					if cost_btn:
-						cost_btn.text = "KİLİTLİ"
-						cost_btn.disabled = true
-				else:
-					if title_lbl:
-						title_lbl.text = up_data["title"] + "  [" + format_level_pips(lvl, max_lvl) + "] (Sv. " + str(lvl) + "/" + str(max_lvl) + ")"
-						title_lbl.modulate = Color(0.35, 0.9, 1.0) if lvl > 0 else Color(1, 1, 1)
-					if desc_lbl:
-						if u_id == "pipe_count" and up_data.has("pipes"):
-							var curr_p = up_data["pipes"][lvl]
-							if lvl >= max_lvl:
-								desc_lbl.text = "Maksimum Hat: " + str(curr_p) + " (Tüm 3x3 Izgara Açık!)"
-							else:
-								var next_p = up_data["pipes"][lvl + 1]
-								desc_lbl.text = "Mevcut: " + str(curr_p) + " ➔ Yükseltme: " + str(next_p) + " (Tavana Yeni Boru)"
-						elif u_id == "vent_rate" and up_data.has("rates"):
-							var curr_r = up_data["rates"][lvl]
-							if lvl >= max_lvl:
-								desc_lbl.text = "Maksimum Hız: Saniyede " + str(curr_r) + " Balon!"
-							else:
-								var next_r = up_data["rates"][lvl + 1]
-								desc_lbl.text = "Mevcut: " + str(curr_r) + "/sn ➔ Yükseltme: " + str(next_r) + "/sn (Tavandan Akış)"
-						elif u_id == "room_capacity" and up_data.has("caps"):
-							var curr_c = up_data["caps"][lvl]
-							if lvl >= max_lvl:
-								desc_lbl.text = "Maksimum Limit: " + str(curr_c) + " Balon!"
-							else:
-								var next_c = up_data["caps"][lvl + 1]
-								desc_lbl.text = "Mevcut: " + str(curr_c) + " ➔ Yükseltme: " + str(next_c) + " Balon Kapasitesi"
-						elif u_id == "auto_pop" and up_data.has("speeds"):
-							var curr_s = up_data["speeds"][lvl]
-							if lvl >= max_lvl:
-								desc_lbl.text = "Maksimum Seri Hız: " + str(curr_s) + "!"
-							else:
-								var next_s = up_data["speeds"][lvl + 1]
-								desc_lbl.text = "Mevcut: " + str(curr_s) + " ➔ Yükseltme: " + str(next_s) + " (Sol Tıka Basılı Tut)"
-						elif u_id == "splash_pop" and up_data.has("radii"):
-							var curr_rad = up_data["radii"][lvl]
-							if lvl >= max_lvl:
-								desc_lbl.text = "Maksimum Şok Dalgası: " + str(curr_rad) + "!"
-							else:
-								var next_rad = up_data["radii"][lvl + 1]
-								desc_lbl.text = "Mevcut: " + str(curr_rad) + " ➔ Yükseltme: " + str(next_rad) + " (Şok Dalgası)"
-						elif u_id == "reach":
-							var curr_reach = 4.5 + (lvl * 1.0)
-							if lvl >= max_lvl:
-								desc_lbl.text = "Maksimum Menzil: " + str(curr_reach) + "m"
-							else:
-								var next_reach = 4.5 + ((lvl + 1) * 1.0)
-								desc_lbl.text = "Mevcut: " + str(curr_reach) + "m ➔ Yükseltme: " + str(next_reach) + "m İğne Menzili"
-						elif u_id == "nudge":
-							var curr_p = int((1.0 + (lvl * 0.25)) * 100)
-							if lvl >= max_lvl:
-								desc_lbl.text = "Maksimum Süpürme: %" + str(curr_p) + " İtiş Gücü"
-							else:
-								var next_p = int((1.0 + ((lvl + 1) * 0.25)) * 100)
-								desc_lbl.text = "Mevcut: %" + str(curr_p) + " ➔ Yükseltme: %" + str(next_p) + " Süpürme İtişi"
-						elif u_id == "energy_cap":
-							var curr_e = int(100 + (lvl * 25))
-							if lvl >= max_lvl:
-								desc_lbl.text = "Maksimum Enerji: " + str(curr_e) + " Birim"
-							else:
-								var next_e = int(100 + ((lvl + 1) * 25))
-								desc_lbl.text = "Mevcut: " + str(curr_e) + " ➔ Yükseltme: " + str(next_e) + " Maksimum Enerji"
-						elif u_id == "energy_regen":
-							var curr_reg = int(38 + (lvl * 10))
-							if lvl >= max_lvl:
-								desc_lbl.text = "Maksimum Dolum Hızı: " + str(curr_reg) + "/sn"
-							else:
-								var next_reg = int(38 + ((lvl + 1) * 10))
-								desc_lbl.text = "Mevcut: " + str(curr_reg) + "/sn ➔ Yükseltme: " + str(next_reg) + "/sn Dolum Hızı"
-						elif u_id == "speed":
-							if lvl >= max_lvl:
-								desc_lbl.text = "Maksimum Hız: +%" + str(lvl * 10)
-							else:
-								desc_lbl.text = "Mevcut: +%" + str(lvl * 10) + " ➔ Yükseltme: +%" + str((lvl + 1) * 10) + " Yürüme/Koşma"
-						elif u_id == "sprint_efficiency":
-							if lvl >= max_lvl:
-								desc_lbl.text = "Maksimum Tasarruf: -%" + str(lvl * 15) + " Sarfiyat"
-							else:
-								desc_lbl.text = "Mevcut: -%" + str(lvl * 15) + "% ➔ Yükseltme: -%" + str((lvl + 1) * 15) + "% Enerji Tasarrufu"
-						else:
-							desc_lbl.text = up_data["desc"]
-						desc_lbl.modulate = Color(0.85, 0.88, 0.95)
-						
-					if cost_btn:
+			var title_lbl = child.get_node_or_null("Margin/VBox/Title")
+			var desc_lbl = child.get_node_or_null("Margin/VBox/Desc")
+			var cost_btn: Button = child.get_node_or_null("Margin/VBox/BtnBuy")
+				
+			var unlock_req = up_data.get("unlock_pops", 0)
+			var is_unlocked = total_pops >= unlock_req
+			var lvl = up_data["level"]
+			var max_lvl = up_data["max_level"]
+			
+			if not is_unlocked:
+				sort_priority = 1000 + unlock_req
+				if title_lbl:
+					title_lbl.text = "🔒 " + up_data["title"].to_upper()
+					title_lbl.modulate = Color(0.65, 0.68, 0.72)
+				if desc_lbl:
+					var pct = int(clamp(float(total_pops) / float(max(1, unlock_req)), 0.0, 1.0) * 100)
+					desc_lbl.text = "🔒 KİLİTLİ — " + str(unlock_req) + " POP GEREKLİ\nİlerleme: " + str(total_pops) + " / " + str(unlock_req) + " (% " + str(pct) + ")"
+					desc_lbl.modulate = Color(1.0, 0.62, 0.25)
+				if cost_btn:
+					cost_btn.text = "KİLİTLİ"
+					cost_btn.disabled = true
+			else:
+				if title_lbl:
+					title_lbl.text = up_data["title"] + "  [" + format_level_pips(lvl, max_lvl) + "] (Sv. " + str(lvl) + "/" + str(max_lvl) + ")"
+					title_lbl.modulate = Color(0.35, 0.9, 1.0) if lvl > 0 else Color(1, 1, 1)
+				if desc_lbl:
+					if u_id == "pipe_count" and up_data.has("pipes"):
+						var curr_p = up_data["pipes"][lvl]
 						if lvl >= max_lvl:
-							sort_priority = 500
-							cost_btn.text = "MAX SEVİYE"
-							cost_btn.disabled = true
+							desc_lbl.text = "Maksimum Hat: " + str(curr_p) + " (Tüm 3x3 Izgara Açık!)"
 						else:
-							sort_priority = 100
-							var cost = up_data["costs"][lvl]
-							cost_btn.text = ("SATIN AL : " if lvl == 0 else "GELİŞTİR : ") + str(cost) + " Coin"
-							cost_btn.disabled = shop_manager.coins < cost
-							
-							if not cost_btn.is_connected("pressed", Callable(self, "_on_buy_button_pressed")):
-								cost_btn.pressed.connect(Callable(self, "_on_buy_button_pressed").bind(u_id))
+							var next_p = up_data["pipes"][lvl + 1]
+							desc_lbl.text = "Mevcut: " + str(curr_p) + " ➔ Yükseltme: " + str(next_p) + " (Tavana Yeni Boru)"
+					elif u_id == "vent_rate" and up_data.has("rates"):
+						var curr_r = up_data["rates"][lvl]
+						if lvl >= max_lvl:
+							desc_lbl.text = "Maksimum Hız: Saniyede " + str(curr_r) + " Balon!"
+						else:
+							var next_r = up_data["rates"][lvl + 1]
+							desc_lbl.text = "Mevcut: " + str(curr_r) + "/sn ➔ Yükseltme: " + str(next_r) + "/sn (Tavandan Akış)"
+					elif u_id == "auto_pop" and up_data.has("speeds"):
+						var curr_s = up_data["speeds"][lvl]
+						if lvl >= max_lvl:
+							desc_lbl.text = "Maksimum Seri Hız: " + str(curr_s) + "!"
+						else:
+							var next_s = up_data["speeds"][lvl + 1]
+							desc_lbl.text = "Mevcut: " + str(curr_s) + " ➔ Yükseltme: " + str(next_s) + " (Sol Tıka Basılı Tut)"
+					elif u_id == "splash_pop" and up_data.has("radii"):
+						var curr_rad = up_data["radii"][lvl]
+						if lvl >= max_lvl:
+							desc_lbl.text = "Maksimum Şok Dalgası: " + str(curr_rad) + "!"
+						else:
+							var next_rad = up_data["radii"][lvl + 1]
+							desc_lbl.text = "Mevcut: " + str(curr_rad) + " ➔ Yükseltme: " + str(next_rad) + " (Şok Dalgası)"
+					elif u_id == "reach":
+						var curr_reach = 4.5 + (lvl * 1.0)
+						if lvl >= max_lvl:
+							desc_lbl.text = "Maksimum Menzil: " + str(curr_reach) + "m"
+						else:
+							var next_reach = 4.5 + ((lvl + 1) * 1.0)
+							desc_lbl.text = "Mevcut: " + str(curr_reach) + "m ➔ Yükseltme: " + str(next_reach) + "m İğne Menzili"
+					elif u_id == "nudge":
+						var curr_p = int((1.0 + (lvl * 0.25)) * 100)
+						if lvl >= max_lvl:
+							desc_lbl.text = "Maksimum Süpürme: %" + str(curr_p) + " İtiş Gücü"
+						else:
+							var next_p = int((1.0 + ((lvl + 1) * 0.25)) * 100)
+							desc_lbl.text = "Mevcut: %" + str(curr_p) + " ➔ Yükseltme: %" + str(next_p) + " Süpürme İtişi"
+					elif u_id == "energy_cap":
+						var curr_e = int(100 + (lvl * 25))
+						if lvl >= max_lvl:
+							desc_lbl.text = "Maksimum Enerji: " + str(curr_e) + " Birim"
+						else:
+							var next_e = int(100 + ((lvl + 1) * 25))
+							desc_lbl.text = "Mevcut: " + str(curr_e) + " ➔ Yükseltme: " + str(next_e) + " Maksimum Enerji"
+					elif u_id == "energy_regen":
+						var curr_reg = int(38 + (lvl * 10))
+						if lvl >= max_lvl:
+							desc_lbl.text = "Maksimum Dolum Hızı: " + str(curr_reg) + "/sn"
+						else:
+							var next_reg = int(38 + ((lvl + 1) * 10))
+							desc_lbl.text = "Mevcut: " + str(curr_reg) + "/sn ➔ Yükseltme: " + str(next_reg) + "/sn Dolum Hızı"
+					elif u_id == "speed":
+						if lvl >= max_lvl:
+							desc_lbl.text = "Maksimum Hız: +%" + str(lvl * 10)
+						else:
+							desc_lbl.text = "Mevcut: +%" + str(lvl * 10) + " ➔ Yükseltme: +%" + str((lvl + 1) * 10) + " Yürüme/Koşma"
+					elif u_id == "sprint_efficiency":
+						if lvl >= max_lvl:
+							desc_lbl.text = "Maksimum Tasarruf: -%" + str(lvl * 15) + " Sarfiyat"
+						else:
+							desc_lbl.text = "Mevcut: -%" + str(lvl * 15) + "% ➔ Yükseltme: -%" + str((lvl + 1) * 15) + "% Enerji Tasarrufu"
+					else:
+						desc_lbl.text = up_data["desc"]
+					desc_lbl.modulate = Color(0.85, 0.88, 0.95)
+					
+				if cost_btn:
+					if lvl >= max_lvl:
+						sort_priority = 500
+						cost_btn.text = "MAX SEVİYE"
+						cost_btn.disabled = true
+					else:
+						sort_priority = 100
+						var cost = up_data["costs"][lvl]
+						cost_btn.text = ("SATIN AL : " if lvl == 0 else "GELİŞTİR : ") + str(cost) + " Coin"
+						cost_btn.disabled = shop_manager.coins < cost
+						
+						if not cost_btn.is_connected("pressed", Callable(self, "_on_buy_button_pressed")):
+							cost_btn.pressed.connect(Callable(self, "_on_buy_button_pressed").bind(u_id))
 		
 		card_sort_list.append({"node": child, "priority": sort_priority})
 		

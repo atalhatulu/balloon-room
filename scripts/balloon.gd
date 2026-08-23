@@ -46,13 +46,13 @@ func setup_tier(t: int) -> void:
 	
 	match tier:
 		1:
-			scale = Vector3.ONE
+			scale = Vector3(0.95, 0.95, 0.95)
 		5:
-			scale = Vector3(1.30, 1.30, 1.30)
+			scale = Vector3(1.50, 1.50, 1.50)
 		10:
-			scale = Vector3(1.65, 1.65, 1.65)
+			scale = Vector3(2.05, 2.05, 2.05)
 		50:
-			scale = Vector3(2.15, 2.15, 2.15)
+			scale = Vector3(2.80, 2.80, 2.80)
 		_:
 			scale = Vector3.ONE
 			
