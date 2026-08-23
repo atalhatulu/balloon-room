@@ -242,7 +242,9 @@ func execute_pop_hit(costs_energy: bool) -> void:
 		consume_energy(pop_hold_energy_cost)
 		
 	if interaction_ray:
-		interaction_ray.target_position = Vector3(0, 0, -5.2)
+		interaction_ray.target_position = Vector3(0, 0, -5.5)
+		interaction_ray.collision_mask = 3
+		interaction_ray.collide_with_bodies = true
 		interaction_ray.force_raycast_update()
 		if interaction_ray.is_colliding():
 			var col = interaction_ray.get_collider()
@@ -250,6 +252,43 @@ func execute_pop_hit(costs_energy: bool) -> void:
 				var col_color = col.get("balloon_color") if ("balloon_color" in col) else Color.WHITE
 				var pop_pos = col.global_position
 				col.pop("needle")
+				pop_triggered.emit(true)
+				if splash_radius > 0.0:
+					trigger_splash_pop(pop_pos, col_color, splash_radius)
+				return
+				
+	# Direct Sphere Sweep fallback if direct center crosshair slightly misses sphere edge
+	var world = get_world_3d()
+	if world and camera:
+		var space_state = world.direct_space_state
+		if space_state:
+			var cam_pos = camera.global_position
+			var cam_fwd = -camera.global_transform.basis.z.normalized()
+			
+			var query = PhysicsShapeQueryParameters3D.new()
+			var sphere = SphereShape3D.new()
+			sphere.radius = 0.55
+			query.shape = sphere
+			query.transform = Transform3D(Basis(), cam_pos + cam_fwd * 2.2)
+			query.collision_mask = 2
+			query.collide_with_bodies = true
+			query.collide_with_areas = false
+			
+			var results = space_state.intersect_shape(query, 6)
+			var best_b: RigidBody3D = null
+			var best_dist: float = 999.0
+			for res in results:
+				var b = res.collider
+				if b is RigidBody3D and is_instance_valid(b) and not b.is_queued_for_deletion() and not b.get("is_popped"):
+					var d = cam_pos.distance_to(b.global_position)
+					if d < best_dist:
+						best_dist = d
+						best_b = b
+						
+			if best_b:
+				var col_color = best_b.get("balloon_color") if ("balloon_color" in best_b) else Color.WHITE
+				var pop_pos = best_b.global_position
+				best_b.pop("needle")
 				pop_triggered.emit(true)
 				if splash_radius > 0.0:
 					trigger_splash_pop(pop_pos, col_color, splash_radius)
