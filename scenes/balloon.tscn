@@ -17,7 +17,7 @@ rings = 8
 
 [node name="Balloon" type="RigidBody3D"]
 collision_layer = 2
-collision_mask = 1
+collision_mask = 3
 mass = 0.08
 physics_material_override = SubResource("PhysicsMaterial_balloon")
 gravity_scale = 0.25

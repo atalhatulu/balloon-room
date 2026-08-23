@@ -60,19 +60,14 @@ func execute_spike_thrust() -> void:
 		
 	var idx = clamp(level, 1, batch_capacities.size() - 1)
 	var max_batch = batch_capacities[idx]
-	var r = trigger_radii[clamp(level, 1, trigger_radii.size() - 1)]
-	
-	var bm = get_node_or_null("/root/Main/BalloonContainer")
+	var victims = get_targets_in_volume(max_batch)
 	var popped_count = 0
-	if bm and bm.has_method("pop_in_box"):
-		popped_count = bm.pop_in_box(global_position + Vector3(0, 0.8, 0), Vector3(r * 2.0, 1.6, r * 2.0), max_batch, "spike_floor")
-	else:
-		var victims = get_targets_in_volume(max_batch)
-		for body in victims:
-			if is_instance_valid(body) and not body.get("is_popped"):
-				if body.has_method("pop"):
-					body.pop("spike_floor")
-					popped_count += 1
+	
+	for body in victims:
+		if is_instance_valid(body) and not body.get("is_popped"):
+			if body.has_method("pop"):
+				body.pop("spike_floor")
+				popped_count += 1
 				
 	if popped_count > 0:
 		if impact_particles:

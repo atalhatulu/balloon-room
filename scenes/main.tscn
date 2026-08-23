@@ -6,7 +6,6 @@
 [ext_resource type="Script" uid="uid://816yp32twgfs" path="res://scripts/sound_manager.gd" id="8_sm_script"]
 [ext_resource type="Script" uid="uid://b28ch66u8wmgb" path="res://scripts/shop_manager.gd" id="9_shop_script"]
 [ext_resource type="Script" uid="uid://cpppj44bmpo7x" path="res://scripts/save_manager.gd" id="10_save_script"]
-[ext_resource type="Script" uid="uid://l7oky7j27ttn" path="res://scripts/balloon_manager.gd" id="11_bm_script"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_sky"]
 sky_top_color = Color(0.68, 0.82, 0.95, 1)
@@ -563,9 +562,6 @@ shape = SubResource("BoxShape3D_desk_area")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13.5, 0.6, 0)
 
 [node name="BalloonContainer" type="Node3D" parent="." unique_id=1695133593]
-script = ExtResource("11_bm_script")
-
-[node name="MultiMeshInstance3D" type="MultiMeshInstance3D" parent="BalloonContainer" unique_id=1695133594]
 
 [node name="CoinContainer" type="Node3D" parent="." unique_id=1948291088]
 

@@ -1008,9 +1008,7 @@ func save_current_data() -> void:
 		return
 		
 	var balloons_data: Array = []
-	if balloon_container and balloon_container.has_method("get_save_data"):
-		balloons_data = balloon_container.get_save_data()
-	elif balloon_container and is_instance_valid(balloon_container) and balloon_container.is_inside_tree():
+	if balloon_container and is_instance_valid(balloon_container) and balloon_container.is_inside_tree():
 		for child in balloon_container.get_children():
 			if is_instance_valid(child) and child.is_inside_tree() and child is RigidBody3D and not child.is_queued_for_deletion():
 				var color_hex = "#ff4757"
@@ -1202,15 +1200,12 @@ func load_saved_data() -> void:
 		player.energy_changed.emit(player.current_energy, player.max_energy, player.is_exhausted)
 		
 	# 4. Restore Exact Active Balloons in Room
-	if balloon_container and balloon_container.has_method("load_save_data"):
-		balloon_container.load_save_data(loaded_balloons)
-		if game_manager:
-			game_manager.active_balloons = loaded_balloons.size()
-	elif balloon_container and balloon_scene:
+	if balloon_container and balloon_scene:
 		for c in balloon_container.get_children():
 			c.queue_free()
 			
-		for b_data in loaded_balloons:
+		var safe_balloons = loaded_balloons.slice(0, min(loaded_balloons.size(), 250))
+		for b_data in safe_balloons:
 			var balloon = balloon_scene.instantiate()
 			var pos_arr = b_data.get("pos", [0, 2, 0])
 			var vel_arr = b_data.get("vel", [0, 0, 0])
@@ -1235,7 +1230,7 @@ func load_saved_data() -> void:
 				)
 				
 		if game_manager:
-			game_manager.active_balloons = loaded_balloons.size()
+			game_manager.active_balloons = safe_balloons.size()
 			
 	# 5. Restore Active Floor Coins
 	var loaded_floor_coins = data.get("floor_coins", [])
@@ -1879,16 +1874,13 @@ func update_pop_counter(pops: int) -> void:
 		show_victory_screen()
 
 func drop_balloons_from_vent(count: int) -> void:
-	if not balloon_container:
+	if not balloon_scene or not balloon_container:
 		return
 		
 	var idx = clamp(current_gravity_idx, 0, balloon_gravity_scales.size() - 1)
 	var grav = balloon_gravity_scales[idx]
 	var damp = balloon_linear_damps[idx]
 	
-	if balloon_container.has_method("update_gravity_and_damp"):
-		balloon_container.update_gravity_and_damp(grav, damp)
-		
 	for i in range(count):
 		var chosen_vent = Vector3(0, 6.5, 0)
 		if not active_vent_positions.is_empty():
@@ -1898,27 +1890,27 @@ func drop_balloons_from_vent(count: int) -> void:
 		var offset = Vector3(randf_range(-0.35, 0.35), randf_range(-0.1, 0.1), randf_range(-0.35, 0.35))
 		var spawn_pos = chosen_vent + offset
 		
-		var downward_kick = -2.2 * (1.0 + grav * 0.45)
-		var spread_vel = Vector3(randf_range(-1.8, 1.8), downward_kick, randf_range(-1.8, 1.8))
+		var balloon = balloon_scene.instantiate()
+		balloon.position = spawn_pos
+		balloon_container.add_child(balloon)
 		
-		if balloon_container.has_method("spawn_balloon"):
-			balloon_container.spawn_balloon(spawn_pos, spread_vel)
-		elif balloon_scene:
-			var balloon = balloon_scene.instantiate()
-			balloon.position = spawn_pos
-			balloon_container.add_child(balloon)
-			if balloon is RigidBody3D:
-				balloon.gravity_scale = grav
-				balloon.linear_damp = damp
-				balloon.linear_velocity = spread_vel
-			if balloon.has_signal("popped"):
-				balloon.popped.connect(func(_b, pos, col, combo = 0, b_type = 0): 
-					if game_manager: 
-						game_manager.on_balloon_popped(pos, col, combo, b_type)
-				)
-			if game_manager and game_manager.has_method("on_balloon_spawned"):
-				game_manager.on_balloon_spawned(1)
-				
+		if balloon is RigidBody3D:
+			balloon.gravity_scale = grav
+			balloon.linear_damp = damp
+			var downward_kick = -2.2 * (1.0 + grav * 0.45)
+			var spread = Vector3(randf_range(-1.4, 1.4), downward_kick, randf_range(-1.4, 1.4))
+			balloon.linear_velocity = spread
+			balloon.angular_velocity = Vector3(randf_range(-2, 2), randf_range(-2, 2), randf_range(-2, 2))
+			
+		if balloon.has_signal("popped"):
+			balloon.popped.connect(func(_b, pos, col, combo = 0, b_type = 0): 
+				if game_manager: 
+					game_manager.on_balloon_popped(pos, col, combo, b_type)
+			)
+			
+		if game_manager and game_manager.has_method("on_balloon_spawned"):
+			game_manager.on_balloon_spawned(1)
+			
 	vent_cycle_idx = (vent_cycle_idx + count) % max(1, active_vent_positions.size())
 
 func spawn_floor_coin(pop_pos: Vector3, val: int = 1) -> void:

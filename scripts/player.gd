@@ -241,24 +241,18 @@ func execute_pop_hit(costs_energy: bool) -> void:
 	if costs_energy:
 		consume_energy(pop_hold_energy_cost)
 		
-	var bm = get_node_or_null("/root/Main/BalloonContainer")
-	if bm and bm.has_method("pop_nearest_at_ray"):
-		var cam_pos = camera.global_position
-		var look_dir = -camera.global_transform.basis.z.normalized()
-		var popped_idx = bm.pop_nearest_at_ray(cam_pos, look_dir, 5.2)
-		if popped_idx != -1:
-			pop_triggered.emit(true)
-			return
-			
-	# Fallback check
 	if interaction_ray:
-		interaction_ray.target_position = Vector3(0, 0, -5.0)
+		interaction_ray.target_position = Vector3(0, 0, -5.2)
 		interaction_ray.force_raycast_update()
 		if interaction_ray.is_colliding():
 			var col = interaction_ray.get_collider()
 			if col and col.is_in_group("balloons") and col.has_method("pop"):
+				var col_color = col.get("balloon_color") if ("balloon_color" in col) else Color.WHITE
+				var pop_pos = col.global_position
 				col.pop("needle")
 				pop_triggered.emit(true)
+				if splash_radius > 0.0:
+					trigger_splash_pop(pop_pos, col_color, splash_radius)
 				return
 				
 	pop_triggered.emit(false)
@@ -321,14 +315,8 @@ func try_continuous_nudge(delta: float) -> void:
 	consume_energy(continuous_nudge_cost_per_sec * delta)
 	nudge_triggered.emit()
 		
-	var cam_pos = camera.global_position
-	var look_dir = -camera.global_transform.basis.z.normalized()
-	
-	var bm = get_node_or_null("/root/Main/BalloonContainer")
-	if bm and bm.has_method("apply_wind_force"):
-		bm.apply_wind_force(cam_pos, look_dir, 7.5, 0.82, 5.5 * nudge_power_mult)
-		
 	if nudge_cone:
+		var look_dir = -camera.global_transform.basis.z.normalized()
 		var bodies = nudge_cone.get_overlapping_bodies()
 		var push_dir = look_dir + Vector3.UP * 0.15
 		push_dir = push_dir.normalized()
