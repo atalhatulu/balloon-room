@@ -74,6 +74,20 @@ static func get_cached_material(color: Color) -> StandardMaterial3D:
 	_material_cache[key] = mat
 	return mat
 
+static var _outline_pass: StandardMaterial3D = null
+
+static func get_outline_pass() -> StandardMaterial3D:
+	if _outline_pass != null:
+		return _outline_pass
+		
+	_outline_pass = StandardMaterial3D.new()
+	_outline_pass.cull_mode = BaseMaterial3D.CULL_FRONT
+	_outline_pass.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	_outline_pass.albedo_color = Color(1.0, 1.0, 1.0, 1.0) # Bright pure white silhouette
+	_outline_pass.grow = true
+	_outline_pass.grow_amount = 0.038 # 3.8cm distinct outline border
+	return _outline_pass
+
 static var _highlight_mat_cache: Dictionary = {}
 static func get_highlight_material(color: Color) -> StandardMaterial3D:
 	var key = color.to_html(false)
@@ -81,12 +95,12 @@ static func get_highlight_material(color: Color) -> StandardMaterial3D:
 		return _highlight_mat_cache[key]
 		
 	var mat = StandardMaterial3D.new()
-	mat.albedo_color = color.lightened(0.25)
+	mat.albedo_color = color # EXACT ORIGINAL VIBRANT COLOR (No color alteration/washing out!)
 	mat.shading_mode = BaseMaterial3D.SHADING_MODE_PER_PIXEL
-	mat.roughness = 0.2
-	mat.emission_enabled = true
-	mat.emission = Color(1.0, 1.0, 1.0)
-	mat.emission_energy_multiplier = 0.6
+	mat.roughness = 0.35
+	mat.metallic = 0.05
+	mat.metallic_specular = 0.4
+	mat.next_pass = get_outline_pass()
 	
 	_highlight_mat_cache[key] = mat
 	return mat

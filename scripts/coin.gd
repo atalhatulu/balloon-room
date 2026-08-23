@@ -5,6 +5,7 @@ var velocity: Vector3 = Vector3.ZERO
 var is_grounded: bool = false
 var is_collecting: bool = false
 var lifetime: float = 0.0
+var bounce_count: int = 0
 var floor_y: float = 0.08
 
 @onready var mesh_instance: MeshInstance3D = $MeshInstance3D
@@ -13,9 +14,9 @@ func init(spawn_pos: Vector3, val: int = 1) -> void:
 	global_position = spawn_pos
 	coin_value = val
 	velocity = Vector3(
-		randf_range(-1.8, 1.8),
-		randf_range(1.5, 3.8),
-		randf_range(-1.8, 1.8)
+		randf_range(-2.2, 2.2),
+		randf_range(2.2, 4.5),
+		randf_range(-2.2, 2.2)
 	)
 
 func _ready() -> void:
@@ -26,8 +27,23 @@ func _process(delta: float) -> void:
 	
 	# Gentle spinning
 	if mesh_instance:
-		mesh_instance.rotate_y(3.5 * delta)
+		mesh_instance.rotate_y(4.0 * delta)
 		
+	# Arc physics drop to floor with bouncing
+	if not is_grounded:
+		velocity.y -= 15.0 * delta
+		global_position += velocity * delta
+		if global_position.y <= floor_y:
+			global_position.y = floor_y
+			if bounce_count < 1 and abs(velocity.y) > 2.0:
+				velocity.y = -velocity.y * 0.35
+				velocity.x *= 0.6
+				velocity.z *= 0.6
+				bounce_count += 1
+			else:
+				velocity = Vector3.ZERO
+				is_grounded = true
+				
 	var main_node = get_node_or_null("/root/Main")
 	var player = main_node.get("player") if main_node else null
 	
@@ -35,13 +51,18 @@ func _process(delta: float) -> void:
 		var p_pos = player.global_position + Vector3(0, 0.9, 0)
 		var dist = global_position.distance_to(p_pos)
 		
-		var magnet_lvl = player.get("magnet_level") if ("magnet_level" in player) else 0
-		var magnet_unlocked = player.get("magnet_unlocked") if ("magnet_unlocked" in player) else false
-		var pickup_range = 3.6 + (float(magnet_lvl) * 1.5 if magnet_unlocked else 0.0)
-		
-		# Auto magnetic pickup when player gets close
-		if dist <= pickup_range:
-			is_collecting = true
+		# Proximity rules:
+		# If on the ground: full magnetic pickup range (3.4m + magnet upgrades)
+		# If still falling mid-air: only collect if player is right next to it (< 0.85m) and coin has had time to drop (> 0.25s)
+		if is_grounded:
+			var magnet_lvl = player.get("magnet_level") if ("magnet_level" in player) else 0
+			var magnet_unlocked = player.get("magnet_unlocked") if ("magnet_unlocked" in player) else false
+			var pickup_range = 3.4 + (float(magnet_lvl) * 1.5 if magnet_unlocked else 0.0)
+			if dist <= pickup_range:
+				is_collecting = true
+		else:
+			if dist <= 0.85 and lifetime > 0.25:
+				is_collecting = true
 			
 	if is_collecting:
 		if player and is_instance_valid(player):
@@ -52,15 +73,6 @@ func _process(delta: float) -> void:
 		else:
 			collect_coin()
 		return
-		
-	# Arc physics drop to floor
-	if not is_grounded:
-		velocity.y -= 14.0 * delta
-		global_position += velocity * delta
-		if global_position.y <= floor_y:
-			global_position.y = floor_y
-			velocity = Vector3.ZERO
-			is_grounded = true
 			
 	# Auto sweep after 45 seconds to prevent forgotten clutter
 	if lifetime > 45.0:
