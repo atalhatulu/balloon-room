@@ -415,14 +415,6 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.1, 5.65, 5.1)
 
 [node name="Mesh" type="MeshInstance3D" parent="Environment/MainRoom/CeilingVents/Vent9" unique_id=1894055096]
 material_override = SubResource("StandardMaterial3D_vent")
-mesh = SubResource("CylinderMesh_vent")
-
-[node name="GridGhost" type="MeshInstance3D" parent="Environment/MainRoom" unique_id=960102044]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.06, 0)
-visible = false
-material_override = SubResource("StandardMaterial3D_ghost_mat")
-mesh = SubResource("BoxMesh_ghost_frame")
-
 [node name="DoorwaySign" type="Node3D" parent="Environment" unique_id=2009833762]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 3.85, 0)
 

@@ -12,14 +12,7 @@ extends Node3D
 @onready var coin_container: Node3D = $CoinContainer
 @onready var corner_fan: Node3D = $Environment/MainRoom/CornerFan
 
-# Processing Wall & Automation Devices (Task 03)
-@onready var electric_wall: Node3D = $Environment/MainRoom/ElectricWall
-@onready var spike_wall: Node3D = $Environment/MainRoom/SpikeWall
-@onready var magnet_pylon: Node3D = $Environment/MainRoom/MagnetPylon
-@onready var conveyor_crusher: Node3D = $Environment/MainRoom/ConveyorCrusher
-@onready var sentry_drone: Node3D = $Environment/MainRoom/SentryDrone
-@onready var grid_ghost: MeshInstance3D = $Environment/MainRoom/GridGhost
-
+var grid_ghost: MeshInstance3D = null
 var carried_device: Node3D = null
 var carried_original_pos: Vector3 = Vector3.ZERO
 var carried_original_rot_y: float = 0.0
@@ -677,9 +670,9 @@ func _process(delta: float) -> void:
 			var snap_z = round(clamped_z / 1.5) * 1.5
 			var target_pos = Vector3(snap_x, 0.05, snap_z)
 			
-			if grid_ghost:
-				grid_ghost.visible = true
-				grid_ghost.position = target_pos
+			var g = _get_or_create_grid_ghost()
+			if g:
+				g.position = target_pos
 				
 			carried_device.position = target_pos
 			
@@ -1121,14 +1114,13 @@ func start_carrying_device(device_node: Node3D) -> void:
 	carried_device = device_node
 	carried_original_pos = device_node.position
 	carried_original_rot_y = device_node.rotation.y
-	if grid_ghost:
-		grid_ghost.visible = true
-		grid_ghost.position = device_node.position
+	var g = _get_or_create_grid_ghost()
+	if g:
+		g.position = device_node.position
 		
 func place_carried_device() -> void:
 	if not carried_device: return
-	if grid_ghost:
-		grid_ghost.visible = false
+	_destroy_grid_ghost()
 	if sound_manager and sound_manager.has_method("play_pop"):
 		sound_manager.play_pop(3)
 	carried_device = null
@@ -1138,9 +1130,31 @@ func cancel_carrying_device() -> void:
 	if not carried_device: return
 	carried_device.position = carried_original_pos
 	carried_device.rotation.y = carried_original_rot_y
-	if grid_ghost:
-		grid_ghost.visible = false
+	_destroy_grid_ghost()
 	carried_device = null
+
+func _get_or_create_grid_ghost() -> MeshInstance3D:
+	if grid_ghost and is_instance_valid(grid_ghost):
+		return grid_ghost
+	grid_ghost = MeshInstance3D.new()
+	var mesh = BoxMesh.new()
+	mesh.size = Vector3(1.4, 0.05, 1.4)
+	grid_ghost.mesh = mesh
+	var mat = StandardMaterial3D.new()
+	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	mat.albedo_color = Color(0.2, 0.9, 1.0, 0.35)
+	mat.emission_enabled = true
+	mat.emission = Color(0.2, 0.8, 1.0)
+	mat.emission_energy_multiplier = 0.8
+	grid_ghost.material_override = mat
+	if env_main_room:
+		env_main_room.add_child(grid_ghost)
+	return grid_ghost
+
+func _destroy_grid_ghost() -> void:
+	if grid_ghost and is_instance_valid(grid_ghost):
+		grid_ghost.queue_free()
+		grid_ghost = null
 
 func toggle_shop_modal() -> void:
 	if not shop_modal: return
