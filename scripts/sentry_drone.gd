@@ -57,24 +57,29 @@ func _process(delta: float) -> void:
 		fire_laser_burst()
 
 func fire_laser_burst() -> void:
+	var world = get_world_3d()
+	if not world: return
+	var space_state = world.direct_space_state
+	if not space_state: return
+	
 	var idx = clamp(level - 1, 0, laser_ranges.size() - 1)
 	var max_range = laser_ranges[idx]
-	var max_r_sq = max_range * max_range
 	var max_shots = max_targets_per_burst[idx]
 	var my_pos = global_position
 	
-	var balloons = get_tree().get_nodes_in_group("balloons")
-	var targets: Array[RigidBody3D] = []
-	for b in balloons:
-		if b is RigidBody3D and is_instance_valid(b) and not b.is_queued_for_deletion():
-			if not b.get("is_popped"):
-				if my_pos.distance_squared_to(b.global_position) <= max_r_sq:
-					targets.append(b)
-					if targets.size() >= max_shots:
-						break
-						
-	for target in targets:
-		if is_instance_valid(target) and not target.get("is_popped"):
+	var shape_query = PhysicsShapeQueryParameters3D.new()
+	var sphere = SphereShape3D.new()
+	sphere.radius = max_range
+	shape_query.shape = sphere
+	shape_query.transform = Transform3D(Basis(), my_pos)
+	shape_query.collision_mask = 2 # Balloons layer
+	shape_query.collide_with_bodies = true
+	shape_query.collide_with_areas = false
+	
+	var results = space_state.intersect_shape(shape_query, max_shots)
+	for res in results:
+		var target = res.collider
+		if target is RigidBody3D and is_instance_valid(target) and not target.get("is_popped") and not target.is_queued_for_deletion():
 			shoot_at_target(target)
 
 func shoot_at_target(target: RigidBody3D) -> void:

@@ -897,17 +897,21 @@ func update_raycast_interaction() -> void:
 	if col and is_instance_valid(col) and col.is_in_group("balloons"):
 		hit_balloon = col
 	else:
-		var balloons = get_tree().get_nodes_in_group("balloons")
-		var b_best_dot = 0.980
-		for b in balloons:
-			if b is RigidBody3D and is_instance_valid(b) and not b.get("is_popped") and not b.is_queued_for_deletion():
-				var to_b = b.global_position - cam_pos
-				var dist = to_b.length()
-				if dist <= 5.2 and dist > 0.4:
-					var dot = look_dir.dot(to_b / dist)
-					if dot > b_best_dot:
-						b_best_dot = dot
-						hit_balloon = b
+		# Fast C++ physics broadphase query for forgiving needle aim (Zero CPU overhead)
+		var shape_query = PhysicsShapeQueryParameters3D.new()
+		var sphere = SphereShape3D.new()
+		sphere.radius = 0.45
+		shape_query.shape = sphere
+		shape_query.transform = Transform3D(Basis(), from + (look_dir * 2.6))
+		shape_query.collision_mask = 2 # Balloons layer
+		shape_query.collide_with_bodies = true
+		shape_query.collide_with_areas = false
+		shape_query.exclude = exclude_rids
+		var hits = space_state.intersect_shape(shape_query, 1)
+		if not hits.is_empty():
+			var h_col = hits[0].collider
+			if h_col is RigidBody3D and is_instance_valid(h_col) and not h_col.get("is_popped"):
+				hit_balloon = h_col
 						
 	if hit_balloon and is_instance_valid(hit_balloon):
 		if highlighted_balloon != hit_balloon:

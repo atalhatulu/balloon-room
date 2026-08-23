@@ -19,6 +19,8 @@ func _ready() -> void:
 	add_to_group("balloons")
 	can_sleep = true
 	continuous_cd = false
+	set_process(false)
+	set_physics_process(false)
 	
 	if mesh_instance:
 		mesh_instance.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
@@ -27,14 +29,6 @@ func _ready() -> void:
 		setup_random_color()
 	else:
 		_apply_cached_material()
-
-func _physics_process(_delta: float) -> void:
-	if is_popped:
-		return
-		
-	# Anti-Void: Immediately pop any balloon that clips under floor or flies out of bounds
-	if global_position.y < -0.4 or global_position.y > 35.0:
-		pop("out_of_bounds")
 
 func wake_physics() -> void:
 	sleeping = false
