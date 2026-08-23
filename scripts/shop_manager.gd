@@ -246,8 +246,8 @@ var upgrades: Dictionary = {
 		"unlock_pops": 250,
 		"level": 0,
 		"max_level": 7,
-		"title": "Splash / Alan Patlatma",
-		"desc": "İğneyle vurulan balonun çevresinde şok dalgası oluşturup birden fazla balonu aynı anda patlatır.",
+		"title": "Splash / Renk Eşleşmeli Alan Patlatma",
+		"desc": "İğneyle vurulan balonun çevresinde şok dalgası oluşturup AYNI RENKTEKİ komşu balonları zincirleme patlatır.",
 		"radii": ["Kapalı", "2.5m (~8 Balon)", "3.8m (~18 Balon)", "5.5m (~32 Balon)", "7.5m (~55 Balon)", "10.0m (~90 Balon)", "14.0m (~150 Balon)", "20.0m (Dev Kozmik Şok)"],
 		"costs": [100, 300, 900, 2800, 8500, 26000, 75000]
 	},

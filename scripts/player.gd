@@ -313,6 +313,12 @@ func trigger_splash_pop(origin: Vector3, match_color: Color = Color.WHITE, custo
 		if b is RigidBody3D and is_instance_valid(b) and not b.is_queued_for_deletion():
 			if not b.get("is_popped"):
 				if origin.distance_squared_to(b.global_position) <= r_sq:
+					# Enforce same-color matching rule
+					if match_color != Color.WHITE:
+						var b_col = b.get("balloon_color") if ("balloon_color" in b) else Color.WHITE
+						if not b_col.is_equal_approx(match_color):
+							continue
+							
 					if b.has_method("pop"):
 						b.pop("splash")
 						popped_so_far += 1
