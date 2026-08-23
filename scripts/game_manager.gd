@@ -73,6 +73,7 @@ func recalculate_effective_stats() -> void:
 var pop_history: Array[float] = []
 var pops_per_second: int = 0
 var smooth_pps: float = 0.0
+var coin_drop_accumulator: int = 0
 
 func get_eta_to_target(target: int = 1000000) -> float:
 	var remaining = max(0, target - total_pops)
@@ -143,11 +144,18 @@ func on_balloon_popped(pop_position: Vector3, _balloon_color: Color, combo_step:
 		var r_data = shop_manager.get_current_room_data()
 		room_mult = r_data.get("coin_multiplier", 1.0)
 		
-	# Drop physical coin matching balloon tier (1x Copper, 5x Silver, 10x Gold, 50x Ruby)
-	var coin_reward = max(value, int(float(value) * room_mult))
-	var main_node = get_node_or_null("/root/Main")
-	if main_node and main_node.has_method("spawn_floor_coin"):
-		main_node.spawn_floor_coin(pop_position, coin_reward, value)
+	# Accumulate popped units — Do NOT drop coins every single pop!
+	coin_drop_accumulator += value
+	
+	# Drop ONE concentrated coin only when 10 or more units accumulate
+	if coin_drop_accumulator >= 10:
+		var drop_units = (coin_drop_accumulator / 10) * 10
+		coin_drop_accumulator %= 10
+		
+		var coin_reward = max(drop_units, int(float(drop_units) * room_mult))
+		var main_node = get_node_or_null("/root/Main")
+		if main_node and main_node.has_method("spawn_floor_coin"):
+			main_node.spawn_floor_coin(pop_position, coin_reward, drop_units)
 		
 	pop_registered.emit(total_pops)
 	active_count_changed.emit(active_balloons, max_room_balloons)

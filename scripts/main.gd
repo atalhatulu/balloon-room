@@ -2008,14 +2008,14 @@ func drop_balloons_from_vent(count: int) -> void:
 		var offset = Vector3(randf_range(-0.35, 0.35), randf_range(-0.1, 0.1), randf_range(-0.35, 0.35))
 		var spawn_pos = chosen_vent + offset
 		
-		# Weighted Tier Random Roll: 75% 1x (Normal), 18% 5x (Large Cyan), 6% 10x (Golden), 1% 50x (Mega Purple)
+		# Balanced Tier Distribution: 35% 1x, 40% 5x (Cyan), 20% 10x (Gold), 5% 50x (Mega Purple)
 		var roll = randf()
 		var b_tier = 1
-		if roll < 0.01:
+		if roll < 0.05:
 			b_tier = 50
-		elif roll < 0.07:
-			b_tier = 10
 		elif roll < 0.25:
+			b_tier = 10
+		elif roll < 0.65:
 			b_tier = 5
 		else:
 			b_tier = 1
