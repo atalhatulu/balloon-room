@@ -810,13 +810,13 @@ func update_raycast_interaction() -> void:
 	var best_dist = 6.5
 	
 	# Check Computer Desk in Office
-	var desk_node = get_node_or_null("Environment/ComputerDesk")
+	var desk_node = get_node_or_null("Environment/SideOffice/ComputerDesk")
 	if desk_node and is_instance_valid(desk_node):
 		var to_desk = (desk_node.global_position + Vector3(0, 0.7, 0)) - cam_pos
 		var d_dist = to_desk.length()
-		if d_dist <= 5.5 and d_dist > 0.3:
+		if d_dist <= 7.0 and d_dist > 0.2:
 			var dot = look_dir.dot(to_desk / d_dist)
-			if dot > 0.85 and dot > best_dot:
+			if dot > 0.70 and dot > best_dot:
 				best_target_type = "desk"
 				best_target_name = "Bilgisayar Masası"
 				best_dot = dot
@@ -826,9 +826,9 @@ func update_raycast_interaction() -> void:
 	if gravity_terminal and is_instance_valid(gravity_terminal):
 		var to_gt = (gravity_terminal.global_position + Vector3(0, 1.2, 0)) - cam_pos
 		var g_dist = to_gt.length()
-		if g_dist <= 5.5 and g_dist > 0.3:
+		if g_dist <= 6.5 and g_dist > 0.2:
 			var dot = look_dir.dot(to_gt / g_dist)
-			if dot > 0.85 and dot > best_dot:
+			if dot > 0.70 and dot > best_dot:
 				best_target_type = "gravity_terminal"
 				best_target_name = "Yerçekimi Terminali"
 				best_dot = dot
@@ -1286,12 +1286,12 @@ func _input(event: InputEvent) -> void:
 	# 2. Normal Interactions (Raycast crosshair aiming & distance reach)
 	if event is InputEventKey and event.pressed and not event.is_echo():
 		if event.keycode == KEY_E:
-			if raycast_target_type == "device" and raycast_target_device != null and is_instance_valid(raycast_target_device):
-				start_carrying_device(raycast_target_device)
-			elif raycast_target_type == "gravity_terminal":
-				cycle_gravity_mode()
-			elif raycast_target_type == "desk":
+			if raycast_target_type == "desk" or is_near_desk:
 				toggle_shop_modal()
+			elif raycast_target_type == "device" and raycast_target_device != null and is_instance_valid(raycast_target_device):
+				start_carrying_device(raycast_target_device)
+			elif raycast_target_type == "gravity_terminal" or is_near_grav_terminal:
+				cycle_gravity_mode()
 			elif nearby_device != null and is_instance_valid(nearby_device):
 				start_carrying_device(nearby_device)
 		elif event.keycode == KEY_F:
@@ -1465,7 +1465,9 @@ func set_category_filter(filter_name: String) -> void:
 func _on_desk_area_entered(body: Node3D) -> void:
 	if body.is_in_group("player"):
 		is_near_desk = true
-		if desk_prompt: desk_prompt.visible = true
+		if desk_prompt and not (shop_modal and shop_modal.visible):
+			desk_prompt.text = "[E] Bilgisayarı Aç / Dükkana Gir"
+			desk_prompt.visible = true
 
 func _on_desk_area_exited(body: Node3D) -> void:
 	if body.is_in_group("player"):
