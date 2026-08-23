@@ -17,6 +17,8 @@ static var _active_particle_count: int = 0
 
 func _ready() -> void:
 	add_to_group("balloons")
+	collision_layer = 2
+	collision_mask = 1
 	can_sleep = true
 	continuous_cd = false
 	set_process(false)
