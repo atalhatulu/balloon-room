@@ -869,7 +869,7 @@ func update_raycast_interaction() -> void:
 				desk_prompt.visible = true
 			return
 			
-		# 4. Looking at Automation Device
+		# 4. Looking at Automation Device (Direct Raycast Collision)
 		var dev = _get_device_from_collider(col)
 		if not dev.is_empty():
 			raycast_target_type = "device"
@@ -882,6 +882,38 @@ func update_raycast_interaction() -> void:
 				desk_prompt.text = "[E] " + dev["name"] + " Taşı (Izgara Modu)"
 				desk_prompt.visible = true
 			return
+			
+	# 5. Looking at Automation Device (Cone / Proximity Aim Check)
+	var active_devs = [
+		{"node": spike_wall, "name": "Dikenli Zemin"},
+		{"node": electric_wall, "name": "Elektrikli Zemin Izgarası"},
+		{"node": magnet_pylon, "name": "Manyetik Çekim Kulesi"},
+		{"node": conveyor_crusher, "name": "Makaralı Balon Öğütücü"},
+		{"node": sentry_drone, "name": "Otomatik Lazer Dronu"},
+		{"node": corner_fan, "name": "Köşe Fanı"}
+	]
+	
+	var cam_pos = cam.global_position
+	var look_dir = -cam.global_transform.basis.z.normalized()
+	for item in active_devs:
+		var d_node = item["node"]
+		if d_node and is_instance_valid(d_node) and d_node.visible:
+			var d_pos = d_node.global_position + Vector3(0, 0.35, 0)
+			var to_d = d_pos - cam_pos
+			var dist = to_d.length()
+			if dist <= 5.5 and dist > 0.3:
+				var dot = look_dir.dot(to_d / dist)
+				if dot > 0.92: # Looking towards device
+					raycast_target_type = "device"
+					raycast_target_device = d_node
+					raycast_target_name = item["name"]
+					nearby_device = d_node
+					if reticle_ring: reticle_ring.modulate = Color(0.3, 0.8, 1.0, 0.95)
+					if crosshair_dot: crosshair_dot.color = Color(0.3, 0.8, 1.0, 1.0)
+					if desk_prompt:
+						desk_prompt.text = "[E] " + item["name"] + " Taşı (Izgara Modu)"
+						desk_prompt.visible = true
+					return
 
 	_reset_crosshair_style()
 	if desk_prompt:
@@ -922,14 +954,14 @@ func _get_device_from_collider(col: Object) -> Dictionary:
 		{"node": electric_wall, "name": "Elektrikli Zemin Izgarası"},
 		{"node": magnet_pylon, "name": "Manyetik Çekim Kulesi"},
 		{"node": conveyor_crusher, "name": "Makaralı Balon Öğütücü"},
+		{"node": sentry_drone, "name": "Otomatik Lazer Dronu"},
 		{"node": corner_fan, "name": "Köşe Fanı"}
 	]
 	var n: Node = col as Node
 	while n and n != self and n != get_tree().root:
 		for item in candidate_devices:
-			if item.node and is_instance_valid(item.node) and item.node == n:
-				if item.node.get("is_active"):
-					return item
+			if item.node and is_instance_valid(item.node) and (item.node == n or item.node.is_ancestor_of(n)):
+				return item
 		n = n.get_parent()
 	return {}
 
