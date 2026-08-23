@@ -139,6 +139,7 @@ var current_filter: String = "upgrades"
 var auto_save_timer: float = 0.0
 var active_vent_positions: Array[Vector3] = []
 var vent_cycle_idx: int = 0
+var is_loading_save: bool = false
 
 var balloon_gravity_scales: Array[float] = [0.25, 0.80, 1.80, 3.50, 6.00]
 var balloon_linear_damps: Array[float] = [2.2, 1.4, 0.8, 0.35, 0.15]
@@ -1001,6 +1002,8 @@ func _get_device_from_collider(col: Object) -> Dictionary:
 	return {}
 
 func save_current_data() -> void:
+	if is_loading_save:
+		return
 	if not is_inside_tree():
 		return
 	if not save_manager or not game_manager or not shop_manager or not player:
@@ -1092,6 +1095,8 @@ func load_saved_data() -> void:
 		update_pop_counter(0)
 		return
 		
+	is_loading_save = true
+	
 	is_victory_shown = data.get("is_victory_shown", false)
 	playtime_seconds = float(data.get("playtime_seconds", 0.0))
 	best_speedrun_time = float(data.get("best_speedrun_time", 0.0))
@@ -1120,7 +1125,6 @@ func load_saved_data() -> void:
 			if shop_manager.upgrades.has(up_id):
 				var lvl = int(loaded_upgrades[up_id])
 				shop_manager.upgrades[up_id]["level"] = lvl
-				shop_manager.upgrade_purchased.emit(up_id, lvl)
 				
 		for dev_id in loaded_devices.keys():
 			if dev_id == "gravity_mode":
@@ -1165,9 +1169,11 @@ func load_saved_data() -> void:
 					dev.set("level", d_lvl)
 				active_placed_devices.append(dev)
 				
-	# 2. Restore Progress & Coins
+	# 2. Restore Progress & Stats in Game Manager
 	if game_manager:
 		game_manager.total_pops = loaded_pops
+		game_manager.current_vent_level = int(loaded_upgrades.get("vent_rate", 0))
+		game_manager.current_cap_level = int(loaded_upgrades.get("room_capacity", 0))
 		game_manager.recalculate_effective_stats()
 		
 	# 3. Restore Player Transform & Stats (Always safely placed above the floor)
@@ -1252,6 +1258,12 @@ func load_saved_data() -> void:
 			
 	update_pop_counter(loaded_pops)
 	update_ceiling_vents()
+	update_all_shop_cards()
+	
+	is_loading_save = false
+	
+	if game_manager:
+		game_manager.start_game()
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_WM_CLOSE_REQUEST:
@@ -1494,7 +1506,8 @@ func _on_upgrade_purchased(upgrade_id: String, _level: int) -> void:
 	if upgrade_id == "fan" and corner_fan:
 		corner_fan.visible = true
 		corner_fan.set("is_active", true)
-	save_current_data()
+	if not is_loading_save:
+		save_current_data()
 
 func format_level_pips(level: int, max_level: int) -> String:
 	var s = ""
