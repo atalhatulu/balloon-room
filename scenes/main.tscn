@@ -803,21 +803,27 @@ layout_mode = 2
 theme_override_constants/separation = 12
 
 [node name="BtnTabUpgrades" type="Button" parent="UI/ShopModal/Panel/Margin/VBox/CategoryTabs" unique_id=557391477]
-custom_minimum_size = Vector2(160, 34)
+custom_minimum_size = Vector2(150, 34)
 layout_mode = 2
-theme_override_font_sizes/font_size = 14
-text = "Yükseltmeler"
+theme_override_font_sizes/font_size = 13
+text = "Karakter & İğne"
 
 [node name="BtnTabDevices" type="Button" parent="UI/ShopModal/Panel/Margin/VBox/CategoryTabs" unique_id=1254069494]
 custom_minimum_size = Vector2(150, 34)
 layout_mode = 2
-theme_override_font_sizes/font_size = 14
-text = "Cihazlar"
+theme_override_font_sizes/font_size = 13
+text = "Cihazlar (Ekipman)"
+
+[node name="BtnTabTech" type="Button" parent="UI/ShopModal/Panel/Margin/VBox/CategoryTabs" unique_id=1948291200]
+custom_minimum_size = Vector2(150, 34)
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+text = "Cihaz AR-GE"
 
 [node name="BtnTabRooms" type="Button" parent="UI/ShopModal/Panel/Margin/VBox/CategoryTabs" unique_id=749574410]
-custom_minimum_size = Vector2(160, 34)
+custom_minimum_size = Vector2(150, 34)
 layout_mode = 2
-theme_override_font_sizes/font_size = 14
+theme_override_font_sizes/font_size = 13
 text = "Mülk & Odalar"
 
 [node name="Scroll" type="ScrollContainer" parent="UI/ShopModal/Panel/Margin/VBox" unique_id=1712810923]
@@ -1029,6 +1035,204 @@ text = "Oyuncunun yanında süzülen güvenlik dronu. Havadaki balonları lazerl
 [node name="BtnBuy" type="Button" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardSentryDrone/Margin/VBox" unique_id=1948291070]
 layout_mode = 2
 text = "2400 Coin"
+
+[node name="CardTechSpikeWall" type="PanelContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid" unique_id=1948291201]
+custom_minimum_size = Vector2(365, 95)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_card")
+metadata/tech_id = "spike_wall"
+
+[node name="Margin" type="MarginContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardTechSpikeWall" unique_id=1948291202]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 8
+
+[node name="VBox" type="VBoxContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardTechSpikeWall/Margin" unique_id=1948291203]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Title" type="Label" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardTechSpikeWall/Margin/VBox" unique_id=1948291204]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.6, 0.2, 1)
+theme_override_font_sizes/font_size = 14
+text = "Dikenli Zemin AR-GE"
+
+[node name="Desc" type="Label" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardTechSpikeWall/Margin/VBox" unique_id=1948291205]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.85, 0.9, 1)
+theme_override_font_sizes/font_size = 11
+text = "Sahadaki tüm Dikenli Zeminlerin vuruş hızını ve parti delme kapasitesini artırır."
+
+[node name="BtnBuy" type="Button" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardTechSpikeWall/Margin/VBox" unique_id=1948291206]
+layout_mode = 2
+text = "800 Coin"
+
+[node name="CardTechElectricWall" type="PanelContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid" unique_id=1948291207]
+custom_minimum_size = Vector2(365, 95)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_card")
+metadata/tech_id = "electric_wall"
+
+[node name="Margin" type="MarginContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardTechElectricWall" unique_id=1948291208]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 8
+
+[node name="VBox" type="VBoxContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardTechElectricWall/Margin" unique_id=1948291209]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Title" type="Label" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardTechElectricWall/Margin/VBox" unique_id=1948291210]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.6, 0.2, 1)
+theme_override_font_sizes/font_size = 14
+text = "Elektrikli Izgara AR-GE"
+
+[node name="Desc" type="Label" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardTechElectricWall/Margin/VBox" unique_id=1948291211]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.85, 0.9, 1)
+theme_override_font_sizes/font_size = 11
+text = "Sahadaki tüm Elektrikli Izgaraların şarj dolum hızını ve ark patlama gücünü artırır."
+
+[node name="BtnBuy" type="Button" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardTechElectricWall/Margin/VBox" unique_id=1948291212]
+layout_mode = 2
+text = "2000 Coin"
+
+[node name="CardTechMagnetPylon" type="PanelContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid" unique_id=1948291213]
+custom_minimum_size = Vector2(365, 95)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_card")
+metadata/tech_id = "magnet_pylon"
+
+[node name="Margin" type="MarginContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardTechMagnetPylon" unique_id=1948291214]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 8
+
+[node name="VBox" type="VBoxContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardTechMagnetPylon/Margin" unique_id=1948291215]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Title" type="Label" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardTechMagnetPylon/Margin/VBox" unique_id=1948291216]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.6, 0.2, 1)
+theme_override_font_sizes/font_size = 14
+text = "Manyetik Kule AR-GE"
+
+[node name="Desc" type="Label" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardTechMagnetPylon/Margin/VBox" unique_id=1948291217]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.85, 0.9, 1)
+theme_override_font_sizes/font_size = 11
+text = "Sahadaki tüm manyetik kulelerin çekim menzilini ve çekim kuvvetini katlar."
+
+[node name="BtnBuy" type="Button" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardTechMagnetPylon/Margin/VBox" unique_id=1948291218]
+layout_mode = 2
+text = "1500 Coin"
+
+[node name="CardTechGravityRegulator" type="PanelContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid" unique_id=1948291219]
+custom_minimum_size = Vector2(365, 95)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_card")
+metadata/tech_id = "gravity_regulator"
+
+[node name="Margin" type="MarginContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardTechGravityRegulator" unique_id=1948291220]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 8
+
+[node name="VBox" type="VBoxContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardTechGravityRegulator/Margin" unique_id=1948291221]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Title" type="Label" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardTechGravityRegulator/Margin/VBox" unique_id=1948291222]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.6, 0.2, 1)
+theme_override_font_sizes/font_size = 14
+text = "Yerçekimi Regülatörü Modları"
+
+[node name="Desc" type="Label" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardTechGravityRegulator/Margin/VBox" unique_id=1948291223]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.85, 0.9, 1)
+theme_override_font_sizes/font_size = 11
+text = "Daha yüksek yerçekimi ve hızlı döküm modlarının kilidini açar."
+
+[node name="BtnBuy" type="Button" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardTechGravityRegulator/Margin/VBox" unique_id=1948291224]
+layout_mode = 2
+text = "400 Coin"
+
+[node name="CardTechConveyorCrusher" type="PanelContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid" unique_id=1948291225]
+custom_minimum_size = Vector2(365, 95)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_card")
+metadata/tech_id = "conveyor_crusher"
+
+[node name="Margin" type="MarginContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardTechConveyorCrusher" unique_id=1948291226]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 8
+
+[node name="VBox" type="VBoxContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardTechConveyorCrusher/Margin" unique_id=1948291227]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Title" type="Label" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardTechConveyorCrusher/Margin/VBox" unique_id=1948291228]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.6, 0.2, 1)
+theme_override_font_sizes/font_size = 14
+text = "Öğütücü Silindir AR-GE"
+
+[node name="Desc" type="Label" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardTechConveyorCrusher/Margin/VBox" unique_id=1948291229]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.85, 0.9, 1)
+theme_override_font_sizes/font_size = 11
+text = "Sahadaki tüm makaralı öğütücülerin dönme hızını ve soğuma sürelerini kısaltır."
+
+[node name="BtnBuy" type="Button" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardTechConveyorCrusher/Margin/VBox" unique_id=1948291230]
+layout_mode = 2
+text = "3000 Coin"
+
+[node name="CardTechSentryDrone" type="PanelContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid" unique_id=1948291231]
+custom_minimum_size = Vector2(365, 95)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_card")
+metadata/tech_id = "sentry_drone"
+
+[node name="Margin" type="MarginContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardTechSentryDrone" unique_id=1948291232]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 8
+
+[node name="VBox" type="VBoxContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardTechSentryDrone/Margin" unique_id=1948291233]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Title" type="Label" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardTechSentryDrone/Margin/VBox" unique_id=1948291234]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.6, 0.2, 1)
+theme_override_font_sizes/font_size = 14
+text = "Lazer Dronu AR-GE"
+
+[node name="Desc" type="Label" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardTechSentryDrone/Margin/VBox" unique_id=1948291235]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.85, 0.9, 1)
+theme_override_font_sizes/font_size = 11
+text = "Tüm dron filosunun lazer atış hızını, menzilini ve aynı anda kilitlendiği hedef sayısını artırır."
+
+[node name="BtnBuy" type="Button" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardTechSentryDrone/Margin/VBox" unique_id=1948291236]
+layout_mode = 2
+text = "5000 Coin"
 
 [node name="CardSmallRoom" type="PanelContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid" unique_id=543042405]
 custom_minimum_size = Vector2(365, 95)
