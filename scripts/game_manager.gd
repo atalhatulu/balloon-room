@@ -52,10 +52,10 @@ func recalculate_effective_stats() -> void:
 	if shop_manager and "prestige_level" in shop_manager:
 		prestige_bonus = 1.0 + (shop_manager.prestige_level * 0.5)
 		
-	var room_cap = 150
+	var room_cap = 500
 	if shop_manager and shop_manager.has_method("get_current_room_data"):
 		var r_data = shop_manager.get_current_room_data()
-		room_cap = r_data.get("capacity", 150)
+		room_cap = r_data.get("capacity", 500)
 		room_flow_multiplier = r_data.get("flow_mult", 1.0)
 	
 	var pipe_count = 1
