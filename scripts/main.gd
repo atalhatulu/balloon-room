@@ -138,6 +138,14 @@ var raycast_target_name: String = ""
 var current_filter: String = "upgrades"
 var auto_save_timer: float = 0.0
 var active_vent_positions: Array[Vector3] = []
+
+var debug_panel: Control = null
+var debug_tier_weights: Dictionary = {
+	50: 0.05,
+	10: 0.20,
+	5: 0.40,
+	1: 0.35
+}
 var vent_cycle_idx: int = 0
 var is_loading_save: bool = false
 
@@ -225,6 +233,16 @@ func _ready() -> void:
 	setup_shop_ui_events()
 	setup_startup_modal()
 	setup_victory_modal()
+	
+	# Setup In-Game Live Debug & Tuning Panel
+	var debug_script = load("res://scripts/debug_panel.gd")
+	if debug_script:
+		debug_panel = debug_script.new()
+		var ui_node = get_node_or_null("UI")
+		if ui_node:
+			ui_node.add_child(debug_panel)
+		else:
+			add_child(debug_panel)
 
 func setup_victory_modal() -> void:
 	if btn_close_victory:
@@ -1353,8 +1371,17 @@ func _input(event: InputEvent) -> void:
 				upgrade_specific_device(nearby_device)
 		elif event.keycode == KEY_G:
 			cycle_gravity_mode()
-		elif event.keycode == KEY_ESCAPE and shop_modal and shop_modal.visible:
-			toggle_shop_modal()
+		elif event.keycode == KEY_F1 or event.keycode == KEY_F2 or event.keycode == KEY_QUOTELEFT:
+			toggle_debug_panel()
+		elif event.keycode == KEY_ESCAPE:
+			if debug_panel and debug_panel.visible:
+				toggle_debug_panel()
+			elif shop_modal and shop_modal.visible:
+				toggle_shop_modal()
+
+func toggle_debug_panel() -> void:
+	if not debug_panel: return
+	debug_panel.toggle_panel()
 
 func upgrade_gravity_terminal() -> void:
 	if not shop_manager or not game_manager: return
@@ -1997,14 +2024,18 @@ func drop_balloons_from_vent(count: int) -> void:
 		var offset = Vector3(randf_range(-0.35, 0.35), randf_range(-0.1, 0.1), randf_range(-0.35, 0.35))
 		var spawn_pos = chosen_vent + offset
 		
-		# Balanced Tier Distribution: 35% 1x, 40% 5x (Cyan), 20% 10x (Gold), 5% 50x (Mega Purple)
+		# Live Tier Distribution (Configurable via Debug Panel)
 		var roll = randf()
 		var b_tier = 1
-		if roll < 0.05:
+		var w50 = debug_tier_weights.get(50, 0.05)
+		var w10 = debug_tier_weights.get(10, 0.20)
+		var w5 = debug_tier_weights.get(5, 0.40)
+		
+		if roll < w50:
 			b_tier = 50
-		elif roll < 0.25:
+		elif roll < (w50 + w10):
 			b_tier = 10
-		elif roll < 0.65:
+		elif roll < (w50 + w10 + w5):
 			b_tier = 5
 		else:
 			b_tier = 1

@@ -3,8 +3,9 @@ extends Node3D
 @export var is_active: bool = false
 @export var level: int = 0
 
-var pull_ranges: Array[float] = [0.0, 2.5, 3.2, 4.0, 5.0, 6.2, 7.5, 9.0]
-var pull_strengths: Array[float] = [0.0, 0.6, 1.0, 1.6, 2.4, 3.5, 4.8, 6.5]
+static var pull_ranges: Array[float] = [0.0, 2.5, 3.2, 4.0, 5.0, 6.2, 7.5, 9.0]
+static var pull_strengths: Array[float] = [0.0, 0.6, 1.0, 1.6, 2.4, 3.5, 4.8, 6.5]
+static var global_pull_multiplier: float = 1.0
 
 var tick_timer: float = 0.0
 var tick_rate: float = 0.08 # 12.5 Hz for buttery smooth 100+ FPS performance
@@ -89,5 +90,5 @@ func apply_magnetic_pull() -> void:
 				var dist = sqrt(dist_sq)
 				var dir = diff / dist
 				var falloff = clamp(1.0 - (dist / max_range), 0.05, 1.0)
-				var force = dir * (falloff * strength * 0.035)
+				var force = dir * (falloff * (strength * global_pull_multiplier) * 0.035)
 				b.apply_central_impulse(force)

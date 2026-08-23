@@ -40,21 +40,21 @@ func _ready() -> void:
 	else:
 		_apply_cached_material()
 
+static var tier_scales: Dictionary = {
+	1: Vector3(0.95, 0.95, 0.95),
+	5: Vector3(1.50, 1.50, 1.50),
+	10: Vector3(2.05, 2.05, 2.05),
+	50: Vector3(2.80, 2.80, 2.80)
+}
+
 func setup_tier(t: int) -> void:
 	tier = t
 	tier_value = t
 	
-	match tier:
-		1:
-			scale = Vector3(0.95, 0.95, 0.95)
-		5:
-			scale = Vector3(1.50, 1.50, 1.50)
-		10:
-			scale = Vector3(2.05, 2.05, 2.05)
-		50:
-			scale = Vector3(2.80, 2.80, 2.80)
-		_:
-			scale = Vector3.ONE
+	if tier_scales.has(tier):
+		scale = tier_scales[tier]
+	else:
+		scale = Vector3.ONE
 			
 	if not custom_color_set:
 		setup_random_color()
