@@ -5,6 +5,7 @@ signal upgrade_purchased(upgrade_id: String, new_level: int)
 signal room_unlocked(room_id: String)
 signal room_switched(room_id: String)
 signal device_purchased(device_id: String, new_level: int)
+signal device_unit_purchased(device_id: String, new_count: int, level: int)
 signal purchase_failed(reason: String)
 signal prestige_performed(new_prestige_level: int, helium_earned: int)
 
@@ -23,9 +24,12 @@ var devices: Dictionary = {
 		"unlock_pops": 1200,
 		"level": 0,
 		"max_level": 6,
+		"count": 0,
+		"max_count": 6,
 		"desc": "Zemine serilen sivri çelik iğneler. Balonlar üzerine yığılır ve periyodik vuruşla topluca delinir.",
-		"widths": ["2.8s Bekleme (8 Balon)", "2.4s Bekleme (16 Balon)", "2.0s Bekleme (28 Balon)", "1.6s Bekleme (45 Balon)", "1.2s Bekleme (75 Balon)", "0.8s Bekleme (120 Balon)"],
-		"costs": [600, 2500, 12000, 60000, 220000, 650000]
+		"widths": ["1.8s Bekleme (16 Balon)", "1.3s Bekleme (32 Balon)", "0.95s Bekleme (55 Balon)", "0.70s Bekleme (90 Balon)", "0.50s Bekleme (140 Balon)", "0.35s Bekleme (200 Balon)"],
+		"unit_costs": [400, 900, 2200, 6000, 18000, 50000],
+		"costs": [800, 2500, 9000, 32000, 110000, 350000]
 	},
 	"electric_wall": {
 		"id": "electric_wall",
@@ -34,9 +38,12 @@ var devices: Dictionary = {
 		"unlock_pops": 3000,
 		"level": 0,
 		"max_level": 6,
+		"count": 0,
+		"max_count": 6,
 		"desc": "Tabana yüksek voltajlı neon ark ızgarası serer. Şarj dolduğunda biriken balonları devasa bir yıldırımla yakar.",
-		"widths": ["3.5s Şarj (12 Balon)", "3.0s Şarj (22 Balon)", "2.4s Şarj (40 Balon)", "1.8s Şarj (70 Balon)", "1.2s Şarj (110 Balon)", "0.7s Şarj (180 Balon)"],
-		"costs": [1500, 6000, 28000, 110000, 380000, 950000]
+		"widths": ["2.0s Şarj (24 Balon)", "1.4s Şarj (45 Balon)", "1.0s Şarj (75 Balon)", "0.75s Şarj (120 Balon)", "0.55s Şarj (180 Balon)", "0.40s Şarj (260 Balon)"],
+		"unit_costs": [1000, 2500, 6500, 18000, 55000, 150000],
+		"costs": [2000, 6500, 22000, 80000, 280000, 850000]
 	},
 	"magnet_pylon": {
 		"id": "magnet_pylon",
@@ -45,9 +52,12 @@ var devices: Dictionary = {
 		"unlock_pops": 1800,
 		"level": 0,
 		"max_level": 6,
+		"count": 0,
+		"max_count": 6,
 		"desc": "Dikilen dikey elektromanyetik kule. Balonları çevreden kendi merkezine ve altındaki tuzaklara çeker.",
 		"widths": ["6.0m Çekim", "10.0m Çekim", "16.0m Çekim", "24.0m Çekim", "35.0m Çekim", "50.0m Çekim"],
-		"costs": [1000, 4500, 18000, 75000, 280000, 750000]
+		"unit_costs": [800, 1800, 4500, 12000, 35000, 95000],
+		"costs": [1500, 4500, 15000, 55000, 190000, 550000]
 	},
 	"gravity_regulator": {
 		"id": "gravity_regulator",
@@ -56,6 +66,8 @@ var devices: Dictionary = {
 		"unlock_pops": 800,
 		"level": 0,
 		"max_level": 4,
+		"count": 1,
+		"max_count": 1,
 		"desc": "Odadaki balonların düşme hızını ve yerçekimini kontrol eder. Duvardaki [E] butonundan veya [G] tuşundan kontrol edilir.",
 		"modes": ["0.25 G (Standart)", "0.80 G (Ağır Döküm)", "1.80 G (Hızlı Şelale)", "3.50 G (Ağır Çöküş)", "6.00 G (Hiper Yerçekimi)"],
 		"costs": [400, 1800, 8500, 35000]
@@ -67,9 +79,12 @@ var devices: Dictionary = {
 		"unlock_pops": 5000,
 		"level": 0,
 		"max_level": 6,
+		"count": 0,
+		"max_count": 6,
 		"desc": "Zemine konulan çift silindirli döner çelik öğütücü. Balonları içine çekip parti halinde kıyma yapar ve soğumaya geçer.",
-		"widths": ["2.8s Soğuma (5 Balon)", "2.2s Soğuma (12 Balon)", "1.7s Soğuma (24 Balon)", "1.2s Soğuma (45 Balon)", "0.8s Soğuma (80 Balon)", "0.5s Soğuma (150 Balon)"],
-		"costs": [2000, 8000, 35000, 140000, 450000, 1200000]
+		"widths": ["1.2s Soğuma (15 Balon)", "0.9s Soğuma (25 Balon)", "0.65s Soğuma (45 Balon)", "0.45s Soğuma (75 Balon)", "0.25s Soğuma (120 Balon)", "0.15s Soğuma (200 Balon)"],
+		"unit_costs": [1500, 3800, 9500, 26000, 75000, 210000],
+		"costs": [3000, 9500, 32000, 110000, 380000, 1100000]
 	},
 	"sentry_drone": {
 		"id": "sentry_drone",
@@ -78,9 +93,12 @@ var devices: Dictionary = {
 		"unlock_pops": 8000,
 		"level": 0,
 		"max_level": 6,
+		"count": 0,
+		"max_count": 6,
 		"desc": "Oyuncunun yanında süzülen güvenlik dronu. Lazer atışları arasında şarj olur.",
-		"widths": ["2.4s Bekleme (Tek Hedef)", "1.8s Bekleme (Çift Hedef)", "1.2s Bekleme (3x Hedef)", "0.8s Bekleme (4x Hedef)", "0.5s Bekleme (6x Hedef)", "0.25s Bekleme (10x Hedef)"],
-		"costs": [3500, 14000, 55000, 200000, 650000, 1800000]
+		"widths": ["1.2s (2x Hedef)", "0.80s (4x Hedef)", "0.50s (6x Hedef)", "0.30s (9x Hedef)", "0.18s (14x Hedef)", "0.10s (22x Hedef)"],
+		"unit_costs": [2500, 6000, 16000, 45000, 130000, 360000],
+		"costs": [5000, 16000, 55000, 190000, 600000, 1600000]
 	}
 }
 
@@ -358,7 +376,37 @@ func switch_to_room(room_id: String) -> bool:
 func get_current_room_data() -> Dictionary:
 	return rooms.get(current_room, rooms["small_room"])
 
-func buy_device(device_id: String, total_pops: int = 999999) -> bool:
+func buy_device_unit(device_id: String, total_pops: int = 999999) -> bool:
+	if not devices.has(device_id):
+		purchase_failed.emit("Bilinmeyen cihaz")
+		return false
+		
+	var d_data = devices[device_id]
+	if total_pops < d_data["unlock_pops"]:
+		purchase_failed.emit("Kilitli! " + str(d_data["unlock_pops"]) + " patlatma gerekiyor.")
+		return false
+		
+	var cur_count = d_data.get("count", 0)
+	var max_count = d_data.get("max_count", 6)
+	if cur_count >= max_count:
+		purchase_failed.emit("Maksimum cihaz adedine (" + str(max_count) + "/" + str(max_count) + ") ulaşıldı!")
+		return false
+		
+	var u_costs = d_data.get("unit_costs", d_data.get("costs", [500]))
+	var cost = u_costs[clamp(cur_count, 0, u_costs.size() - 1)]
+	if coins < cost:
+		purchase_failed.emit("Yetersiz Coin! (" + str(cost) + " Coin gerekli)")
+		return false
+		
+	coins -= cost
+	d_data["count"] = cur_count + 1
+	if d_data["level"] == 0:
+		d_data["level"] = 1
+	coins_changed.emit(coins)
+	device_unit_purchased.emit(device_id, d_data["count"], d_data["level"])
+	return true
+
+func buy_device_upgrade(device_id: String, total_pops: int = 999999) -> bool:
 	if not devices.has(device_id):
 		purchase_failed.emit("Bilinmeyen cihaz")
 		return false
@@ -369,7 +417,7 @@ func buy_device(device_id: String, total_pops: int = 999999) -> bool:
 		return false
 		
 	if d_data["level"] >= d_data["max_level"]:
-		purchase_failed.emit("Cihaz maksimum seviyeye ulaştı!")
+		purchase_failed.emit("Cihaz teknolojisi maksimum seviyeye ulaştı!")
 		return false
 		
 	var cost = d_data["costs"][d_data["level"]]
@@ -382,6 +430,16 @@ func buy_device(device_id: String, total_pops: int = 999999) -> bool:
 	coins_changed.emit(coins)
 	device_purchased.emit(device_id, d_data["level"])
 	return true
+
+func buy_device(device_id: String, total_pops: int = 999999) -> bool:
+	# Fallback router: If not owned yet, buy 1st unit; if owned, upgrade tech
+	if not devices.has(device_id):
+		return false
+	var d_data = devices[device_id]
+	if d_data.get("count", 0) == 0:
+		return buy_device_unit(device_id, total_pops)
+	else:
+		return buy_device_upgrade(device_id, total_pops)
 
 func perform_prestige(total_pops: int) -> int:
 	var helium_earned = max(1, int(total_pops / 100000))

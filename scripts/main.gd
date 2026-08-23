@@ -20,7 +20,8 @@ const DEVICE_SCENES = {
 @onready var balloon_container: Node3D = $BalloonContainer
 @onready var coin_container: Node3D = $CoinContainer
 
-# Automation Devices (Instantiated on demand)
+# Automation Devices (Instantiated dynamically in multiples)
+var active_placed_devices: Array[Node3D] = []
 var corner_fan: Node3D = null
 var electric_wall: Node3D = null
 var spike_wall: Node3D = null
@@ -210,7 +211,9 @@ func _ready() -> void:
 		shop_manager.coins_changed.connect(_on_coins_changed)
 		shop_manager.upgrade_purchased.connect(_on_upgrade_purchased)
 		shop_manager.room_switched.connect(_on_room_switched)
-		shop_manager.device_purchased.connect(func(dev_id, lvl): _on_device_purchased(dev_id, lvl, true))
+		if shop_manager.has_signal("device_unit_purchased"):
+			shop_manager.device_unit_purchased.connect(_on_device_unit_purchased)
+		shop_manager.device_purchased.connect(_on_device_tech_upgraded)
 		
 	setup_shop_ui_events()
 	setup_startup_modal()
@@ -618,66 +621,47 @@ func _on_room_switched(room_id: String) -> void:
 		player.global_position = Vector3(11.0, 0.2, 0.0)
 	save_current_data()
 
-func _on_device_purchased(device_id: String, level: int, from_shop_ui: bool = false) -> void:
+func _on_device_unit_purchased(device_id: String, new_count: int, level: int) -> void:
 	var dev_node: Node3D = null
-	match device_id:
-		"electric_wall":
-			if not electric_wall and DEVICE_SCENES.has("electric_wall") and env_main_room:
-				electric_wall = DEVICE_SCENES["electric_wall"].instantiate()
-				env_main_room.add_child(electric_wall)
-			if electric_wall and electric_wall.has_method("setup_level"):
-				electric_wall.setup_level(level)
-			dev_node = electric_wall
-		"spike_wall":
-			if not spike_wall and DEVICE_SCENES.has("spike_wall") and env_main_room:
-				spike_wall = DEVICE_SCENES["spike_wall"].instantiate()
-				env_main_room.add_child(spike_wall)
-			if spike_wall and spike_wall.has_method("setup_level"):
-				spike_wall.setup_level(level)
-			dev_node = spike_wall
-		"magnet_pylon":
-			if not magnet_pylon and DEVICE_SCENES.has("magnet_pylon") and env_main_room:
-				magnet_pylon = DEVICE_SCENES["magnet_pylon"].instantiate()
-				env_main_room.add_child(magnet_pylon)
-			if magnet_pylon and magnet_pylon.has_method("setup_level"):
-				magnet_pylon.setup_level(level)
-			dev_node = magnet_pylon
-		"conveyor_crusher":
-			if not conveyor_crusher and DEVICE_SCENES.has("conveyor_crusher") and env_main_room:
-				conveyor_crusher = DEVICE_SCENES["conveyor_crusher"].instantiate()
-				env_main_room.add_child(conveyor_crusher)
-			if conveyor_crusher and conveyor_crusher.has_method("setup_level"):
-				conveyor_crusher.setup_level(level)
-			dev_node = conveyor_crusher
-		"sentry_drone":
-			if not sentry_drone and DEVICE_SCENES.has("sentry_drone") and env_main_room:
-				sentry_drone = DEVICE_SCENES["sentry_drone"].instantiate()
-				env_main_room.add_child(sentry_drone)
-			if sentry_drone and sentry_drone.has_method("setup_level"):
-				sentry_drone.setup_level(level)
-			dev_node = sentry_drone
-		"fan":
-			if not corner_fan and DEVICE_SCENES.has("fan") and env_main_room:
-				corner_fan = DEVICE_SCENES["fan"].instantiate()
-				env_main_room.add_child(corner_fan)
-			if corner_fan:
-				corner_fan.visible = true
-				corner_fan.set("is_active", true)
-			dev_node = corner_fan
-		"gravity_regulator":
-			max_unlocked_gravity_idx = level
-			if current_gravity_idx > max_unlocked_gravity_idx:
-				current_gravity_idx = max_unlocked_gravity_idx
-			apply_gravity_to_active_balloons()
-			
+	if device_id == "gravity_regulator":
+		max_unlocked_gravity_idx = level
+		if current_gravity_idx > max_unlocked_gravity_idx:
+			current_gravity_idx = max_unlocked_gravity_idx
+		apply_gravity_to_active_balloons()
+	elif DEVICE_SCENES.has(device_id) and env_main_room:
+		dev_node = DEVICE_SCENES[device_id].instantiate()
+		dev_node.set_meta("device_type", device_id)
+		dev_node.add_to_group("devices")
+		env_main_room.add_child(dev_node)
+		if dev_node.has_method("setup_level"):
+			dev_node.setup_level(level)
+		active_placed_devices.append(dev_node)
+		
 	update_all_shop_cards()
 	save_current_data()
 	
-	# Only start carrying if the player just bought it newly from the active Shop UI!
-	if from_shop_ui and level == 1 and dev_node and is_instance_valid(dev_node):
+	# Start carrying the newly purchased unit for grid placement!
+	if dev_node and is_instance_valid(dev_node):
 		if shop_modal and shop_modal.visible:
 			toggle_shop_modal()
 		start_carrying_device(dev_node)
+
+func _on_device_tech_upgraded(device_id: String, level: int) -> void:
+	if device_id == "gravity_regulator":
+		max_unlocked_gravity_idx = level
+		if current_gravity_idx > max_unlocked_gravity_idx:
+			current_gravity_idx = max_unlocked_gravity_idx
+		apply_gravity_to_active_balloons()
+	else:
+		for dev in active_placed_devices:
+			if is_instance_valid(dev) and dev.has_meta("device_type") and dev.get_meta("device_type") == device_id:
+				if dev.has_method("setup_level"):
+					dev.setup_level(level)
+	update_all_shop_cards()
+	save_current_data()
+
+func _on_device_purchased(device_id: String, level: int, from_shop_ui: bool = false) -> void:
+	_on_device_tech_upgraded(device_id, level)
 
 func _on_active_count_changed(active: int, max_cap: int) -> void:
 	var room_name = "ODA"
@@ -883,20 +867,10 @@ func update_raycast_interaction() -> void:
 				desk_prompt.visible = true
 			return
 			
-	# 5. Looking at Automation Device (Cone / Proximity Aim Check)
-	var active_devs = [
-		{"node": spike_wall, "name": "Dikenli Zemin"},
-		{"node": electric_wall, "name": "Elektrikli Zemin Izgarası"},
-		{"node": magnet_pylon, "name": "Manyetik Çekim Kulesi"},
-		{"node": conveyor_crusher, "name": "Makaralı Balon Öğütücü"},
-		{"node": sentry_drone, "name": "Otomatik Lazer Dronu"},
-		{"node": corner_fan, "name": "Köşe Fanı"}
-	]
-	
+	# 5. Looking at Automation Devices (Cone / Proximity Aim Check)
 	var cam_pos = cam.global_position
 	var look_dir = -cam.global_transform.basis.z.normalized()
-	for item in active_devs:
-		var d_node = item["node"]
+	for d_node in active_placed_devices:
 		if d_node and is_instance_valid(d_node) and d_node.visible:
 			var d_pos = d_node.global_position + Vector3(0, 0.35, 0)
 			var to_d = d_pos - cam_pos
@@ -904,14 +878,16 @@ func update_raycast_interaction() -> void:
 			if dist <= 5.5 and dist > 0.3:
 				var dot = look_dir.dot(to_d / dist)
 				if dot > 0.92: # Looking towards device
+					var d_type = d_node.get_meta("device_type") if d_node.has_meta("device_type") else ""
+					var d_name = _get_device_display_name(d_type)
 					raycast_target_type = "device"
 					raycast_target_device = d_node
-					raycast_target_name = item["name"]
+					raycast_target_name = d_name
 					nearby_device = d_node
 					if reticle_ring: reticle_ring.modulate = Color(0.3, 0.8, 1.0, 0.95)
 					if crosshair_dot: crosshair_dot.color = Color(0.3, 0.8, 1.0, 1.0)
 					if desk_prompt:
-						desk_prompt.text = "[E] " + item["name"] + " Taşı (Izgara Modu)"
+						desk_prompt.text = "[E] " + d_name + " Taşı (Izgara Modu)"
 						desk_prompt.visible = true
 					return
 
@@ -947,21 +923,24 @@ func _is_gravity_terminal(col: Object) -> bool:
 		n = n.get_parent()
 	return false
 
+func _get_device_display_name(d_type: String) -> String:
+	match d_type:
+		"spike_wall": return "Dikenli Zemin"
+		"electric_wall": return "Elektrikli Zemin Izgarası"
+		"magnet_pylon": return "Manyetik Çekim Kulesi"
+		"conveyor_crusher": return "Makaralı Balon Öğütücü"
+		"sentry_drone": return "Otomatik Lazer Dronu"
+		"fan": return "Köşe Fanı"
+		_: return "Cihaz"
+
 func _get_device_from_collider(col: Object) -> Dictionary:
 	if not col: return {}
-	var candidate_devices = [
-		{"node": spike_wall, "name": "Dikenli Zemin"},
-		{"node": electric_wall, "name": "Elektrikli Zemin Izgarası"},
-		{"node": magnet_pylon, "name": "Manyetik Çekim Kulesi"},
-		{"node": conveyor_crusher, "name": "Makaralı Balon Öğütücü"},
-		{"node": sentry_drone, "name": "Otomatik Lazer Dronu"},
-		{"node": corner_fan, "name": "Köşe Fanı"}
-	]
 	var n: Node = col as Node
 	while n and n != self and n != get_tree().root:
-		for item in candidate_devices:
-			if item.node and is_instance_valid(item.node) and (item.node == n or item.node.is_ancestor_of(n)):
-				return item
+		for dev in active_placed_devices:
+			if dev and is_instance_valid(dev) and (dev == n or dev.is_ancestor_of(n)):
+				var d_type = dev.get_meta("device_type") if dev.has_meta("device_type") else ""
+				return {"node": dev, "name": _get_device_display_name(d_type)}
 		n = n.get_parent()
 	return {}
 
@@ -999,24 +978,22 @@ func save_current_data() -> void:
 		
 	var devices_data = {}
 	for dev_id in shop_manager.devices.keys():
-		devices_data[dev_id] = shop_manager.devices[dev_id].get("level", 0)
+		devices_data[dev_id] = {
+			"level": shop_manager.devices[dev_id].get("level", 0),
+			"count": shop_manager.devices[dev_id].get("count", 0)
+		}
 	devices_data["gravity_mode"] = current_gravity_idx
 	
-	if spike_wall:
-		devices_data["spike_wall_pos"] = [spike_wall.position.x, spike_wall.position.y, spike_wall.position.z]
-		devices_data["spike_wall_rot_y"] = spike_wall.rotation.y
-	if electric_wall:
-		devices_data["electric_wall_pos"] = [electric_wall.position.x, electric_wall.position.y, electric_wall.position.z]
-		devices_data["electric_wall_rot_y"] = electric_wall.rotation.y
-	if magnet_pylon:
-		devices_data["magnet_pylon_pos"] = [magnet_pylon.position.x, magnet_pylon.position.y, magnet_pylon.position.z]
-		devices_data["magnet_pylon_rot_y"] = magnet_pylon.rotation.y
-	if conveyor_crusher:
-		devices_data["conveyor_crusher_pos"] = [conveyor_crusher.position.x, conveyor_crusher.position.y, conveyor_crusher.position.z]
-		devices_data["conveyor_crusher_rot_y"] = conveyor_crusher.rotation.y
-	if corner_fan:
-		devices_data["corner_fan_pos"] = [corner_fan.position.x, corner_fan.position.y, corner_fan.position.z]
-		devices_data["corner_fan_rot_y"] = corner_fan.rotation.y
+	var placed_devices_data: Array = []
+	for dev in active_placed_devices:
+		if is_instance_valid(dev) and dev.visible:
+			var d_type = dev.get_meta("device_type") if dev.has_meta("device_type") else ""
+			if d_type != "":
+				placed_devices_data.append({
+					"type": d_type,
+					"pos": [dev.position.x, dev.position.y, dev.position.z],
+					"rot_y": dev.rotation.y
+				})
 		
 	var coins_data: Array = []
 	if coin_container and is_instance_valid(coin_container) and coin_container.is_inside_tree():
@@ -1029,12 +1006,13 @@ func save_current_data() -> void:
 				})
 		
 	var full_state = {
-		"version": 4,
+		"version": 5,
 		"current_room": shop_manager.current_room,
 		"unlocked_rooms": shop_manager.unlocked_rooms,
 		"prestige_level": shop_manager.prestige_level,
 		"helium_atoms": shop_manager.helium_atoms,
 		"devices": devices_data,
+		"placed_devices": placed_devices_data,
 		"total_pops": game_manager.total_pops,
 		"coins": shop_manager.coins,
 		"is_victory_shown": is_victory_shown,
@@ -1090,36 +1068,36 @@ func load_saved_data() -> void:
 				current_gravity_idx = int(loaded_devices[dev_id])
 				continue
 			if shop_manager.devices.has(dev_id):
-				var lvl = int(loaded_devices[dev_id])
-				shop_manager.devices[dev_id]["level"] = lvl
-				_on_device_purchased(dev_id, lvl, false)
-				
-		# Restore device positions and rotations
-		if loaded_devices.has("spike_wall_pos") and spike_wall:
-			var sp = loaded_devices["spike_wall_pos"]
-			spike_wall.position = Vector3(sp[0], sp[1], sp[2])
-			if loaded_devices.has("spike_wall_rot_y"):
-				spike_wall.rotation.y = float(loaded_devices["spike_wall_rot_y"])
-		if loaded_devices.has("electric_wall_pos") and electric_wall:
-			var ep = loaded_devices["electric_wall_pos"]
-			electric_wall.position = Vector3(ep[0], ep[1], ep[2])
-			if loaded_devices.has("electric_wall_rot_y"):
-				electric_wall.rotation.y = float(loaded_devices["electric_wall_rot_y"])
-		if loaded_devices.has("magnet_pylon_pos") and magnet_pylon:
-			var mp = loaded_devices["magnet_pylon_pos"]
-			magnet_pylon.position = Vector3(mp[0], mp[1], mp[2])
-			if loaded_devices.has("magnet_pylon_rot_y"):
-				magnet_pylon.rotation.y = float(loaded_devices["magnet_pylon_rot_y"])
-		if loaded_devices.has("conveyor_crusher_pos") and conveyor_crusher:
-			var cp = loaded_devices["conveyor_crusher_pos"]
-			conveyor_crusher.position = Vector3(cp[0], cp[1], cp[2])
-			if loaded_devices.has("conveyor_crusher_rot_y"):
-				conveyor_crusher.rotation.y = float(loaded_devices["conveyor_crusher_rot_y"])
-		if loaded_devices.has("corner_fan_pos") and corner_fan:
-			var fp = loaded_devices["corner_fan_pos"]
-			corner_fan.position = Vector3(fp[0], fp[1], fp[2])
-			if loaded_devices.has("corner_fan_rot_y"):
-				corner_fan.rotation.y = float(loaded_devices["corner_fan_rot_y"])
+				var d_info = loaded_devices[dev_id]
+				if d_info is Dictionary:
+					shop_manager.devices[dev_id]["level"] = int(d_info.get("level", 0))
+					shop_manager.devices[dev_id]["count"] = int(d_info.get("count", 0))
+				elif d_info is int or d_info is float:
+					shop_manager.devices[dev_id]["level"] = int(d_info)
+					shop_manager.devices[dev_id]["count"] = 1 if int(d_info) > 0 else 0
+					
+		# Clear existing placed devices
+		for dev in active_placed_devices:
+			if is_instance_valid(dev):
+				dev.queue_free()
+		active_placed_devices.clear()
+		
+		# Restore exact placed device instances at their exact coordinates
+		var loaded_placed = data.get("placed_devices", [])
+		for p_data in loaded_placed:
+			var d_type = p_data.get("type", "")
+			if DEVICE_SCENES.has(d_type) and env_main_room:
+				var dev = DEVICE_SCENES[d_type].instantiate()
+				dev.set_meta("device_type", d_type)
+				dev.add_to_group("devices")
+				env_main_room.add_child(dev)
+				var pos_arr = p_data.get("pos", [0, 0.05, 0])
+				dev.position = Vector3(pos_arr[0], pos_arr[1], pos_arr[2])
+				dev.rotation.y = float(p_data.get("rot_y", 0.0))
+				var d_lvl = shop_manager.devices[d_type].get("level", 1) if shop_manager.devices.has(d_type) else 1
+				if dev.has_method("setup_level"):
+					dev.setup_level(d_lvl)
+				active_placed_devices.append(dev)
 				
 	# 2. Restore Progress & Coins
 	if game_manager:
@@ -1253,10 +1231,6 @@ func _input(event: InputEvent) -> void:
 				cycle_gravity_mode()
 			elif raycast_target_type == "desk":
 				toggle_shop_modal()
-			elif is_near_desk:
-				toggle_shop_modal()
-			elif is_near_grav_terminal:
-				cycle_gravity_mode()
 			elif nearby_device != null and is_instance_valid(nearby_device):
 				start_carrying_device(nearby_device)
 		elif event.keycode == KEY_G:
@@ -1405,10 +1379,12 @@ func update_all_shop_cards() -> void:
 			
 			var unlock_req = d_data.get("unlock_pops", 0)
 			var is_unlocked = total_pops >= unlock_req
-			var lvl = d_data["level"]
-			var max_lvl = d_data["max_level"]
+			var lvl = d_data.get("level", 0)
+			var max_lvl = d_data.get("max_level", 6)
+			var cur_count = d_data.get("count", 0)
+			var max_count = d_data.get("max_count", 6)
 			
-			if not is_unlocked and lvl == 0:
+			if not is_unlocked and cur_count == 0 and lvl == 0:
 				sort_priority = 1000 + unlock_req
 				if title_lbl:
 					title_lbl.text = "🔒 " + d_data["name"].to_upper()
@@ -1422,8 +1398,11 @@ func update_all_shop_cards() -> void:
 					cost_btn.disabled = true
 			else:
 				if title_lbl:
-					title_lbl.text = d_data["name"] + "  [" + format_level_pips(lvl, max_lvl) + "] (Sv. " + str(lvl) + "/" + str(max_lvl) + ")"
-					title_lbl.modulate = Color(1.0, 0.45, 0.45) if lvl > 0 else Color(1, 1, 1)
+					if d_id == "gravity_regulator":
+						title_lbl.text = d_data["name"] + "  [" + format_level_pips(lvl, max_lvl) + "] (Sv. " + str(lvl) + "/" + str(max_lvl) + ")"
+					else:
+						title_lbl.text = d_data["name"] + "  [Sv. " + str(lvl) + "/" + str(max_lvl) + "]  |  Sahada: " + str(cur_count) + "/" + str(max_count) + " Adet"
+					title_lbl.modulate = Color(0.3, 0.9, 1.0) if cur_count > 0 else Color(1, 1, 1)
 				if desc_lbl:
 					if d_data.has("modes"):
 						if lvl >= max_lvl:
@@ -1435,30 +1414,48 @@ func update_all_shop_cards() -> void:
 						else:
 							desc_lbl.text = d_data["desc"]
 					elif d_data.has("widths"):
-						if lvl >= max_lvl:
-							desc_lbl.text = "Maksimum Seviye: " + str(d_data["widths"][max_lvl - 1]) + " (Tam Verim)"
-						elif lvl > 0:
-							var curr_w = d_data["widths"][lvl - 1]
-							var next_w = d_data["widths"][lvl]
-							desc_lbl.text = "Mevcut: " + str(curr_w) + " ➔ Yükseltme: " + str(next_w)
+						var stat_str = d_data["widths"][clamp(lvl - 1 if lvl > 0 else 0, 0, d_data["widths"].size() - 1)]
+						if cur_count > 0:
+							desc_lbl.text = "Mevcut Güç: " + str(stat_str) + " (Sahadaki tüm " + str(cur_count) + " cihaz için aktif)\n" + d_data.get("desc", "")
 						else:
-							desc_lbl.text = d_data["desc"]
+							desc_lbl.text = d_data.get("desc", "")
 					else:
 						desc_lbl.text = d_data.get("desc", "")
 					desc_lbl.modulate = Color(0.85, 0.88, 0.95)
 					
 				if cost_btn:
-					if lvl >= max_lvl:
-						sort_priority = 500
-						cost_btn.text = "MAX SEVİYE"
-						cost_btn.disabled = true
+					if d_id == "gravity_regulator":
+						if lvl >= max_lvl:
+							sort_priority = 500
+							cost_btn.text = "MAX SEVİYE"
+							cost_btn.disabled = true
+						else:
+							sort_priority = 100
+							var cost = d_data["costs"][lvl]
+							cost_btn.text = "GELİŞTİR : " + str(cost) + " Coin"
+							cost_btn.disabled = shop_manager.coins < cost
 					else:
-						sort_priority = 100
-						var cost = d_data["costs"][lvl]
-						cost_btn.text = ("SATIN AL : " if lvl == 0 else "GELİŞTİR : ") + str(cost) + " Coin"
-						cost_btn.disabled = shop_manager.coins < cost
-						if not cost_btn.is_connected("pressed", Callable(self, "_on_buy_device_pressed")):
-							cost_btn.pressed.connect(Callable(self, "_on_buy_device_pressed").bind(d_id))
+						if cur_count < max_count:
+							sort_priority = 100
+							var u_costs = d_data.get("unit_costs", d_data.get("costs", [500]))
+							var u_cost = u_costs[clamp(cur_count, 0, u_costs.size() - 1)]
+							if cur_count == 0:
+								cost_btn.text = "SATIN AL (1. Adet) : " + str(u_cost) + " Coin"
+							else:
+								cost_btn.text = "YENİ CİHAZ AL (" + str(cur_count + 1) + "/" + str(max_count) + ") : " + str(u_cost) + " Coin"
+							cost_btn.disabled = shop_manager.coins < u_cost
+						elif lvl < max_lvl:
+							sort_priority = 200
+							var up_cost = d_data["costs"][lvl]
+							cost_btn.text = "TÜMÜNÜ GELİŞTİR (Sv. " + str(lvl + 1) + ") : " + str(up_cost) + " Coin"
+							cost_btn.disabled = shop_manager.coins < up_cost
+						else:
+							sort_priority = 500
+							cost_btn.text = "MAX SEVİYE & ADET"
+							cost_btn.disabled = true
+							
+					if not cost_btn.is_connected("pressed", Callable(self, "_on_buy_device_pressed")):
+						cost_btn.pressed.connect(Callable(self, "_on_buy_device_pressed").bind(d_id))
 
 		# 2. Room Expansion Cards (Tab: "rooms")
 		elif child.has_meta("room_id"):
