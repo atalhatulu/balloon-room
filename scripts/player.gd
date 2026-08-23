@@ -213,36 +213,6 @@ func _physics_process(delta: float) -> void:
 		if time_since_action >= energy_regen_delay:
 			regenerate_energy(energy_regen_rate * delta)
 
-	# Magnet Attraction Effect
-	if magnet_unlocked:
-		apply_magnet_pull(delta)
-
-var magnet_timer: float = 0.0
-
-func apply_magnet_pull(delta: float) -> void:
-	if not magnet_unlocked or magnet_level == 0:
-		return
-	magnet_timer += delta
-	if magnet_timer < 0.06: # 16 Hz
-		return
-	magnet_timer = 0.0
-	
-	var balloons = get_tree().get_nodes_in_group("balloons")
-	var player_pos = global_position + Vector3(0, 0.5, 0)
-	var max_r_sq = magnet_range * magnet_range
-	
-	for b in balloons:
-		if b is RigidBody3D and is_instance_valid(b) and not b.is_queued_for_deletion() and not b.get("is_popped"):
-			var diff = player_pos - b.global_position
-			var dist_sq = diff.length_squared()
-			if dist_sq < max_r_sq and dist_sq > 1.2:
-				if b.has_method("wake_physics"):
-					b.wake_physics()
-				var dist = sqrt(dist_sq)
-				var pull_dir = diff / dist
-				var force_factor = clamp(1.0 - (dist / magnet_range), 0.15, 1.0) * magnet_force
-				b.apply_central_impulse(pull_dir * force_factor * 0.08)
-
 func consume_energy(amount: float) -> void:
 	current_energy = clamp(current_energy - amount, 0.0, max_energy)
 	time_since_action = 0.0
