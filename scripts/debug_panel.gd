@@ -348,6 +348,17 @@ func _build_devices_tab() -> void:
 		var cc = load("res://scripts/conveyor_crusher.gd")
 		if cc and "conveyor_speed" in cc: cc.conveyor_speed = val
 	)
+	# Wall Fan
+	_add_spinbox_row(grid, "Vantilatör Rüzgar İtme Gücü:", 1.0, 100.0, 1.0, 14.0, func(val):
+		var fans = get_tree().get_nodes_in_group("fans")
+		for f in fans:
+			if f and is_instance_valid(f): f.wind_strength = val
+	)
+	_add_spinbox_row(grid, "Vantilatör Üfleme Menzili (Metre):", 2.0, 60.0, 1.0, 12.0, func(val):
+		var fans = get_tree().get_nodes_in_group("fans")
+		for f in fans:
+			if f and is_instance_valid(f): f.wind_range = val
+	)
 
 func _build_cheats_tab() -> void:
 	var scroll = ScrollContainer.new()
