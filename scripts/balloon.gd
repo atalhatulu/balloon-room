@@ -20,10 +20,16 @@ func _ready() -> void:
 	collision_layer = 2
 	collision_mask = 3
 	can_sleep = true
+	sleeping = false
 	continuous_cd = false
 	set_process(false)
 	set_physics_process(false)
 	
+	if not mesh_instance:
+		mesh_instance = get_node_or_null("MeshInstance3D")
+	if not collision_shape:
+		collision_shape = get_node_or_null("CollisionShape3D")
+		
 	if mesh_instance:
 		mesh_instance.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		
@@ -102,6 +108,8 @@ static func get_highlight_material(color: Color) -> StandardMaterial3D:
 	return mat
 
 func _apply_cached_material() -> void:
+	if not mesh_instance:
+		mesh_instance = get_node_or_null("MeshInstance3D")
 	var mat = get_cached_material(balloon_color)
 	if mesh_instance:
 		mesh_instance.material_override = mat

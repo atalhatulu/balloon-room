@@ -36,6 +36,7 @@ func _ready() -> void:
 			shop_manager.prestige_performed.connect(func(_lvl, _he): recalculate_effective_stats())
 	
 	recalculate_effective_stats()
+	start_game()
 
 func start_game() -> void:
 	is_game_started = true
