@@ -18,17 +18,12 @@ func _ready() -> void:
 	add_to_group("devices")
 	add_to_group("placeable_devices")
 	update_visuals()
-	update_position_for_room()
 
 func setup_level(new_level: int) -> void:
-	level = new_level
+	level = max(new_level, 1)
 	is_active = (level > 0)
 	visible = is_active
 	update_visuals()
-
-func update_position_for_room() -> void:
-	if position == Vector3.ZERO:
-		position = Vector3(0.0, 0.05, -3.0)
 
 func update_visuals() -> void:
 	if not is_active or level <= 0:
