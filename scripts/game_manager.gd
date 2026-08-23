@@ -8,9 +8,9 @@ var total_pops: int = 0
 var active_balloons: int = 0
 var is_game_started: bool = false
 
-# Base Upgrade Tables (Smooth, fluid waterfall progression)
-var base_rate_table: Array = [1.0, 1.6, 2.4, 3.5, 5.0, 7.2, 10.5, 15.0, 22.0, 32.0, 46.0, 65.0, 90.0]
-var base_cap_table: Array = [60, 110, 180, 290, 460, 720, 1100, 1700, 2600, 3800, 5500]
+# Base Upgrade Tables (Substantial, satisfying factory waterfall flow)
+var base_rate_table: Array = [2.5, 4.5, 7.5, 12.0, 18.0, 28.0, 42.0, 60.0, 85.0, 120.0, 170.0, 240.0, 320.0]
+var base_cap_table: Array = [80, 150, 260, 420, 650, 950, 1400, 2100, 3200, 4800, 7000]
 
 var current_vent_level: int = 0
 var current_cap_level: int = 0
@@ -19,8 +19,8 @@ var current_cap_level: int = 0
 var room_cap_bonus: int = 0
 var room_flow_multiplier: float = 1.0
 
-var balloons_per_second: float = 1.0
-var max_room_balloons: int = 60
+var balloons_per_second: float = 2.5
+var max_room_balloons: int = 80
 var spawn_accumulator: float = 0.0
 
 @onready var sound_manager = get_node_or_null("../SoundManager")
@@ -63,8 +63,8 @@ func recalculate_effective_stats() -> void:
 	var base_rate = base_rate_table[clamp(current_vent_level, 0, base_rate_table.size() - 1)]
 	var base_cap = base_cap_table[clamp(current_cap_level, 0, base_cap_table.size() - 1)]
 	
-	# Pipe count gracefully spreads balloons across multiple ceiling nozzles with smooth +35% flow per extra pipe
-	var pipe_flow_mult = 1.0 + (float(pipe_count - 1) * 0.35)
+	# Each extra pipe adds true 100% full nozzle throughput pouring into the room
+	var pipe_flow_mult = float(pipe_count) * 1.0
 	balloons_per_second = (base_rate * pipe_flow_mult) * room_flow_multiplier * prestige_bonus
 	max_room_balloons = base_cap + room_cap_bonus
 	active_count_changed.emit(active_balloons, max_room_balloons)
@@ -77,14 +77,14 @@ func _process(delta: float) -> void:
 		spawn_accumulator += delta * balloons_per_second
 		if spawn_accumulator >= 1.0:
 			var to_spawn = int(spawn_accumulator)
-			spawn_accumulator -= float(to_spawn)
-			
 			var remaining_space = max_room_balloons - active_balloons
 			var final_count = min(to_spawn, remaining_space)
-			# Smooth dripping clamp per frame to prevent giant multi-balloon clumps
-			final_count = min(final_count, 2)
+			final_count = min(final_count, 12)
 			if final_count > 0:
+				spawn_accumulator -= float(final_count)
 				spawn_requested.emit(final_count)
+			else:
+				spawn_accumulator = min(spawn_accumulator, 2.0)
 	else:
 		spawn_accumulator = 0.0
 

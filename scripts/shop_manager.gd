@@ -26,8 +26,8 @@ var devices: Dictionary = {
 		"max_level": 6,
 		"count": 0,
 		"max_count": 3,
-		"desc": "Zemine serilen sivri çelik iğneler. Balonlar üzerine yığılır ve periyodik vuruşla topluca delinir.",
-		"widths": ["1.8s Bekleme (16 Balon)", "1.3s Bekleme (32 Balon)", "0.95s Bekleme (55 Balon)", "0.70s Bekleme (90 Balon)", "0.50s Bekleme (140 Balon)", "0.35s Bekleme (200 Balon)"],
+		"desc": "Zemine serilen sivri çelik iğneler. Balonlar üzerine düştükçe sürekli seri darbelerle deler.",
+		"widths": ["0.60s Bekleme (12 Balon)", "0.48s Bekleme (22 Balon)", "0.38s Bekleme (36 Balon)", "0.30s Bekleme (55 Balon)", "0.22s Bekleme (80 Balon)", "0.16s Bekleme (120 Balon)"],
 		"unit_costs": [400, 1500, 6000],
 		"costs": [800, 2500, 9000, 32000, 110000, 350000]
 	},
@@ -40,8 +40,8 @@ var devices: Dictionary = {
 		"max_level": 6,
 		"count": 0,
 		"max_count": 3,
-		"desc": "Tabana yüksek voltajlı neon ark ızgarası serer. Şarj dolduğunda biriken balonları devasa bir yıldırımla yakar.",
-		"widths": ["2.0s Şarj (24 Balon)", "1.4s Şarj (45 Balon)", "1.0s Şarj (75 Balon)", "0.75s Şarj (120 Balon)", "0.55s Şarj (180 Balon)", "0.40s Şarj (260 Balon)"],
+		"desc": "Yüksek voltajlı kondansatör ızgarası. Şarj olduğunda havadaki ve yerdeki balonlara devasa yıldırım EMP patlaması yapar.",
+		"widths": ["2.5s Şarj (16 Balon)", "2.0s Şarj (28 Balon)", "1.6s Şarj (45 Balon)", "1.25s Şarj (70 Balon)", "0.95s Şarj (105 Balon)", "0.70s Şarj (150 Balon)"],
 		"unit_costs": [1000, 4500, 18000],
 		"costs": [2000, 6500, 22000, 80000, 280000, 850000]
 	},
@@ -54,8 +54,8 @@ var devices: Dictionary = {
 		"max_level": 6,
 		"count": 0,
 		"max_count": 3,
-		"desc": "Dikilen dikey elektromanyetik kule. Balonları çevreden kendi merkezine ve altındaki tuzaklara çeker.",
-		"widths": ["6.0m Çekim", "10.0m Çekim", "16.0m Çekim", "24.0m Çekim", "35.0m Çekim", "50.0m Çekim"],
+		"desc": "Dikey elektromanyetik kule. Çevredeki düşen balonları kendi merkezine ve altındaki tuzaklara çeker.",
+		"widths": ["3.5m Çekim", "4.5m Çekim", "5.8m Çekim", "7.2m Çekim", "8.8m Çekim", "10.5m Çekim"],
 		"unit_costs": [800, 3000, 12000],
 		"costs": [1500, 4500, 15000, 55000, 190000, 550000]
 	},
@@ -81,8 +81,8 @@ var devices: Dictionary = {
 		"max_level": 6,
 		"count": 0,
 		"max_count": 3,
-		"desc": "Zemine konulan çift silindirli döner çelik öğütücü. Balonları içine çekip parti halinde kıyma yapar ve soğumaya geçer.",
-		"widths": ["1.2s Soğuma (15 Balon)", "0.9s Soğuma (25 Balon)", "0.65s Soğuma (45 Balon)", "0.45s Soğuma (75 Balon)", "0.25s Soğuma (120 Balon)", "0.15s Soğuma (200 Balon)"],
+		"desc": "Zemine konulan çift silindirli döner çelik öğütücü. Yakındaki balonları vakumlayıp silindirlerde kıyma yapar.",
+		"widths": ["1.4s Soğuma (12 Balon)", "1.1s Soğuma (20 Balon)", "0.85s Soğuma (32 Balon)", "0.65s Soğuma (50 Balon)", "0.48s Soğuma (75 Balon)", "0.35s Soğuma (110 Balon)"],
 		"unit_costs": [1500, 6000, 25000],
 		"costs": [3000, 9500, 32000, 110000, 380000, 1100000]
 	},
@@ -95,8 +95,8 @@ var devices: Dictionary = {
 		"max_level": 6,
 		"count": 0,
 		"max_count": 3,
-		"desc": "Oyuncunun yanında süzülen güvenlik dronu. Lazer atışları arasında şarj olur.",
-		"widths": ["1.2s (2x Hedef)", "0.80s (4x Hedef)", "0.50s (6x Hedef)", "0.30s (9x Hedef)", "0.18s (14x Hedef)", "0.10s (22x Hedef)"],
+		"desc": "Oyuncunun yanında süzülen güvenlik dronu. Havadaki balonları lazerle otomatik vurur.",
+		"widths": ["1.4s (1x Hedef)", "1.1s (2x Hedef)", "0.85s (3x Hedef)", "0.65s (4x Hedef)", "0.50s (6x Hedef)", "0.38s (8x Hedef)"],
 		"unit_costs": [2500, 9000, 35000],
 		"costs": [5000, 16000, 55000, 190000, 600000, 1600000]
 	}

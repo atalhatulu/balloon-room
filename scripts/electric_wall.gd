@@ -4,10 +4,10 @@ extends Node3D
 @export var level: int = 1
 
 # EMP Zap radius (horizontal sphere/cylinder reach) and vertical ceiling reach
-var zap_radii: Array[float] = [0.0, 3.8, 5.2, 7.0, 9.2, 12.0, 15.0]
-var zap_heights: Array[float] = [0.0, 3.5, 4.5, 5.8, 7.2, 9.0, 11.0]
-var cooldown_intervals: Array[float] = [0.0, 2.2, 1.7, 1.25, 0.90, 0.65, 0.45]
-var max_burst_caps: Array[int] = [0, 25, 50, 85, 140, 220, 350]
+var zap_radii: Array[float] = [0.0, 2.5, 3.2, 4.0, 4.8, 5.8, 7.0]
+var zap_heights: Array[float] = [0.0, 2.5, 3.2, 4.0, 4.8, 5.6, 6.5]
+var cooldown_intervals: Array[float] = [0.0, 2.5, 2.0, 1.6, 1.25, 0.95, 0.70]
+var max_burst_caps: Array[int] = [0, 16, 28, 45, 70, 105, 150]
 
 var cooldown_timer: float = 0.0
 

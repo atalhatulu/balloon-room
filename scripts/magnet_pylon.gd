@@ -3,8 +3,8 @@ extends Node3D
 @export var is_active: bool = false
 @export var level: int = 0
 
-var pull_ranges: Array[float] = [0.0, 6.0, 9.0, 13.0, 18.0, 24.0]
-var pull_strengths: Array[float] = [0.0, 3.2, 5.0, 7.5, 10.5, 14.0]
+var pull_ranges: Array[float] = [0.0, 3.5, 4.5, 5.8, 7.2, 8.8, 10.5]
+var pull_strengths: Array[float] = [0.0, 2.8, 4.0, 5.5, 7.2, 9.0, 11.5]
 
 var tick_timer: float = 0.0
 var tick_rate: float = 0.08 # 12.5 Hz for buttery smooth 100+ FPS performance

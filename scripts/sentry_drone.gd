@@ -3,9 +3,9 @@ extends Node3D
 @export var is_active: bool = false
 @export var level: int = 0
 
-var cooldown_intervals: Array[float] = [1.2, 0.80, 0.50, 0.30, 0.18]
-var laser_ranges: Array[float] = [8.0, 12.0, 18.0, 26.0, 36.0]
-var max_targets_per_burst: Array[int] = [2, 4, 6, 9, 14]
+var cooldown_intervals: Array[float] = [1.4, 1.1, 0.85, 0.65, 0.50, 0.38]
+var laser_ranges: Array[float] = [5.5, 7.0, 8.5, 10.0, 12.0, 14.5]
+var max_targets_per_burst: Array[int] = [1, 2, 3, 4, 6, 8]
 
 var cooldown_timer: float = 0.0
 var hover_angle: float = 0.0

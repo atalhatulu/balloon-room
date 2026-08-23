@@ -3,9 +3,9 @@ extends Node3D
 @export var is_active: bool = false
 @export var level: int = 1
 
-var cooldown_intervals: Array[float] = [0.0, 0.55, 0.42, 0.32, 0.24, 0.17, 0.12]
-var batch_capacities: Array[int] = [0, 18, 35, 60, 95, 150, 220]
-var trigger_radii: Array[float] = [0.0, 1.8, 2.2, 2.7, 3.2, 3.8, 4.5]
+var cooldown_intervals: Array[float] = [0.0, 0.60, 0.48, 0.38, 0.30, 0.22, 0.16]
+var batch_capacities: Array[int] = [0, 12, 22, 36, 55, 80, 120]
+var trigger_radii: Array[float] = [0.0, 1.4, 1.6, 1.8, 2.0, 2.2, 2.5]
 
 var cooldown_timer: float = 0.0
 
