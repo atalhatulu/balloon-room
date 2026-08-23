@@ -1206,7 +1206,6 @@ func load_saved_data() -> void:
 	if game_manager:
 		game_manager.total_pops = loaded_pops
 		game_manager.current_vent_level = int(loaded_upgrades.get("vent_rate", 0))
-		game_manager.current_cap_level = int(loaded_upgrades.get("room_capacity", 0))
 		game_manager.recalculate_effective_stats()
 		
 	# 3. Restore Player Transform & Stats (Always safely placed above the floor)
@@ -1750,6 +1749,9 @@ func update_all_shop_cards() -> void:
 				
 				if not matches_filter:
 					continue
+			else:
+				child.visible = false
+				continue
 					
 				var title_lbl = child.get_node_or_null("Margin/VBox/Title")
 				var desc_lbl = child.get_node_or_null("Margin/VBox/Desc")

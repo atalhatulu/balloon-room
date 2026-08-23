@@ -102,77 +102,77 @@ var devices: Dictionary = {
 	}
 }
 
-# Room Expansion Catalog (1M Balanced Scale)
+# Room Expansion Catalog (Fixed Room Dimensions & Natural Capacities)
 var rooms: Dictionary = {
 	"small_room": {
 		"id": "small_room",
 		"name": "Küçük Salon (Small Room)",
-		"desc": "Başlangıç odası. 1.0x Coin çarpanı, standart akış.",
+		"desc": "16x16m alan, 6m tavan. 1.0x Coin Çarpanı, 150 Balon Kapasitesi.",
 		"cost": 0,
 		"unlock_pops": 0,
 		"floor_size": Vector2(16, 16),
 		"ceiling_height": 6.0,
-		"cap_bonus": 10,
+		"capacity": 150,
 		"flow_mult": 1.0,
 		"coin_multiplier": 1.0
 	},
 	"medium_room": {
 		"id": "medium_room",
 		"name": "Geniş Salon (Medium Room)",
-		"desc": "26x26m alan, 7.5m tavan. 1.5x Coin Çarpanı, +40 Balon Kapasitesi.",
+		"desc": "26x26m alan, 7.5m tavan. 1.5x Coin Çarpanı, 450 Balon Kapasitesi.",
 		"cost": 1500,
 		"unlock_pops": 1000,
 		"floor_size": Vector2(26, 26),
 		"ceiling_height": 7.5,
-		"cap_bonus": 40,
+		"capacity": 450,
 		"flow_mult": 1.25,
 		"coin_multiplier": 1.5
 	},
 	"large_room": {
 		"id": "large_room",
 		"name": "Büyük Kompleks (Large Room)",
-		"desc": "38x38m alan, 9m tavan. 2.2x Coin Çarpanı, +90 Balon Kapasitesi.",
+		"desc": "38x38m alan, 9m tavan. 2.2x Coin Çarpanı, 1.200 Balon Kapasitesi.",
 		"cost": 25000,
 		"unlock_pops": 10000,
 		"floor_size": Vector2(38, 38),
 		"ceiling_height": 9.0,
-		"cap_bonus": 90,
+		"capacity": 1200,
 		"flow_mult": 1.6,
 		"coin_multiplier": 2.2
 	},
 	"warehouse": {
 		"id": "warehouse",
 		"name": "Sanayi Deposu (Warehouse)",
-		"desc": "54x54m alan, 11m tavan. 3.5x Mega Coin Çarpanı, +180 Balon Kapasitesi.",
+		"desc": "54x54m alan, 11m tavan. 3.5x Mega Coin Çarpanı, 2.800 Balon Kapasitesi.",
 		"cost": 150000,
 		"unlock_pops": 50000,
 		"floor_size": Vector2(54, 54),
 		"ceiling_height": 11.0,
-		"cap_bonus": 180,
+		"capacity": 2800,
 		"flow_mult": 2.2,
 		"coin_multiplier": 3.5
 	},
 	"hangar": {
 		"id": "hangar",
 		"name": "Mega Hangar (Hangar)",
-		"desc": "72x72m dev alan, 14m tavan. 5.0x Mega Çarpan, +350 Balon Kapasitesi.",
+		"desc": "72x72m dev alan, 14m tavan. 5.0x Mega Çarpan, 6.000 Balon Kapasitesi.",
 		"cost": 750000,
 		"unlock_pops": 200000,
 		"floor_size": Vector2(72, 72),
 		"ceiling_height": 14.0,
-		"cap_bonus": 350,
+		"capacity": 6000,
 		"flow_mult": 3.0,
 		"coin_multiplier": 5.0
 	},
 	"hyper_lab": {
 		"id": "hyper_lab",
 		"name": "Hyper Lab (Absürt Aşama)",
-		"desc": "95x95m siber tesis, 18m tavan. 8.0x Nihai Çarpan, +800 Balon Kapasitesi.",
+		"desc": "95x95m siber tesis, 18m tavan. 8.0x Nihai Çarpan, 12.000 Balon Kapasitesi.",
 		"cost": 3000000,
 		"unlock_pops": 500000,
 		"floor_size": Vector2(95, 95),
 		"ceiling_height": 18.0,
-		"cap_bonus": 800,
+		"capacity": 12000,
 		"flow_mult": 4.5,
 		"coin_multiplier": 8.0
 	}
@@ -200,16 +200,6 @@ var upgrades: Dictionary = {
 		"desc": "Tavandan saniyede dökülen balon sayısını artırır.",
 		"rates": [1, 2, 3.5, 6, 10, 16, 26, 42, 70, 110, 180, 280, 450],
 		"costs": [10, 25, 60, 150, 350, 800, 1800, 4000, 8000, 15000, 30000, 60000]
-	},
-	"room_capacity": {
-		"category": "upgrades",
-		"unlock_pops": 0,
-		"level": 0,
-		"max_level": 10,
-		"title": "Oda Kapasitesi",
-		"desc": "Odada aynı anda bulunabilecek maksimum balon limitini artırır.",
-		"caps": [30, 50, 80, 130, 200, 320, 500, 750, 1100, 1600, 2400],
-		"costs": [15, 40, 100, 260, 650, 1600, 4000, 10000, 25000, 60000]
 	},
 
 	# 2. İĞNE / OYUNCU ARAÇLARI

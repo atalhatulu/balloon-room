@@ -52,9 +52,10 @@ func recalculate_effective_stats() -> void:
 	if shop_manager and "prestige_level" in shop_manager:
 		prestige_bonus = 1.0 + (shop_manager.prestige_level * 0.5)
 		
+	var room_cap = 150
 	if shop_manager and shop_manager.has_method("get_current_room_data"):
 		var r_data = shop_manager.get_current_room_data()
-		room_cap_bonus = r_data.get("cap_bonus", 0)
+		room_cap = r_data.get("capacity", 150)
 		room_flow_multiplier = r_data.get("flow_mult", 1.0)
 	
 	var pipe_count = 1
@@ -62,12 +63,11 @@ func recalculate_effective_stats() -> void:
 		pipe_count = 1 + shop_manager.upgrades["pipe_count"]["level"]
 		
 	var base_rate = base_rate_table[clamp(current_vent_level, 0, base_rate_table.size() - 1)]
-	var base_cap = base_cap_table[clamp(current_cap_level, 0, base_cap_table.size() - 1)]
 	
 	# Each extra pipe adds true 100% full nozzle throughput pouring into the room
 	var pipe_flow_mult = float(pipe_count) * 1.0
 	balloons_per_second = (base_rate * pipe_flow_mult) * room_flow_multiplier * prestige_bonus
-	max_room_balloons = base_cap + room_cap_bonus
+	max_room_balloons = room_cap
 	active_count_changed.emit(active_balloons, max_room_balloons)
 
 var pop_history: Array[float] = []
