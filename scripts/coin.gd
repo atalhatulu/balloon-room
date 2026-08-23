@@ -2,22 +2,38 @@ extends Area3D
 
 var coin_value: int = 1
 var velocity: Vector3 = Vector3.ZERO
+var tumble_speed: Vector3 = Vector3.ZERO
 var is_grounded: bool = false
 var is_collecting: bool = false
 var lifetime: float = 0.0
 var bounce_count: int = 0
 var floor_y: float = 0.08
+var collect_speed: float = 2.0
 
 @onready var mesh_instance: MeshInstance3D = $MeshInstance3D
 
 func init(spawn_pos: Vector3, val: int = 1) -> void:
 	global_position = spawn_pos
 	coin_value = val
+	
+	# Dynamic explosive burst arc
 	velocity = Vector3(
-		randf_range(-2.2, 2.2),
-		randf_range(2.2, 4.5),
-		randf_range(-2.2, 2.2)
+		randf_range(-2.6, 2.6),
+		randf_range(3.5, 6.2),
+		randf_range(-2.6, 2.6)
 	)
+	
+	# Organic multi-axis tumbling rotation
+	tumble_speed = Vector3(
+		randf_range(-14.0, 14.0),
+		randf_range(8.0, 16.0),
+		randf_range(-14.0, 14.0)
+	)
+	
+	# Initial spawn squash and stretch
+	scale = Vector3(0.4, 0.4, 0.4)
+	var tween = create_tween()
+	tween.tween_property(self, "scale", Vector3.ONE, 0.12).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 
 func _ready() -> void:
 	add_to_group("coins")
@@ -25,56 +41,82 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	lifetime += delta
 	
-	# Gentle spinning
-	if mesh_instance:
-		mesh_instance.rotate_y(4.0 * delta)
-		
-	# Arc physics drop to floor with bouncing
-	if not is_grounded:
-		velocity.y -= 15.0 * delta
-		global_position += velocity * delta
-		if global_position.y <= floor_y:
-			global_position.y = floor_y
-			if bounce_count < 1 and abs(velocity.y) > 2.0:
-				velocity.y = -velocity.y * 0.35
-				velocity.x *= 0.6
-				velocity.z *= 0.6
-				bounce_count += 1
-			else:
-				velocity = Vector3.ZERO
-				is_grounded = true
-				
 	var main_node = get_node_or_null("/root/Main")
 	var player = main_node.get("player") if main_node else null
 	
+	# Check for magnetic attraction to player
 	if not is_collecting and player and is_instance_valid(player):
 		var p_pos = player.global_position + Vector3(0, 0.9, 0)
 		var dist = global_position.distance_to(p_pos)
 		
-		# Proximity rules:
-		# If on the ground: full magnetic pickup range (3.4m + magnet upgrades)
-		# If still falling mid-air: only collect if player is right next to it (< 0.85m) and coin has had time to drop (> 0.25s)
 		if is_grounded:
 			var magnet_lvl = player.get("magnet_level") if ("magnet_level" in player) else 0
 			var magnet_unlocked = player.get("magnet_unlocked") if ("magnet_unlocked" in player) else false
-			var pickup_range = 3.4 + (float(magnet_lvl) * 1.5 if magnet_unlocked else 0.0)
+			var pickup_range = 3.6 + (float(magnet_lvl) * 1.6 if magnet_unlocked else 0.0)
 			if dist <= pickup_range:
 				is_collecting = true
 		else:
-			if dist <= 0.85 and lifetime > 0.25:
+			# Mid-air catch only if player is right on top of it after initial burst
+			if dist <= 0.9 and lifetime > 0.3:
 				is_collecting = true
-			
+				
+	# 1. State: Collecting (Accelerating Swoop & Scale into Player)
 	if is_collecting:
 		if player and is_instance_valid(player):
 			var target_pos = player.global_position + Vector3(0, 0.9, 0)
-			global_position = global_position.lerp(target_pos, clamp(16.0 * delta, 0.0, 1.0))
-			if global_position.distance_to(target_pos) < 0.45:
+			collect_speed = move_toward(collect_speed, 24.0, 48.0 * delta)
+			
+			var dir = (target_pos - global_position).normalized()
+			global_position += dir * collect_speed * delta
+			
+			if mesh_instance:
+				mesh_instance.rotate_y(16.0 * delta)
+			scale = scale.lerp(Vector3(0.2, 0.2, 0.2), 12.0 * delta)
+			
+			if global_position.distance_to(target_pos) < 0.5:
 				collect_coin()
 		else:
 			collect_coin()
 		return
+		
+	# 2. State: Falling in Air (Realistic Gravity, Air Drag & 3D Tumble)
+	if not is_grounded:
+		velocity.y -= 16.0 * delta
+		velocity.x = move_toward(velocity.x, 0.0, 1.6 * delta)
+		velocity.z = move_toward(velocity.z, 0.0, 1.6 * delta)
+		global_position += velocity * delta
+		
+		# Multi-axis tumbling through the air
+		if mesh_instance:
+			mesh_instance.rotate_x(tumble_speed.x * delta)
+			mesh_instance.rotate_y(tumble_speed.y * delta)
+			mesh_instance.rotate_z(tumble_speed.z * delta)
 			
-	# Auto sweep after 45 seconds to prevent forgotten clutter
+		# Floor Impact & Organic Double Bounce
+		if global_position.y <= floor_y:
+			global_position.y = floor_y
+			if bounce_count < 2 and abs(velocity.y) > 1.4:
+				bounce_count += 1
+				var b_factor = 0.45 if bounce_count == 1 else 0.25
+				velocity.y = -velocity.y * b_factor
+				velocity.x *= 0.55
+				velocity.z *= 0.55
+				tumble_speed *= 0.45
+			else:
+				velocity = Vector3.ZERO
+				is_grounded = true
+				
+	# 3. State: Grounded & Idle (Smooth Tilt Settle + Elegant Floating Spin)
+	else:
+		if mesh_instance:
+			# Smoothly settle upright/flat angle with slight organic tilt
+			mesh_instance.rotation.x = lerp_angle(mesh_instance.rotation.x, deg_to_rad(15.0), 8.0 * delta)
+			mesh_instance.rotation.z = lerp_angle(mesh_instance.rotation.z, 0.0, 8.0 * delta)
+			mesh_instance.rotate_y(3.5 * delta)
+			# Subtle floating hover bob
+			mesh_instance.position.y = 0.03 + sin(lifetime * 4.5) * 0.015
+
+	# Auto sweep after 45 seconds to prevent performance drag
 	if lifetime > 45.0:
 		is_collecting = true
 
