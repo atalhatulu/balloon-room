@@ -4,12 +4,13 @@ extends Node3D
 
 @export var is_active: bool = true
 @export var level: int = 1
-@export var wind_strength: float = 14.0
-@export var wind_range: float = 9.0
-@export var fan_spin_speed: float = 24.0
+@export var wind_strength: float = 3.2
+@export var wind_range: float = 7.5
+@export var fan_spin_speed: float = 18.0
 
-var ranges: Array[float] = [0.0, 9.0, 12.0, 16.0, 20.0, 25.0, 32.0]
-var strengths: Array[float] = [0.0, 14.0, 18.0, 24.0, 32.0, 42.0, 55.0]
+static var ranges: Array[float] = [0.0, 7.5, 9.5, 12.0, 15.0, 18.5, 22.0]
+static var strengths: Array[float] = [0.0, 3.2, 4.4, 5.8, 7.4, 9.2, 11.0]
+static var global_fan_multiplier: float = 1.0
 
 @onready var blades_node: Node3D = $Blades
 @onready var wind_area: Area3D = $WindArea
@@ -27,7 +28,7 @@ func setup_level(new_level: int) -> void:
 	var idx = clamp(level, 1, ranges.size() - 1)
 	wind_range = ranges[idx]
 	wind_strength = strengths[idx]
-	fan_spin_speed = 22.0 + (level * 5.0)
+	fan_spin_speed = 18.0 + (level * 3.5)
 	
 	if wind_area:
 		var coll = wind_area.get_node_or_null("CollisionShape3D")
@@ -66,12 +67,14 @@ func _physics_process(delta: float) -> void:
 				body.wake_physics()
 			var distance = global_position.distance_to(body.global_position)
 			var falloff = clamp(1.0 - (distance / wind_range), 0.15, 1.0)
+			var speed = body.linear_velocity.length()
+			var speed_damper = clamp(1.0 - (speed / 8.5), 0.2, 1.0)
 			
 			# Add slight upward lift and spreading vortex turbulence
 			var turbulence = Vector3(
-				sin(Time.get_ticks_msec() * 0.005 + body.global_position.x) * 0.25,
-				0.15,
-				cos(Time.get_ticks_msec() * 0.005 + body.global_position.z) * 0.25
+				sin(Time.get_ticks_msec() * 0.005 + body.global_position.x) * 0.20,
+				0.12,
+				cos(Time.get_ticks_msec() * 0.005 + body.global_position.z) * 0.20
 			)
-			var total_force = (forward_dir + turbulence).normalized() * (wind_strength * falloff)
+			var total_force = (forward_dir + turbulence).normalized() * (wind_strength * falloff * global_fan_multiplier * speed_damper)
 			body.apply_central_force(total_force)

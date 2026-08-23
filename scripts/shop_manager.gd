@@ -27,7 +27,7 @@ var devices: Dictionary = {
 		"count": 0,
 		"max_count": 3,
 		"desc": "Duvara monte edilen güçlü hava türbini. Balonları karşı duvarlara, tuzaklara veya öğütücülere doğru üfler.",
-		"widths": ["9.0m Menzil (14 Güç)", "12.0m Menzil (18 Güç)", "16.0m Menzil (24 Güç)", "20.0m Menzil (32 Güç)", "25.0m Menzil (42 Güç)", "32.0m Menzil (55 Güç)"],
+		"widths": ["7.5m Menzil (3.2 Güç)", "9.5m Menzil (4.4 Güç)", "12.0m Menzil (5.8 Güç)", "15.0m Menzil (7.4 Güç)", "18.5m Menzil (9.2 Güç)", "22.0m Menzil (11.0 Güç)"],
 		"unit_costs": [250, 900, 3500],
 		"costs": [500, 1500, 5000, 18000, 60000, 200000]
 	},
