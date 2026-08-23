@@ -626,6 +626,12 @@ theme_override_colors/font_color = Color(0.95, 0.78, 0.25, 1)
 theme_override_font_sizes/font_size = 11
 text = "Hedef: 1.000.000 (Kalan: 1.000.000)"
 
+[node name="PlaytimeLabel" type="Label" parent="UI/HUD/TopLeft/Margin/VBox" unique_id=1948291077]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.35, 0.9, 1, 1)
+theme_override_font_sizes/font_size = 11
+text = "Süre: 00:00:00"
+
 [node name="FPSPanel" type="PanelContainer" parent="UI/HUD" unique_id=1849204928]
 layout_mode = 1
 anchors_preset = 1
@@ -1698,6 +1704,13 @@ theme_override_font_sizes/font_size = 14
 text = "Tebrikler! Balon Fabrikası nihai hedefine ulaştı. 1 Milyonluk devasa balon imparatorluğunu kurdun. Şimdi fabrikanı sonsuz modda yönetmeye devam edebilirsin!"
 horizontal_alignment = 1
 autowrap_mode = 2
+
+[node name="TimeStatsLabel" type="Label" parent="UI/VictoryModal/Panel/Margin/VBox" unique_id=1849103970]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.35, 0.9, 1, 1)
+theme_override_font_sizes/font_size = 14
+text = "Tamamlama Süresi: 00:00:00  |  En İyi Rekor: 00:00:00"
+horizontal_alignment = 1
 
 [node name="Buttons" type="HBoxContainer" parent="UI/VictoryModal/Panel/Margin/VBox" unique_id=1849103967]
 layout_mode = 2

@@ -73,9 +73,14 @@ var nearby_device: Node3D = null
 @onready var pop_count_label: Label = $UI/HUD/TopLeft/Margin/VBox/PopCountLabel
 @onready var grand_goal_bar: ProgressBar = get_node_or_null("UI/HUD/TopLeft/Margin/VBox/GrandGoalBar")
 @onready var grand_goal_label: Label = get_node_or_null("UI/HUD/TopLeft/Margin/VBox/GrandGoalLabel")
+@onready var playtime_label: Label = get_node_or_null("UI/HUD/TopLeft/Margin/VBox/PlaytimeLabel")
 @onready var desk_prompt: Label = $UI/HUD/DeskPrompt
 @onready var fps_label: Label = get_node_or_null("UI/HUD/FPSPanel/Margin/FPSLabel")
 var fps_update_timer: float = 0.0
+
+# Speedrun & Playtime Tracking
+var playtime_seconds: float = 0.0
+var best_speedrun_time: float = 0.0
 
 # Crosshair UI & Context Reticle
 @onready var crosshair_stamina_bar: ProgressBar = $UI/HUD/CrosshairContainer/VBox/StaminaBar
@@ -92,6 +97,7 @@ var highlighted_balloon: Node = null
 
 # Victory Dialog Modal
 @onready var victory_modal: Control = get_node_or_null("UI/VictoryModal")
+@onready var victory_time_stats_label: Label = get_node_or_null("UI/VictoryModal/Panel/Margin/VBox/TimeStatsLabel")
 @onready var btn_close_victory: Button = get_node_or_null("UI/VictoryModal/Panel/Margin/VBox/Buttons/BtnCloseVictory")
 @onready var btn_prestige: Button = get_node_or_null("UI/VictoryModal/Panel/Margin/VBox/Buttons/BtnPrestige")
 var is_victory_shown: bool = false
@@ -225,6 +231,10 @@ func _on_prestige_pressed() -> void:
 		player.set_ui_open(false)
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	
+	# Reset speedrun playtime for the next prestige lap
+	playtime_seconds = 0.0
+	is_victory_shown = false
+	
 	apply_room_layout("small_room")
 	if player:
 		player.global_position = Vector3(13.5, 0.6, 0.0)
@@ -244,8 +254,26 @@ func _on_prestige_pressed() -> void:
 	update_pop_counter(0)
 	save_current_data()
 
+func format_time(seconds_val: float) -> String:
+	var total_sec = int(seconds_val)
+	var hrs = total_sec / 3600
+	var mins = (total_sec % 3600) / 60
+	var secs = total_sec % 60
+	return "%02d:%02d:%02d" % [hrs, mins, secs]
+
 func show_victory_screen() -> void:
 	is_victory_shown = true
+	var is_new_record = false
+	if best_speedrun_time <= 0.0 or playtime_seconds < best_speedrun_time:
+		best_speedrun_time = playtime_seconds
+		is_new_record = true
+		
+	if victory_time_stats_label:
+		var cur_str = format_time(playtime_seconds)
+		var best_str = format_time(best_speedrun_time)
+		var rec_tag = " [★ YENİ REKOR!]" if is_new_record else ""
+		victory_time_stats_label.text = "Tamamlama Süresi: %s%s  |  En İyi Rekor: %s" % [cur_str, rec_tag, best_str]
+		
 	if victory_modal:
 		victory_modal.visible = true
 	if player and player.has_method("set_ui_open"):
@@ -635,6 +663,11 @@ func _process(delta: float) -> void:
 	if startup_modal and startup_modal.visible:
 		return
 		
+	# Playtime & Speedrun Timer Tracking
+	playtime_seconds += delta
+	if playtime_label:
+		playtime_label.text = "Süre: " + format_time(playtime_seconds)
+		
 	# Floor Level Guard: Player can never sink below floor y = 0.0
 	if player and is_instance_valid(player) and player.global_position.y < -0.05:
 		player.velocity.y = max(0.0, player.velocity.y)
@@ -917,6 +950,8 @@ func save_current_data() -> void:
 		"total_pops": game_manager.total_pops,
 		"coins": shop_manager.coins,
 		"is_victory_shown": is_victory_shown,
+		"playtime_seconds": playtime_seconds,
+		"best_speedrun_time": best_speedrun_time,
 		"upgrades": upgrades_data,
 		"player": player_data,
 		"balloons": balloons_data
@@ -932,6 +967,8 @@ func load_saved_data() -> void:
 		return
 		
 	is_victory_shown = data.get("is_victory_shown", false)
+	playtime_seconds = float(data.get("playtime_seconds", 0.0))
+	best_speedrun_time = float(data.get("best_speedrun_time", 0.0))
 	var loaded_pops = int(data.get("total_pops", 0))
 	var loaded_coins = int(data.get("coins", 0))
 	var loaded_upgrades = data.get("upgrades", {})
