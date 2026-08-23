@@ -4,8 +4,10 @@ var coin_value: int = 1
 var velocity: Vector3 = Vector3.ZERO
 var tumble_speed: Vector3 = Vector3.ZERO
 var is_grounded: bool = false
+var is_settled: bool = false
 var is_collecting: bool = false
 var lifetime: float = 0.0
+var ground_time: float = 0.0
 var bounce_count: int = 0
 var floor_y: float = 0.08
 var collect_speed: float = 2.0
@@ -23,7 +25,7 @@ func init(spawn_pos: Vector3, val: int = 1) -> void:
 		randf_range(-2.6, 2.6)
 	)
 	
-	# Organic multi-axis tumbling rotation
+	# Organic multi-axis tumbling rotation in flight
 	tumble_speed = Vector3(
 		randf_range(-14.0, 14.0),
 		randf_range(8.0, 16.0),
@@ -106,15 +108,23 @@ func _process(delta: float) -> void:
 				velocity = Vector3.ZERO
 				is_grounded = true
 				
-	# 3. State: Grounded & Idle (Smooth Tilt Settle + Elegant Floating Spin)
+	# 3. State: Grounded (Quick settle to completely flat, resting stationary state)
 	else:
+		ground_time += delta
 		if mesh_instance:
-			# Smoothly settle upright/flat angle with slight organic tilt
-			mesh_instance.rotation.x = lerp_angle(mesh_instance.rotation.x, deg_to_rad(15.0), 8.0 * delta)
-			mesh_instance.rotation.z = lerp_angle(mesh_instance.rotation.z, 0.0, 8.0 * delta)
-			mesh_instance.rotate_y(3.5 * delta)
-			# Subtle floating hover bob
-			mesh_instance.position.y = 0.03 + sin(lifetime * 4.5) * 0.015
+			if not is_settled:
+				# Spin-down and flatten to the floor in 0.35s
+				tumble_speed = tumble_speed.lerp(Vector3.ZERO, 10.0 * delta)
+				mesh_instance.rotate_y(tumble_speed.y * delta)
+				mesh_instance.rotation.x = lerp_angle(mesh_instance.rotation.x, 0.0, 14.0 * delta)
+				mesh_instance.rotation.z = lerp_angle(mesh_instance.rotation.z, 0.0, 14.0 * delta)
+				mesh_instance.position.y = lerp(mesh_instance.position.y, 0.02, 14.0 * delta)
+				if ground_time >= 0.35:
+					is_settled = true
+					mesh_instance.rotation.x = 0.0
+					mesh_instance.rotation.z = 0.0
+					mesh_instance.position.y = 0.02
+			# Once settled: completely still and flat on the floor (no continuous spinning or wobbling)
 
 	# Auto sweep after 45 seconds to prevent performance drag
 	if lifetime > 45.0:
