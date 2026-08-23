@@ -14,7 +14,6 @@ A high-performance 3D incremental/idle physics game built in **Godot 4.x (Jolt P
 - **Shift**: Sprint
 - **Left Click**: Pop Balloon (Hold for Auto-Pop)
 - **Right Click**: Nudge Air Blower
-- **E**: Interact / Open Computer Shop / Terminal
-- **F**: Activate Overdrive
+- **E**: Interact (Aim with crosshair to open Shop, change Gravity, or relocate Devices)
 - **G**: Cycle Gravity Mode
 - **Tab / Esc**: Menu / Cursor

@@ -18,9 +18,6 @@ extends Node3D
 @onready var sentry_drone: Node3D = $Environment/MainRoom/SentryDrone
 @onready var grid_ghost: MeshInstance3D = $Environment/MainRoom/GridGhost
 
-@onready var overdrive_label: Label = $UI/HUD/TopRight/Margin/VBox/OverdriveLabel
-@onready var overdrive_bar: ProgressBar = $UI/HUD/TopRight/Margin/VBox/OverdriveBar
-
 var carried_device: Node3D = null
 var carried_original_pos: Vector3 = Vector3.ZERO
 var carried_original_rot_y: float = 0.0
@@ -180,8 +177,6 @@ func _ready() -> void:
 		game_manager.pop_registered.connect(_on_pop_registered)
 		game_manager.spawn_requested.connect(_on_spawn_requested)
 		game_manager.active_count_changed.connect(_on_active_count_changed)
-		if game_manager.has_signal("overdrive_changed"):
-			game_manager.overdrive_changed.connect(_on_overdrive_changed)
 		
 	if player and player.has_signal("energy_changed"):
 		player.energy_changed.connect(_on_player_energy_changed)
@@ -248,18 +243,6 @@ func show_victory_screen() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	if sound_manager and sound_manager.has_method("play_gold_pop"):
 		sound_manager.play_gold_pop()
-
-func _on_overdrive_changed(charge: float, max_charge: float, is_active: bool, remaining_time: float) -> void:
-	if overdrive_bar:
-		overdrive_bar.max_value = max_charge
-		overdrive_bar.value = ((remaining_time / 12.0) * max_charge) if is_active else charge
-	if overdrive_label:
-		if is_active:
-			overdrive_label.text = "OVERDRIVE AKTİF (" + str(snapped(remaining_time, 0.1)) + "s)"
-		elif charge >= max_charge:
-			overdrive_label.text = "[F] OVERDRIVE HAZIR!"
-		else:
-			overdrive_label.text = "OVERDRIVE: %" + str(int(charge))
 
 func setup_startup_modal() -> void:
 	if btn_continue:

@@ -112,11 +112,6 @@ func _input(event: InputEvent) -> void:
 		else:
 			Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 			
-	if event is InputEventKey and event.pressed and not event.is_echo() and event.keycode == KEY_F:
-		var main_node = get_node_or_null("/root/Main")
-		if main_node and main_node.get("game_manager"):
-			main_node.game_manager.activate_overdrive()
-			
 	if event is InputEventMouseButton and event.pressed:
 		var main_node = get_node_or_null("/root/Main")
 		if main_node and main_node.get("carried_device") != null:
@@ -261,28 +256,23 @@ func regenerate_energy(amount: float) -> void:
 		energy_changed.emit(current_energy, max_energy, is_exhausted)
 
 func execute_pop_hit(costs_energy: bool) -> void:
-	var main_node = get_node_or_null("/root/Main")
-	var is_od = false
-	if main_node and main_node.get("game_manager"):
-		is_od = main_node.game_manager.get("is_overdrive_active")
-		
-	if is_exhausted and not is_od:
+	if is_exhausted:
 		return
 		
-	if costs_energy and not is_od:
+	if costs_energy:
 		consume_energy(pop_hold_energy_cost)
 		
 	# Visual jab
 	if hand_tool and not is_punching:
 		is_punching = true
 		var tween = create_tween()
-		tween.tween_property(hand_tool, "position:z", -0.75 if is_od else -0.68, 0.025 if is_od else 0.035)
-		tween.tween_property(hand_tool, "position:z", -0.45, 0.035 if is_od else 0.045)
+		tween.tween_property(hand_tool, "position:z", -0.68, 0.035)
+		tween.tween_property(hand_tool, "position:z", -0.45, 0.045)
 		tween.finished.connect(func(): is_punching = false)
 		
 	# Hit detection (force raycast update for high-speed continuous pop)
 	if interaction_ray:
-		interaction_ray.target_position = Vector3(0, 0, -12.0 if is_od else -5.0)
+		interaction_ray.target_position = Vector3(0, 0, -5.0)
 		interaction_ray.force_raycast_update()
 		var target = null
 		var hit_pos = Vector3.ZERO

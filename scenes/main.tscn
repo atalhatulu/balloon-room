@@ -681,44 +681,6 @@ theme_override_font_sizes/font_size = 13
 text = "FPS: 60"
 horizontal_alignment = 1
 
-[node name="TopRight" type="PanelContainer" parent="UI/HUD" unique_id=1928491823]
-layout_mode = 1
-anchors_preset = 1
-anchor_left = 1.0
-anchor_right = 1.0
-offset_left = -220.0
-offset_top = 20.0
-offset_right = -25.0
-offset_bottom = 70.0
-grow_horizontal = 0
-mouse_filter = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_micro_panel")
-
-[node name="Margin" type="MarginContainer" parent="UI/HUD/TopRight" unique_id=1829401824]
-layout_mode = 2
-mouse_filter = 2
-theme_override_constants/margin_left = 12
-theme_override_constants/margin_top = 6
-theme_override_constants/margin_right = 12
-theme_override_constants/margin_bottom = 6
-
-[node name="VBox" type="VBoxContainer" parent="UI/HUD/TopRight/Margin" unique_id=1948291048]
-layout_mode = 2
-theme_override_constants/separation = 4
-
-[node name="OverdriveLabel" type="Label" parent="UI/HUD/TopRight/Margin/VBox" unique_id=1294829105]
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.45, 0.1, 1)
-theme_override_font_sizes/font_size = 13
-text = "OVERDRIVE: %0"
-
-[node name="OverdriveBar" type="ProgressBar" parent="UI/HUD/TopRight/Margin/VBox" unique_id=1948291059]
-custom_minimum_size = Vector2(0, 6)
-layout_mode = 2
-theme_override_styles/background = SubResource("StyleBoxFlat_crosshair_stamina_bg")
-theme_override_styles/fill = SubResource("StyleBoxFlat_crosshair_stamina_fill")
-show_percentage = false
-
 [node name="CrosshairContainer" type="CenterContainer" parent="UI/HUD" unique_id=147273076]
 layout_mode = 1
 anchors_preset = 8
