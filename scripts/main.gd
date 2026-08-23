@@ -705,11 +705,13 @@ func _process(delta: float) -> void:
 	if startup_modal and startup_modal.visible:
 		return
 		
-	# Playtime & Speedrun Timer Tracking with Total Coins
+	# Playtime & Speedrun Timer Tracking with Total Coins & Real-time PPS
 	playtime_seconds += delta
 	if playtime_label:
 		var c_str = format_number(shop_manager.coins) if shop_manager else "0"
 		playtime_label.text = "Süre: %s  |  Kasa: %s Coin" % [format_time(playtime_seconds), c_str]
+	if game_manager:
+		update_pop_counter(game_manager.total_pops)
 		
 	# Floor Level Guard: Player can never sink below floor y = 0.0
 	if player and is_instance_valid(player) and player.global_position.y < -0.05:
@@ -1941,7 +1943,9 @@ func update_pop_counter(pops: int) -> void:
 		var prefix = ""
 		if shop_manager and shop_manager.prestige_level > 0:
 			prefix = "[★ Prestige %d] " % shop_manager.prestige_level
-		pop_count_label.text = prefix + format_number(pops) + " Patlatma"
+		var pps = game_manager.pops_per_second if (game_manager and "pops_per_second" in game_manager) else 0
+		var pps_str = "  |  " + str(pps) + "/s" if pps > 0 else ""
+		pop_count_label.text = prefix + format_number(pops) + " Patlatma" + pps_str
 		
 	if grand_goal_bar:
 		grand_goal_bar.value = min(float(pops), 1000000.0)

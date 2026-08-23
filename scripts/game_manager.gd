@@ -70,7 +70,16 @@ func recalculate_effective_stats() -> void:
 	max_room_balloons = base_cap + room_cap_bonus
 	active_count_changed.emit(active_balloons, max_room_balloons)
 
+var pop_history: Array[float] = []
+var pops_per_second: int = 0
+
 func _process(delta: float) -> void:
+	# Calculate real-time Pops Per Second (rolling 1-second window)
+	var now = Time.get_ticks_msec() / 1000.0
+	while not pop_history.is_empty() and pop_history[0] < (now - 1.0):
+		pop_history.remove_at(0)
+	pops_per_second = pop_history.size()
+
 	if not is_game_started:
 		return
 		
@@ -100,6 +109,7 @@ func on_balloon_spawned(count: int = 1) -> void:
 func on_balloon_popped(pop_position: Vector3, _balloon_color: Color, combo_step: int = 0, _b_type: int = 0) -> void:
 	total_pops += 1
 	active_balloons = max(0, active_balloons - 1)
+	pop_history.append(Time.get_ticks_msec() / 1000.0)
 	
 	if sound_manager and sound_manager.has_method("play_pop"):
 		var pitch_idx = (combo_step if combo_step > 0 else (total_pops % 8))
