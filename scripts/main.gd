@@ -1814,13 +1814,7 @@ func update_all_shop_cards() -> void:
 						else:
 							var next_reach = 4.5 + ((lvl + 1) * 1.0)
 							desc_lbl.text = "Mevcut: " + str(curr_reach) + "m ➔ Yükseltme: " + str(next_reach) + "m İğne Menzili"
-					elif u_id == "nudge":
-						var curr_p = int((1.0 + (lvl * 0.25)) * 100)
-						if lvl >= max_lvl:
-							desc_lbl.text = "Maksimum Süpürme: %" + str(curr_p) + " İtiş Gücü"
-						else:
-							var next_p = int((1.0 + ((lvl + 1) * 0.25)) * 100)
-							desc_lbl.text = "Mevcut: %" + str(curr_p) + " ➔ Yükseltme: %" + str(next_p) + " Süpürme İtişi"
+
 					elif u_id == "energy_cap":
 						var curr_e = int(100 + (lvl * 25))
 						if lvl >= max_lvl:

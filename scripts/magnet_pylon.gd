@@ -3,8 +3,8 @@ extends Node3D
 @export var is_active: bool = false
 @export var level: int = 0
 
-var pull_ranges: Array[float] = [0.0, 3.5, 4.5, 5.8, 7.2, 8.8, 10.5]
-var pull_strengths: Array[float] = [0.0, 2.8, 4.0, 5.5, 7.2, 9.0, 11.5]
+var pull_ranges: Array[float] = [0.0, 2.5, 3.2, 4.0, 5.0, 6.2, 7.5, 9.0]
+var pull_strengths: Array[float] = [0.0, 0.6, 1.0, 1.6, 2.4, 3.5, 4.8, 6.5]
 
 var tick_timer: float = 0.0
 var tick_rate: float = 0.08 # 12.5 Hz for buttery smooth 100+ FPS performance
@@ -37,11 +37,11 @@ func update_visuals() -> void:
 	var r = pull_ranges[idx]
 	
 	if magnet_light:
-		magnet_light.omni_range = max(6.0, r * 0.8)
-		magnet_light.light_energy = 1.2 + level * 0.35
+		magnet_light.omni_range = max(5.0, r * 0.8)
+		magnet_light.light_energy = 0.8 + level * 0.25
 		
 	if particles:
-		particles.emission_sphere_radius = clamp(r * 0.3, 1.5, 5.0)
+		particles.emission_sphere_radius = clamp(r * 0.25, 1.0, 4.0)
 		particles.emitting = true
 
 func _physics_process(delta: float) -> void:
@@ -76,7 +76,7 @@ func apply_magnetic_pull() -> void:
 	shape_query.collide_with_bodies = true
 	shape_query.collide_with_areas = false
 	
-	var max_pull_targets = 40 + (level * 15)
+	var max_pull_targets = 30 + (level * 10)
 	var results = space_state.intersect_shape(shape_query, max_pull_targets)
 	for res in results:
 		var b = res.collider
@@ -88,6 +88,6 @@ func apply_magnetic_pull() -> void:
 					b.wake_physics()
 				var dist = sqrt(dist_sq)
 				var dir = diff / dist
-				var falloff = clamp(1.0 - (dist / max_range), 0.2, 1.0)
-				var force = dir * (falloff * strength * 0.06)
+				var falloff = clamp(1.0 - (dist / max_range), 0.05, 1.0)
+				var force = dir * (falloff * strength * 0.035)
 				b.apply_central_impulse(force)

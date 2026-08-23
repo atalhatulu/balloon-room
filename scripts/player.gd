@@ -1,7 +1,6 @@
 extends CharacterBody3D
 
 signal pop_triggered(is_hit: bool)
-signal nudge_triggered()
 signal energy_changed(current: float, max_energy: float, is_exhausted: bool)
 
 @export var base_walk_speed: float = 5.2
@@ -23,17 +22,14 @@ var auto_pop_timer: float = 0.0
 # Energy Rules:
 # - Single Click: 0 Energy (Always available unless exhausted)
 # - Holding Left Click: Only active when Auto-Pop upgrade is bought; drains energy
-# - Holding Right Click: Continuous Sweeper, drains energy
 # - Running (Shift): 0 Energy
 # - When Energy hits 0 -> Exhausted: CANNOT POP AT ALL until energy >= 30%!
 var pop_hold_energy_cost: float = 6.0
-var continuous_nudge_cost_per_sec: float = 24.0
 var energy_regen_rate: float = 24.0
 var energy_regen_delay: float = 0.60
 var time_since_action: float = 0.0
 var is_exhausted: bool = false
 
-var nudge_power_mult: float = 1.0
 var magnet_unlocked: bool = false
 var magnet_level: int = 0
 var magnet_range: float = 6.0
@@ -49,7 +45,6 @@ var is_ui_open: bool = false
 @onready var head: Node3D = $Head
 @onready var camera: Camera3D = $Head/Camera3D
 @onready var interaction_ray: RayCast3D = $Head/Camera3D/InteractionRay
-@onready var nudge_cone: Area3D = $Head/Camera3D/WindCone
 
 func _ready() -> void:
 	add_to_group("player")
@@ -63,8 +58,6 @@ func _ready() -> void:
 	
 	if interaction_ray:
 		interaction_ray.add_exception(self)
-		if nudge_cone:
-			interaction_ray.add_exception_rid(nudge_cone.get_rid())
 	
 	var shop_manager = get_node_or_null("../ShopManager")
 	if shop_manager and shop_manager.has_signal("upgrade_purchased"):
@@ -92,15 +85,12 @@ func apply_upgrade(upgrade_id: String, level: int) -> void:
 			energy_regen_delay = max(0.25, 0.60 - (level * 0.05))
 		"sprint_efficiency":
 			pop_hold_energy_cost = max(1.2, 6.0 - (level * 0.65))
-			continuous_nudge_cost_per_sec = max(6.0, 24.0 - (level * 2.5))
 		"speed":
 			walk_speed = base_walk_speed + (level * 0.4)
 			sprint_speed = base_sprint_speed + (level * 0.65)
 		"reach":
 			if interaction_ray:
 				interaction_ray.target_position = Vector3(0, 0, -4.5 - (level * 0.8))
-		"nudge":
-			nudge_power_mult = 1.0 + (level * 0.25)
 		"splash_pop":
 			var radii = [0.0, 2.8, 4.2, 6.0, 8.5, 11.5, 15.5, 22.0]
 			var limits = [0, 15, 30, 55, 90, 140, 220, 350]
@@ -202,13 +192,8 @@ func _physics_process(delta: float) -> void:
 		left_hold_time = 0.0
 		auto_pop_timer = 0.0
 
-	# Right Click: Continuous Air Sweeper (drains energy)
-	var is_pressing_right = Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT) and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED
-	if is_pressing_right and not is_exhausted:
-		try_continuous_nudge(delta)
-
 	# Energy Regeneration & %30 Exhaustion Unlock
-	var is_actively_spending = (auto_pop_unlocked and is_pressing_left and left_hold_time > 0.20) or is_pressing_right
+	var is_actively_spending = (auto_pop_unlocked and is_pressing_left and left_hold_time > 0.20)
 	if not is_actively_spending or is_exhausted:
 		time_since_action += delta
 		if time_since_action >= energy_regen_delay:
@@ -349,21 +334,3 @@ func spawn_shockwave_vfx(origin: Vector3, radius: float, shock_color: Color = Co
 	tween.tween_property(mesh_inst, "scale", Vector3.ONE * radius * 1.5, 0.18)
 	tween.tween_property(mat, "albedo_color:a", 0.0, 0.18)
 	tween.finished.connect(func(): if is_instance_valid(mesh_inst): mesh_inst.queue_free())
-
-func try_continuous_nudge(delta: float) -> void:
-	if is_exhausted:
-		return
-		
-	consume_energy(continuous_nudge_cost_per_sec * delta)
-	nudge_triggered.emit()
-		
-	if nudge_cone:
-		var look_dir = -camera.global_transform.basis.z.normalized()
-		var bodies = nudge_cone.get_overlapping_bodies()
-		var push_dir = look_dir + Vector3.UP * 0.15
-		push_dir = push_dir.normalized()
-		for body in bodies:
-			if body.is_in_group("balloons") and body is RigidBody3D:
-				var dist = camera.global_position.distance_to(body.global_position)
-				var strength = clamp(1.0 - (dist / 6.5), 0.25, 1.0) * (3.2 * nudge_power_mult)
-				body.apply_central_force(push_dir * (strength * 12.0))

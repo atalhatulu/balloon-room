@@ -212,15 +212,7 @@ var upgrades: Dictionary = {
 		"desc": "İğnenin vuruş ve tıklama menzilini uzatır.",
 		"costs": [12, 35, 90, 250, 700, 2000, 6000, 18000]
 	},
-	"nudge": {
-		"category": "upgrades",
-		"unlock_pops": 50,
-		"level": 0,
-		"max_level": 8,
-		"title": "Nudge / Hava Körüğü",
-		"desc": "Sağ tıkla balonları daha geniş ve kuvvetli süpürür.",
-		"costs": [25, 75, 200, 550, 1500, 4200, 12000, 32000]
-	},
+
 	"auto_pop": {
 		"category": "upgrades",
 		"unlock_pops": 50,
