@@ -1,0 +1,72 @@
+[gd_scene load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://scripts/electric_wall.gd" id="1_elec_script"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_frame"]
+size = Vector3(4, 0.1, 4)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_frame"]
+albedo_color = Color(0.12, 0.15, 0.18, 1)
+metallic = 0.95
+roughness = 0.25
+
+[sub_resource type="BoxMesh" id="BoxMesh_neon"]
+size = Vector3(3.8, 0.12, 3.8)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_neon"]
+albedo_color = Color(0.1, 0.85, 1, 1)
+emission_enabled = true
+emission = Color(0.2, 0.9, 1, 1)
+emission_energy_multiplier = 2.5
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_trigger"]
+size = Vector3(4, 1.6, 4)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_spark"]
+shading_mode = 0
+albedo_color = Color(0.4, 0.95, 1, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_spark"]
+material = SubResource("StandardMaterial3D_spark")
+size = Vector3(0.06, 0.06, 0.06)
+
+[node name="ElectricWall" type="Node3D"]
+script = ExtResource("1_elec_script")
+
+[node name="FrameMesh" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.05, 0)
+mesh = SubResource("BoxMesh_frame")
+material_override = SubResource("StandardMaterial3D_frame")
+
+[node name="NeonGrid" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.06, 0)
+mesh = SubResource("BoxMesh_neon")
+material_override = SubResource("StandardMaterial3D_neon")
+
+[node name="TriggerArea" type="Area3D" parent="."]
+collision_layer = 0
+collision_mask = 2
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="TriggerArea"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0)
+shape = SubResource("BoxShape3D_trigger")
+
+[node name="SparkParticles" type="CPUParticles3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.2, 0)
+amount = 20
+lifetime = 0.3
+preprocess = 0.1
+emission_shape = 3
+emission_box_extents = Vector3(1.8, 0.1, 1.8)
+direction = Vector3(0, 1, 0)
+spread = 35.0
+gravity = Vector3(0, 4.0, 0)
+initial_velocity_min = 1.5
+initial_velocity_max = 3.5
+mesh = SubResource("BoxMesh_spark")
+
+[node name="ArcLight" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6, 0)
+light_color = Color(0.2, 0.85, 1, 1)
+light_energy = 1.4
+omni_range = 6.0

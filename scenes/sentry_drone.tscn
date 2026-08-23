@@ -1,0 +1,57 @@
+[gd_scene load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://scripts/sentry_drone.gd" id="1_drone_script"]
+
+[sub_resource type="SphereMesh" id="SphereMesh_core"]
+radius = 0.22
+height = 0.44
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_core"]
+albedo_color = Color(0.18, 0.22, 0.28, 1)
+metallic = 0.9
+roughness = 0.2
+
+[sub_resource type="BoxMesh" id="BoxMesh_visor"]
+size = Vector3(0.24, 0.08, 0.12)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_visor"]
+albedo_color = Color(0, 0.9, 1, 1)
+emission_enabled = true
+emission = Color(0, 0.9, 1, 1)
+emission_energy_multiplier = 2.5
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_beam"]
+top_radius = 0.02
+bottom_radius = 0.02
+height = 1.0
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_beam"]
+transparency = 1
+albedo_color = Color(0, 1, 0.8, 0.9)
+emission_enabled = true
+emission = Color(0, 1, 0.8, 1)
+emission_energy_multiplier = 4.0
+
+[node name="SentryDrone" type="Node3D"]
+script = ExtResource("1_drone_script")
+
+[node name="CoreMesh" type="MeshInstance3D" parent="."]
+mesh = SubResource("SphereMesh_core")
+material_override = SubResource("StandardMaterial3D_core")
+
+[node name="VisorMesh" type="MeshInstance3D" parent="CoreMesh"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.05, -0.18)
+mesh = SubResource("BoxMesh_visor")
+material_override = SubResource("StandardMaterial3D_visor")
+
+[node name="LaserBeam" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, -0.15, -0.5)
+visible = false
+mesh = SubResource("CylinderMesh_beam")
+material_override = SubResource("StandardMaterial3D_beam")
+
+[node name="EyeLight" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.05, -0.25)
+light_color = Color(0, 0.9, 1, 1)
+light_energy = 1.2
+omni_range = 3.0

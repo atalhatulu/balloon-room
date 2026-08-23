@@ -1,0 +1,103 @@
+[gd_scene load_steps=12 format=3]
+
+[ext_resource type="Script" path="res://scripts/conveyor_crusher.gd" id="1_crusher_script"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_chassis"]
+size = Vector3(2.4, 0.6, 1.6)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_chassis"]
+albedo_color = Color(0.18, 0.22, 0.28, 1)
+metallic = 0.85
+roughness = 0.35
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_roller"]
+top_radius = 0.22
+bottom_radius = 0.22
+height = 1.8
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_roller"]
+albedo_color = Color(0.85, 0.45, 0.1, 1)
+metallic = 0.95
+roughness = 0.2
+
+[sub_resource type="PrismMesh" id="PrismMesh_ramp"]
+size = Vector3(2.2, 0.35, 0.8)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ramp"]
+albedo_color = Color(0.12, 0.15, 0.18, 1)
+metallic = 0.7
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_grind"]
+size = Vector3(2.0, 0.8, 0.9)
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_vacuum"]
+radius = 4.5
+
+[sub_resource type="BoxMesh" id="BoxMesh_spark"]
+size = Vector3(0.04, 0.04, 0.04)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_spark"]
+albedo_color = Color(1, 0.6, 0.1, 1)
+emission_enabled = true
+emission = Color(1, 0.5, 0.05, 1)
+emission_energy_multiplier = 3.0
+
+[node name="ConveyorCrusher" type="Node3D"]
+script = ExtResource("1_crusher_script")
+
+[node name="Chassis" type="Node3D" parent="."]
+
+[node name="MainBody" type="MeshInstance3D" parent="Chassis"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.3, 0)
+mesh = SubResource("BoxMesh_chassis")
+material_override = SubResource("StandardMaterial3D_chassis")
+
+[node name="Ramp" type="MeshInstance3D" parent="Chassis"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.18, 1.0)
+mesh = SubResource("PrismMesh_ramp")
+material_override = SubResource("StandardMaterial3D_ramp")
+
+[node name="RollerLeft" type="MeshInstance3D" parent="Chassis"]
+transform = Transform3D(-4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0, 0, 1, 0, 0.55, -0.22)
+mesh = SubResource("CylinderMesh_roller")
+material_override = SubResource("StandardMaterial3D_roller")
+
+[node name="RollerRight" type="MeshInstance3D" parent="Chassis"]
+transform = Transform3D(-4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0, 0, 1, 0, 0.55, 0.22)
+mesh = SubResource("CylinderMesh_roller")
+material_override = SubResource("StandardMaterial3D_roller")
+
+[node name="GrindArea" type="Area3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.55, 0)
+collision_layer = 0
+collision_mask = 2
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="GrindArea"]
+shape = SubResource("BoxShape3D_grind")
+
+[node name="VacuumArea" type="Area3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.4, 1.2)
+collision_layer = 0
+collision_mask = 2
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="VacuumArea"]
+shape = SubResource("SphereShape3D_vacuum")
+
+[node name="StatusLight" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
+light_color = Color(0, 1, 0.5, 1)
+light_energy = 1.2
+omni_range = 3.5
+
+[node name="GrindSparks" type="CPUParticles3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.55, 0)
+emitting = false
+amount = 16
+lifetime = 0.4
+mesh = SubResource("BoxMesh_spark")
+material_override = SubResource("StandardMaterial3D_spark")
+emission_shape = 3
+emission_box_extents = Vector3(0.8, 0.1, 0.2)
+gravity = Vector3(0, 4, 0)
+initial_velocity_min = 1.0
+initial_velocity_max = 2.5

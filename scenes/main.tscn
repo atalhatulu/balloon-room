@@ -1,0 +1,1742 @@
+[gd_scene format=3 uid="uid://jh0svxik88ix"]
+
+[ext_resource type="Script" uid="uid://d3syuw8evr4v7" path="res://scripts/main.gd" id="1_main_script"]
+[ext_resource type="PackedScene" path="res://scenes/player.tscn" id="2_player_scene"]
+[ext_resource type="PackedScene" path="res://scenes/fan.tscn" id="3_fan_scene"]
+[ext_resource type="PackedScene" path="res://scenes/electric_wall.tscn" id="4_elec_wall_scene"]
+[ext_resource type="PackedScene" path="res://scenes/spike_wall.tscn" id="5_spike_wall_scene"]
+[ext_resource type="PackedScene" path="res://scenes/magnet_pylon.tscn" id="6_magnet_scene"]
+[ext_resource type="Script" uid="uid://fbijudohprqj" path="res://scripts/game_manager.gd" id="7_gm_script"]
+[ext_resource type="Script" uid="uid://816yp32twgfs" path="res://scripts/sound_manager.gd" id="8_sm_script"]
+[ext_resource type="Script" uid="uid://b28ch66u8wmgb" path="res://scripts/shop_manager.gd" id="9_shop_script"]
+[ext_resource type="Script" uid="uid://cpppj44bmpo7x" path="res://scripts/save_manager.gd" id="10_save_script"]
+[ext_resource type="PackedScene" path="res://scenes/conveyor_crusher.tscn" id="11_crusher_scene"]
+[ext_resource type="PackedScene" path="res://scenes/sentry_drone.tscn" id="12_drone_scene"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_sky"]
+sky_top_color = Color(0.68, 0.82, 0.95, 1)
+sky_horizon_color = Color(0.85, 0.9, 0.95, 1)
+ground_bottom_color = Color(0.3, 0.25, 0.2, 1)
+
+[sub_resource type="Sky" id="Sky_env"]
+sky_material = SubResource("ProceduralSkyMaterial_sky")
+
+[sub_resource type="Environment" id="Environment_room"]
+background_mode = 2
+sky = SubResource("Sky_env")
+ambient_light_source = 3
+ambient_light_color = Color(0.9, 0.85, 0.8, 1)
+ambient_light_energy = 0.85
+tonemap_mode = 2
+glow_enabled = true
+glow_intensity = 0.25
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_main_floor"]
+size = Vector3(16, 0.5, 16)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_floor_mat"]
+albedo_color = Color(0.28, 0.32, 0.36, 1)
+roughness = 0.5
+
+[sub_resource type="BoxMesh" id="BoxMesh_main_floor"]
+size = Vector3(16, 0.5, 16)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_main_ceiling"]
+size = Vector3(16, 0.5, 16)
+
+[sub_resource type="BoxMesh" id="BoxMesh_main_ceiling"]
+size = Vector3(16, 0.5, 16)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_wall_mat"]
+albedo_color = Color(0.42, 0.48, 0.55, 1)
+roughness = 0.65
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_main_wall_z"]
+size = Vector3(16, 6, 0.5)
+
+[sub_resource type="BoxMesh" id="BoxMesh_main_wall_z"]
+size = Vector3(16, 6, 0.5)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_main_wall_x"]
+size = Vector3(0.5, 6, 16)
+
+[sub_resource type="BoxMesh" id="BoxMesh_main_wall_x"]
+size = Vector3(0.5, 6, 16)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_east_door_wall"]
+size = Vector3(0.5, 6, 6)
+
+[sub_resource type="BoxMesh" id="BoxMesh_east_door_wall"]
+size = Vector3(0.5, 6, 6)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_door_lintel"]
+size = Vector3(0.5, 2.65, 4)
+
+[sub_resource type="BoxMesh" id="BoxMesh_door_lintel"]
+size = Vector3(0.5, 2.65, 4)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_vent"]
+albedo_color = Color(0.25, 0.28, 0.32, 1)
+metallic = 0.8
+roughness = 0.3
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_vent"]
+top_radius = 1.3
+bottom_radius = 1.4
+height = 0.6
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ghost_mat"]
+transparency = 1
+albedo_color = Color(0.1, 0.95, 0.45, 0.45)
+emission_enabled = true
+emission = Color(0.1, 0.95, 0.45, 1)
+emission_energy_multiplier = 2.0
+
+[sub_resource type="BoxMesh" id="BoxMesh_ghost_frame"]
+size = Vector3(1.5, 0.08, 1.5)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_sign"]
+albedo_color = Color(0.08, 0.1, 0.14, 1)
+metallic = 0.9
+roughness = 0.15
+emission_enabled = true
+emission = Color(0.05, 0.2, 0.25, 1)
+emission_energy_multiplier = 0.4
+
+[sub_resource type="BoxMesh" id="BoxMesh_signboard"]
+size = Vector3(0.6, 0.85, 3.8)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_terminal_mat"]
+albedo_color = Color(0.16, 0.19, 0.23, 1)
+metallic = 0.85
+roughness = 0.35
+
+[sub_resource type="BoxMesh" id="BoxMesh_pedestal_base"]
+size = Vector3(0.5, 0.1, 0.5)
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_pedestal_pole"]
+top_radius = 0.05
+bottom_radius = 0.07
+height = 0.9
+
+[sub_resource type="BoxMesh" id="BoxMesh_terminal_body"]
+size = Vector3(0.22, 0.85, 0.65)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_terminal_screen"]
+albedo_color = Color(0.06, 0.09, 0.14, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_terminal_screen"]
+size = Vector3(0.04, 0.32, 0.52)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_grav_btn"]
+albedo_color = Color(1, 0.55, 0.15, 1)
+emission_enabled = true
+emission = Color(1, 0.5, 0.1, 1)
+emission_energy_multiplier = 2.0
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_grav_btn"]
+top_radius = 0.1
+bottom_radius = 0.13
+height = 0.08
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_office_floor"]
+size = Vector3(11, 0.5, 12)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_office_floor_mat"]
+albedo_color = Color(0.35, 0.28, 0.22, 1)
+roughness = 0.5
+
+[sub_resource type="BoxMesh" id="BoxMesh_office_floor"]
+size = Vector3(11, 0.5, 12)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_office_wall_mat"]
+albedo_color = Color(0.8, 0.75, 0.7, 1)
+roughness = 0.6
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_office_wall_x"]
+size = Vector3(0.5, 5, 12)
+
+[sub_resource type="BoxMesh" id="BoxMesh_office_wall_x"]
+size = Vector3(0.5, 5, 12)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_office_wall_z"]
+size = Vector3(11, 5, 0.5)
+
+[sub_resource type="BoxMesh" id="BoxMesh_office_wall_z"]
+size = Vector3(11, 5, 0.5)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_wood"]
+albedo_color = Color(0.45, 0.28, 0.18, 1)
+roughness = 0.5
+
+[sub_resource type="BoxMesh" id="BoxMesh_table"]
+size = Vector3(1.2, 0.85, 2.2)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_screen"]
+albedo_color = Color(0.1, 0.25, 0.18, 1)
+emission_enabled = true
+emission = Color(0.2, 0.8, 0.4, 1)
+emission_energy_multiplier = 0.8
+
+[sub_resource type="BoxMesh" id="BoxMesh_monitor"]
+size = Vector3(0.3, 0.65, 0.9)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_desk_area"]
+size = Vector3(3.5, 2.5, 3.5)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_micro_panel"]
+bg_color = Color(0.06, 0.08, 0.12, 0.65)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.25, 0.32, 0.42, 0.4)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_crosshair_stamina_bg"]
+bg_color = Color(0.05, 0.05, 0.08, 0.7)
+corner_radius_top_left = 2
+corner_radius_top_right = 2
+corner_radius_bottom_right = 2
+corner_radius_bottom_left = 2
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_crosshair_stamina_fill"]
+bg_color = Color(0.18, 0.83, 0.45, 1)
+corner_radius_top_left = 2
+corner_radius_top_right = 2
+corner_radius_bottom_right = 2
+corner_radius_bottom_left = 2
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_glass_panel"]
+bg_color = Color(0.08, 0.1, 0.14, 0.92)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.3, 0.38, 0.48, 0.5)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+shadow_color = Color(0, 0, 0, 0.4)
+shadow_size = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_card"]
+bg_color = Color(0.13, 0.16, 0.22, 0.9)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.25, 0.32, 0.42, 0.6)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[node name="Main" type="Node3D" unique_id=186584726]
+script = ExtResource("1_main_script")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=794446808]
+environment = SubResource("Environment_room")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=146379376]
+transform = Transform3D(0.866025, -0.353553, 0.353553, 0, 0.707107, 0.707107, -0.5, -0.612372, 0.612372, 8, 12, 8)
+light_color = Color(1, 0.96, 0.9, 1)
+light_energy = 0.9
+shadow_enabled = false
+
+[node name="MainRoomLight" type="OmniLight3D" parent="." unique_id=1048935766]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.3, 0)
+light_color = Color(1, 0.92, 0.8, 1)
+light_energy = 1.2
+omni_range = 18.0
+
+[node name="OfficeLight" type="OmniLight3D" parent="." unique_id=1939811845]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13.5, 3.6, 0)
+light_color = Color(1, 0.95, 0.85, 1)
+light_energy = 1.6
+omni_range = 10.0
+
+[node name="Environment" type="Node3D" parent="." unique_id=1544944572]
+
+[node name="MainRoom" type="Node3D" parent="Environment" unique_id=1301716272]
+
+[node name="Floor" type="StaticBody3D" parent="Environment/MainRoom" unique_id=1176337229]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.25, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Environment/MainRoom/Floor" unique_id=2065066038]
+shape = SubResource("BoxShape3D_main_floor")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Environment/MainRoom/Floor" unique_id=1185601882]
+material_override = SubResource("StandardMaterial3D_floor_mat")
+mesh = SubResource("BoxMesh_main_floor")
+
+[node name="Ceiling" type="StaticBody3D" parent="Environment/MainRoom" unique_id=921785939]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 6.25, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Environment/MainRoom/Ceiling" unique_id=1823465783]
+shape = SubResource("BoxShape3D_main_ceiling")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Environment/MainRoom/Ceiling" unique_id=487853995]
+material_override = SubResource("StandardMaterial3D_wall_mat")
+mesh = SubResource("BoxMesh_main_ceiling")
+
+[node name="WallNorth" type="StaticBody3D" parent="Environment/MainRoom" unique_id=636055052]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, -8)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Environment/MainRoom/WallNorth" unique_id=1231017925]
+shape = SubResource("BoxShape3D_main_wall_z")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Environment/MainRoom/WallNorth" unique_id=933157500]
+material_override = SubResource("StandardMaterial3D_wall_mat")
+mesh = SubResource("BoxMesh_main_wall_z")
+
+[node name="WallSouth" type="StaticBody3D" parent="Environment/MainRoom" unique_id=1943932920]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, 8)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Environment/MainRoom/WallSouth" unique_id=1232537399]
+shape = SubResource("BoxShape3D_main_wall_z")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Environment/MainRoom/WallSouth" unique_id=2128878138]
+material_override = SubResource("StandardMaterial3D_wall_mat")
+mesh = SubResource("BoxMesh_main_wall_z")
+
+[node name="WallWest" type="StaticBody3D" parent="Environment/MainRoom" unique_id=1335342335]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 3, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Environment/MainRoom/WallWest" unique_id=30002120]
+shape = SubResource("BoxShape3D_main_wall_x")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Environment/MainRoom/WallWest" unique_id=1106281963]
+material_override = SubResource("StandardMaterial3D_wall_mat")
+mesh = SubResource("BoxMesh_main_wall_x")
+
+[node name="WallEastNorth" type="StaticBody3D" parent="Environment/MainRoom" unique_id=761610353]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 3, -5)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Environment/MainRoom/WallEastNorth" unique_id=1839530783]
+shape = SubResource("BoxShape3D_east_door_wall")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Environment/MainRoom/WallEastNorth" unique_id=345167177]
+material_override = SubResource("StandardMaterial3D_wall_mat")
+mesh = SubResource("BoxMesh_east_door_wall")
+
+[node name="WallEastSouth" type="StaticBody3D" parent="Environment/MainRoom" unique_id=205197611]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 3, 5)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Environment/MainRoom/WallEastSouth" unique_id=1023816476]
+shape = SubResource("BoxShape3D_east_door_wall")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Environment/MainRoom/WallEastSouth" unique_id=92367581]
+material_override = SubResource("StandardMaterial3D_wall_mat")
+mesh = SubResource("BoxMesh_east_door_wall")
+
+[node name="DoorLintel" type="StaticBody3D" parent="Environment/MainRoom" unique_id=362874333]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 4.675, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Environment/MainRoom/DoorLintel" unique_id=1590931991]
+shape = SubResource("BoxShape3D_door_lintel")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Environment/MainRoom/DoorLintel" unique_id=1980216219]
+material_override = SubResource("StandardMaterial3D_wall_mat")
+mesh = SubResource("BoxMesh_door_lintel")
+
+[node name="CeilingVents" type="Node3D" parent="Environment/MainRoom" unique_id=1890779626]
+
+[node name="Vent1" type="Node3D" parent="Environment/MainRoom/CeilingVents" unique_id=943714527]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.1, 5.65, -5.1)
+
+[node name="Mesh" type="MeshInstance3D" parent="Environment/MainRoom/CeilingVents/Vent1" unique_id=1639857395]
+material_override = SubResource("StandardMaterial3D_vent")
+mesh = SubResource("CylinderMesh_vent")
+
+[node name="Vent2" type="Node3D" parent="Environment/MainRoom/CeilingVents" unique_id=1704478186]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.65, -5.1)
+
+[node name="Mesh" type="MeshInstance3D" parent="Environment/MainRoom/CeilingVents/Vent2" unique_id=1453598069]
+material_override = SubResource("StandardMaterial3D_vent")
+mesh = SubResource("CylinderMesh_vent")
+
+[node name="Vent3" type="Node3D" parent="Environment/MainRoom/CeilingVents" unique_id=547079996]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.1, 5.65, -5.1)
+
+[node name="Mesh" type="MeshInstance3D" parent="Environment/MainRoom/CeilingVents/Vent3" unique_id=1797030025]
+material_override = SubResource("StandardMaterial3D_vent")
+mesh = SubResource("CylinderMesh_vent")
+
+[node name="Vent4" type="Node3D" parent="Environment/MainRoom/CeilingVents" unique_id=1265207354]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.1, 5.65, 0)
+
+[node name="Mesh" type="MeshInstance3D" parent="Environment/MainRoom/CeilingVents/Vent4" unique_id=1244905096]
+material_override = SubResource("StandardMaterial3D_vent")
+mesh = SubResource("CylinderMesh_vent")
+
+[node name="Vent5" type="Node3D" parent="Environment/MainRoom/CeilingVents" unique_id=677809865]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.65, 0)
+
+[node name="Mesh" type="MeshInstance3D" parent="Environment/MainRoom/CeilingVents/Vent5" unique_id=309070365]
+material_override = SubResource("StandardMaterial3D_vent")
+mesh = SubResource("CylinderMesh_vent")
+
+[node name="Vent6" type="Node3D" parent="Environment/MainRoom/CeilingVents" unique_id=1414128627]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.1, 5.65, 0)
+
+[node name="Mesh" type="MeshInstance3D" parent="Environment/MainRoom/CeilingVents/Vent6" unique_id=1259284910]
+material_override = SubResource("StandardMaterial3D_vent")
+mesh = SubResource("CylinderMesh_vent")
+
+[node name="Vent7" type="Node3D" parent="Environment/MainRoom/CeilingVents" unique_id=1080811313]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.1, 5.65, 5.1)
+
+[node name="Mesh" type="MeshInstance3D" parent="Environment/MainRoom/CeilingVents/Vent7" unique_id=667028083]
+material_override = SubResource("StandardMaterial3D_vent")
+mesh = SubResource("CylinderMesh_vent")
+
+[node name="Vent8" type="Node3D" parent="Environment/MainRoom/CeilingVents" unique_id=792031303]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.65, 5.1)
+
+[node name="Mesh" type="MeshInstance3D" parent="Environment/MainRoom/CeilingVents/Vent8" unique_id=1959752796]
+material_override = SubResource("StandardMaterial3D_vent")
+mesh = SubResource("CylinderMesh_vent")
+
+[node name="Vent9" type="Node3D" parent="Environment/MainRoom/CeilingVents" unique_id=819164605]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.1, 5.65, 5.1)
+
+[node name="Mesh" type="MeshInstance3D" parent="Environment/MainRoom/CeilingVents/Vent9" unique_id=1894055096]
+material_override = SubResource("StandardMaterial3D_vent")
+mesh = SubResource("CylinderMesh_vent")
+
+[node name="CornerFan" parent="Environment/MainRoom" unique_id=1171780411 instance=ExtResource("3_fan_scene")]
+transform = Transform3D(0.707107, 0, -0.707107, 0, 1, 0, 0.707107, 0, 0.707107, -5.5, 0, -5.5)
+
+[node name="ElectricWall" parent="Environment/MainRoom" unique_id=668611976 instance=ExtResource("4_elec_wall_scene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.5, 0.05, 0)
+
+[node name="SpikeWall" parent="Environment/MainRoom" unique_id=1303232592 instance=ExtResource("5_spike_wall_scene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.8, 0.05, -3.8)
+
+[node name="MagnetPylon" parent="Environment/MainRoom" unique_id=1729296423 instance=ExtResource("6_magnet_scene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.05, -3)
+
+[node name="ConveyorCrusher" parent="Environment/MainRoom" unique_id=1849201948 instance=ExtResource("11_crusher_scene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.5, 0.05, 3.5)
+
+[node name="SentryDrone" parent="Environment/MainRoom" unique_id=1948291054 instance=ExtResource("12_drone_scene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.5, 0)
+
+[node name="GridGhost" type="MeshInstance3D" parent="Environment/MainRoom" unique_id=960102044]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.06, 0)
+visible = false
+material_override = SubResource("StandardMaterial3D_ghost_mat")
+mesh = SubResource("BoxMesh_ghost_frame")
+
+[node name="DoorwaySign" type="Node3D" parent="Environment" unique_id=2009833762]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 3.85, 0)
+
+[node name="SignMesh" type="MeshInstance3D" parent="Environment/DoorwaySign" unique_id=706710574]
+material_override = SubResource("StandardMaterial3D_sign")
+mesh = SubResource("BoxMesh_signboard")
+
+[node name="SignLight" type="OmniLight3D" parent="Environment/DoorwaySign" unique_id=1659764504]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.2, 0)
+light_color = Color(0.2, 0.95, 0.8, 1)
+light_energy = 1.4
+
+[node name="SignLabelMain" type="Label3D" parent="Environment/DoorwaySign" unique_id=1923363209]
+transform = Transform3D(-4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, -0.32, 0, 0)
+pixel_size = 0.0085
+modulate = Color(0.1, 0.95, 0.8, 1)
+text = "KÜÇÜK BALON: 0 / 30"
+font_size = 46
+outline_size = 14
+
+[node name="SignLabelOffice" type="Label3D" parent="Environment/DoorwaySign" unique_id=739515458]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 0.32, 0, 0)
+pixel_size = 0.0085
+modulate = Color(0.1, 0.95, 0.8, 1)
+text = "KÜÇÜK BALON: 0 / 30"
+font_size = 46
+outline_size = 14
+
+[node name="GravityTerminal" type="Node3D" parent="Environment" unique_id=4762660]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.35, 0, -2.4)
+
+[node name="PedestalBase" type="MeshInstance3D" parent="Environment/GravityTerminal" unique_id=1572609363]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.05, 0)
+material_override = SubResource("StandardMaterial3D_terminal_mat")
+mesh = SubResource("BoxMesh_pedestal_base")
+
+[node name="PedestalPole" type="MeshInstance3D" parent="Environment/GravityTerminal" unique_id=1547284274]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.55, 0)
+material_override = SubResource("StandardMaterial3D_terminal_mat")
+mesh = SubResource("CylinderMesh_pedestal_pole")
+
+[node name="TerminalBody" type="MeshInstance3D" parent="Environment/GravityTerminal" unique_id=123811335]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.25, 0)
+material_override = SubResource("StandardMaterial3D_terminal_mat")
+mesh = SubResource("BoxMesh_terminal_body")
+
+[node name="ScreenMesh" type="MeshInstance3D" parent="Environment/GravityTerminal" unique_id=1197053559]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.1, 1.41, 0)
+material_override = SubResource("StandardMaterial3D_terminal_screen")
+mesh = SubResource("BoxMesh_terminal_screen")
+
+[node name="DisplayLabel" type="Label3D" parent="Environment/GravityTerminal" unique_id=538780937]
+transform = Transform3D(-4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, -0.13, 1.41, 0)
+pixel_size = 0.0055
+modulate = Color(1, 0.75, 0.2, 1)
+text = "YERÇEKİMİ KONTROLÜ
+[ 0.25 G ]
+STANDART SÜZÜLME"
+font_size = 30
+outline_size = 8
+
+[node name="ButtonMesh" type="MeshInstance3D" parent="Environment/GravityTerminal" unique_id=1628647266]
+transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, -0.1, 1.07, 0)
+material_override = SubResource("StandardMaterial3D_grav_btn")
+mesh = SubResource("CylinderMesh_grav_btn")
+
+[node name="TerminalLight" type="OmniLight3D" parent="Environment/GravityTerminal" unique_id=968382350]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.35, 1.25, 0)
+light_color = Color(1, 0.65, 0.2, 1)
+omni_range = 3.0
+
+[node name="SideOffice" type="Node3D" parent="Environment" unique_id=274891305]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13.5, 0, 0)
+
+[node name="Floor" type="StaticBody3D" parent="Environment/SideOffice" unique_id=139883841]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.25, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Environment/SideOffice/Floor" unique_id=108639766]
+shape = SubResource("BoxShape3D_office_floor")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Environment/SideOffice/Floor" unique_id=903659117]
+material_override = SubResource("StandardMaterial3D_office_floor_mat")
+mesh = SubResource("BoxMesh_office_floor")
+
+[node name="Ceiling" type="StaticBody3D" parent="Environment/SideOffice" unique_id=630517435]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.75, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Environment/SideOffice/Ceiling" unique_id=1668702595]
+shape = SubResource("BoxShape3D_office_floor")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Environment/SideOffice/Ceiling" unique_id=284724657]
+material_override = SubResource("StandardMaterial3D_office_wall_mat")
+mesh = SubResource("BoxMesh_office_floor")
+
+[node name="WallEast" type="StaticBody3D" parent="Environment/SideOffice" unique_id=575904093]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.5, 2.25, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Environment/SideOffice/WallEast" unique_id=1000791800]
+shape = SubResource("BoxShape3D_office_wall_x")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Environment/SideOffice/WallEast" unique_id=1593521555]
+material_override = SubResource("StandardMaterial3D_office_wall_mat")
+mesh = SubResource("BoxMesh_office_wall_x")
+
+[node name="WallNorth" type="StaticBody3D" parent="Environment/SideOffice" unique_id=788465563]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.25, -6)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Environment/SideOffice/WallNorth" unique_id=132054095]
+shape = SubResource("BoxShape3D_office_wall_z")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Environment/SideOffice/WallNorth" unique_id=1589601067]
+material_override = SubResource("StandardMaterial3D_office_wall_mat")
+mesh = SubResource("BoxMesh_office_wall_z")
+
+[node name="WallSouth" type="StaticBody3D" parent="Environment/SideOffice" unique_id=1267117201]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.25, 6)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Environment/SideOffice/WallSouth" unique_id=691955830]
+shape = SubResource("BoxShape3D_office_wall_z")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Environment/SideOffice/WallSouth" unique_id=1941859042]
+material_override = SubResource("StandardMaterial3D_office_wall_mat")
+mesh = SubResource("BoxMesh_office_wall_z")
+
+[node name="ComputerDesk" type="Node3D" parent="Environment/SideOffice" unique_id=324103650]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 0, 0)
+
+[node name="TableMesh" type="MeshInstance3D" parent="Environment/SideOffice/ComputerDesk" unique_id=2083450322]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.425, 0)
+material_override = SubResource("StandardMaterial3D_wood")
+mesh = SubResource("BoxMesh_table")
+
+[node name="MonitorMesh" type="MeshInstance3D" parent="Environment/SideOffice/ComputerDesk" unique_id=1623837325]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.15, 0)
+material_override = SubResource("StandardMaterial3D_screen")
+mesh = SubResource("BoxMesh_monitor")
+
+[node name="DeskArea" type="Area3D" parent="Environment/SideOffice/ComputerDesk" unique_id=1746666927]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 1, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Environment/SideOffice/ComputerDesk/DeskArea" unique_id=1534204069]
+shape = SubResource("BoxShape3D_desk_area")
+
+[node name="Player" parent="." unique_id=992795672 instance=ExtResource("2_player_scene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13.5, 0.6, 0)
+
+[node name="BalloonContainer" type="Node3D" parent="." unique_id=1695133593]
+
+[node name="GameManager" type="Node" parent="." unique_id=600839778]
+script = ExtResource("7_gm_script")
+
+[node name="SoundManager" type="Node" parent="." unique_id=856054027]
+script = ExtResource("8_sm_script")
+
+[node name="ShopManager" type="Node" parent="." unique_id=32693471]
+script = ExtResource("9_shop_script")
+
+[node name="SaveManager" type="Node" parent="." unique_id=1415789338]
+script = ExtResource("10_save_script")
+
+[node name="UI" type="CanvasLayer" parent="." unique_id=321771120]
+
+[node name="HUD" type="Control" parent="UI" unique_id=2140069899]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="TopLeft" type="PanelContainer" parent="UI/HUD" unique_id=1105063031]
+layout_mode = 1
+offset_left = 25.0
+offset_top = 20.0
+offset_right = 320.0
+offset_bottom = 90.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_micro_panel")
+
+[node name="Margin" type="MarginContainer" parent="UI/HUD/TopLeft" unique_id=440750964]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 8
+
+[node name="VBox" type="VBoxContainer" parent="UI/HUD/TopLeft/Margin" unique_id=1849103957]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="PopCountLabel" type="Label" parent="UI/HUD/TopLeft/Margin/VBox" unique_id=354659947]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.92, 1, 1)
+theme_override_font_sizes/font_size = 14
+text = "0 Patlatma"
+
+[node name="GrandGoalBar" type="ProgressBar" parent="UI/HUD/TopLeft/Margin/VBox" unique_id=1849103958]
+custom_minimum_size = Vector2(0, 6)
+layout_mode = 2
+theme_override_styles/background = SubResource("StyleBoxFlat_crosshair_stamina_bg")
+theme_override_styles/fill = SubResource("StyleBoxFlat_crosshair_stamina_fill")
+max_value = 1000000.0
+value = 0.0
+show_percentage = false
+
+[node name="GrandGoalLabel" type="Label" parent="UI/HUD/TopLeft/Margin/VBox" unique_id=1849103959]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.78, 0.25, 1)
+theme_override_font_sizes/font_size = 11
+text = "Hedef: 1.000.000 (Kalan: 1.000.000)"
+
+[node name="FPSPanel" type="PanelContainer" parent="UI/HUD" unique_id=1849204928]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -315.0
+offset_top = 20.0
+offset_right = -230.0
+offset_bottom = 56.0
+grow_horizontal = 0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_micro_panel")
+
+[node name="Margin" type="MarginContainer" parent="UI/HUD/FPSPanel" unique_id=1948295818]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 6
+
+[node name="FPSLabel" type="Label" parent="UI/HUD/FPSPanel/Margin" unique_id=1948295819]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.95, 0.4, 1)
+theme_override_font_sizes/font_size = 13
+text = "FPS: 60"
+horizontal_alignment = 1
+
+[node name="TopRight" type="PanelContainer" parent="UI/HUD" unique_id=1928491823]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -220.0
+offset_top = 20.0
+offset_right = -25.0
+offset_bottom = 70.0
+grow_horizontal = 0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_micro_panel")
+
+[node name="Margin" type="MarginContainer" parent="UI/HUD/TopRight" unique_id=1829401824]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 6
+
+[node name="VBox" type="VBoxContainer" parent="UI/HUD/TopRight/Margin" unique_id=1948291048]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="OverdriveLabel" type="Label" parent="UI/HUD/TopRight/Margin/VBox" unique_id=1294829105]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.45, 0.1, 1)
+theme_override_font_sizes/font_size = 13
+text = "OVERDRIVE: %0"
+
+[node name="OverdriveBar" type="ProgressBar" parent="UI/HUD/TopRight/Margin/VBox" unique_id=1948291059]
+custom_minimum_size = Vector2(0, 6)
+layout_mode = 2
+theme_override_styles/background = SubResource("StyleBoxFlat_crosshair_stamina_bg")
+theme_override_styles/fill = SubResource("StyleBoxFlat_crosshair_stamina_fill")
+max_value = 100.0
+value = 0.0
+show_percentage = false
+
+[node name="CrosshairContainer" type="CenterContainer" parent="UI/HUD" unique_id=147273076]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -30.0
+offset_top = -30.0
+offset_right = 30.0
+offset_bottom = 30.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="VBox" type="VBoxContainer" parent="UI/HUD/CrosshairContainer" unique_id=126222148]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 6
+alignment = 1
+
+[node name="DotContainer" type="CenterContainer" parent="UI/HUD/CrosshairContainer/VBox" unique_id=542079617]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="Dot" type="ColorRect" parent="UI/HUD/CrosshairContainer/VBox/DotContainer" unique_id=1129103675]
+custom_minimum_size = Vector2(4, 4)
+layout_mode = 2
+mouse_filter = 2
+color = Color(1, 1, 1, 0.85)
+
+[node name="StaminaBar" type="ProgressBar" parent="UI/HUD/CrosshairContainer/VBox" unique_id=1152280943]
+modulate = Color(1, 1, 1, 0)
+custom_minimum_size = Vector2(36, 4)
+layout_mode = 2
+mouse_filter = 2
+theme_override_styles/background = SubResource("StyleBoxFlat_crosshair_stamina_bg")
+theme_override_styles/fill = SubResource("StyleBoxFlat_crosshair_stamina_fill")
+value = 100.0
+show_percentage = false
+
+[node name="DeskPrompt" type="Label" parent="UI/HUD" unique_id=966113592]
+visible = false
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -150.0
+offset_top = 40.0
+offset_right = 150.0
+offset_bottom = 80.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.2, 0.9, 0.5, 1)
+theme_override_font_sizes/font_size = 16
+text = "[E] Bilgisayarı Aç"
+horizontal_alignment = 1
+
+[node name="ShopModal" type="Control" parent="UI" unique_id=449300953]
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Backdrop" type="ColorRect" parent="UI/ShopModal" unique_id=1572612780]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.65)
+
+[node name="Panel" type="PanelContainer" parent="UI/ShopModal" unique_id=7202587]
+custom_minimum_size = Vector2(820, 530)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -410.0
+offset_top = -265.0
+offset_right = 410.0
+offset_bottom = 265.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_glass_panel")
+
+[node name="Margin" type="MarginContainer" parent="UI/ShopModal/Panel" unique_id=1044904642]
+layout_mode = 2
+theme_override_constants/margin_left = 25
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 25
+theme_override_constants/margin_bottom = 18
+
+[node name="VBox" type="VBoxContainer" parent="UI/ShopModal/Panel/Margin" unique_id=22797128]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Header" type="HBoxContainer" parent="UI/ShopModal/Panel/Margin/VBox" unique_id=1894255311]
+layout_mode = 2
+theme_override_constants/separation = 15
+
+[node name="Title" type="Label" parent="UI/ShopModal/Panel/Margin/VBox/Header" unique_id=581097897]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.8, 1, 1)
+theme_override_font_sizes/font_size = 22
+text = "BİLGİSAYAR & YÜKSELTME TERMİNALİ"
+
+[node name="Spacer" type="Control" parent="UI/ShopModal/Panel/Margin/VBox/Header" unique_id=1712972174]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="CoinsLabel" type="Label" parent="UI/ShopModal/Panel/Margin/VBox/Header" unique_id=2122065577]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.82, 0.2, 1)
+theme_override_font_sizes/font_size = 20
+text = "Coin: 0 🎈"
+
+[node name="BtnClose" type="Button" parent="UI/ShopModal/Panel/Margin/VBox/Header" unique_id=1340263501]
+custom_minimum_size = Vector2(35, 30)
+layout_mode = 2
+text = "X"
+
+[node name="CategoryTabs" type="HBoxContainer" parent="UI/ShopModal/Panel/Margin/VBox" unique_id=752465902]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="BtnTabUpgrades" type="Button" parent="UI/ShopModal/Panel/Margin/VBox/CategoryTabs" unique_id=557391477]
+custom_minimum_size = Vector2(160, 34)
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "Yükseltmeler"
+
+[node name="BtnTabDevices" type="Button" parent="UI/ShopModal/Panel/Margin/VBox/CategoryTabs" unique_id=1254069494]
+custom_minimum_size = Vector2(150, 34)
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "Cihazlar"
+
+[node name="BtnTabRooms" type="Button" parent="UI/ShopModal/Panel/Margin/VBox/CategoryTabs" unique_id=749574410]
+custom_minimum_size = Vector2(160, 34)
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "Mülk & Odalar"
+
+[node name="Scroll" type="ScrollContainer" parent="UI/ShopModal/Panel/Margin/VBox" unique_id=1712810923]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="UpgradesGrid" type="GridContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll" unique_id=1195150036]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/h_separation = 12
+theme_override_constants/v_separation = 12
+columns = 2
+
+[node name="CardSpikeWall" type="PanelContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid" unique_id=1276190261]
+custom_minimum_size = Vector2(365, 95)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_card")
+metadata/device_id = "spike_wall"
+
+[node name="Margin" type="MarginContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardSpikeWall" unique_id=72515384]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 8
+
+[node name="VBox" type="VBoxContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardSpikeWall/Margin" unique_id=1187700202]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Title" type="Label" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardSpikeWall/Margin/VBox" unique_id=359659441]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.4, 0.4, 1)
+theme_override_font_sizes/font_size = 14
+text = "Dikenli Zemin Tuzağı (Floor Spikes)"
+
+[node name="Desc" type="Label" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardSpikeWall/Margin/VBox" unique_id=1173407682]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.85, 0.9, 1)
+theme_override_font_sizes/font_size = 11
+text = "Zemine serilen sivri çelik iğneler. Üzerine düşen balonları deler. [E] ile 5 bölge arasında taşınabilir."
+
+[node name="BtnBuy" type="Button" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardSpikeWall/Margin/VBox" unique_id=426536584]
+layout_mode = 2
+text = "600 Coin"
+
+[node name="CardElectricWall" type="PanelContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid" unique_id=1139058110]
+custom_minimum_size = Vector2(365, 95)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_card")
+metadata/device_id = "electric_wall"
+
+[node name="Margin" type="MarginContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardElectricWall" unique_id=506932181]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 8
+
+[node name="VBox" type="VBoxContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardElectricWall/Margin" unique_id=421360221]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Title" type="Label" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardElectricWall/Margin/VBox" unique_id=1227134046]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.85, 1, 1)
+theme_override_font_sizes/font_size = 14
+text = "Elektrikli Zemin Izgarası (Electric Floor Grid)"
+
+[node name="Desc" type="Label" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardElectricWall/Margin/VBox" unique_id=172498709]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.85, 0.9, 1)
+theme_override_font_sizes/font_size = 11
+text = "Batı tabanına yüksek voltajlı neon ark ızgarası serer. Üzerinden geçen balonları şok dalgasıyla yakar."
+
+[node name="BtnBuy" type="Button" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardElectricWall/Margin/VBox" unique_id=1038963032]
+layout_mode = 2
+text = "1200 Coin"
+
+[node name="CardMagnetPylon" type="PanelContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid" unique_id=624114632]
+custom_minimum_size = Vector2(365, 95)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_card")
+metadata/device_id = "magnet_pylon"
+
+[node name="Margin" type="MarginContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardMagnetPylon" unique_id=211880592]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 8
+
+[node name="VBox" type="VBoxContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardMagnetPylon/Margin" unique_id=928741850]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Title" type="Label" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardMagnetPylon/Margin/VBox" unique_id=3421355]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.85, 1, 1)
+theme_override_font_sizes/font_size = 14
+text = "Manyetik Çekim Kulesi (Magnet Pylon)"
+
+[node name="Desc" type="Label" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardMagnetPylon/Margin/VBox" unique_id=1540122303]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.85, 0.9, 1)
+theme_override_font_sizes/font_size = 11
+text = "Dikey elektromanyetik kule. Balonları çekip tuzakların merkezine toplar. Izgarada istenilen yere dikilebilir."
+
+[node name="BtnBuy" type="Button" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardMagnetPylon/Margin/VBox" unique_id=1620228042]
+layout_mode = 2
+text = "1800 Coin"
+
+[node name="CardGravityRegulator" type="PanelContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid" unique_id=986285921]
+custom_minimum_size = Vector2(365, 95)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_card")
+metadata/device_id = "gravity_regulator"
+
+[node name="Margin" type="MarginContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardGravityRegulator" unique_id=796235990]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 8
+
+[node name="VBox" type="VBoxContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardGravityRegulator/Margin" unique_id=657095559]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Title" type="Label" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardGravityRegulator/Margin/VBox" unique_id=981333646]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.65, 0.25, 1)
+theme_override_font_sizes/font_size = 14
+text = "Yerçekimi & Gaz Regülatörü (Gravity Regulator)"
+
+[node name="Desc" type="Label" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardGravityRegulator/Margin/VBox" unique_id=1130457651]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.85, 0.9, 1)
+theme_override_font_sizes/font_size = 11
+text = "Balonların düşme hızını ve yerçekimini ayarlar. [G] tuşuyla anında modlar arasında geçiş yapılır."
+
+[node name="BtnBuy" type="Button" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardGravityRegulator/Margin/VBox" unique_id=1163878749]
+layout_mode = 2
+text = "350 Coin"
+
+[node name="CardConveyorCrusher" type="PanelContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid" unique_id=1849201955]
+custom_minimum_size = Vector2(365, 95)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_card")
+metadata/device_id = "conveyor_crusher"
+
+[node name="Margin" type="MarginContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardConveyorCrusher" unique_id=1849201956]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 8
+
+[node name="VBox" type="VBoxContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardConveyorCrusher/Margin" unique_id=1849201957]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Title" type="Label" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardConveyorCrusher/Margin/VBox" unique_id=1849201958]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.55, 0.15, 1)
+theme_override_font_sizes/font_size = 14
+text = "Makaralı Balon Öğütücü (Conveyor Crusher)"
+
+[node name="Desc" type="Label" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardConveyorCrusher/Margin/VBox" unique_id=1849201959]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.85, 0.9, 1)
+theme_override_font_sizes/font_size = 11
+text = "Çift silindirli döner çelik öğütücü. Önündeki balonları içine çeker ve kıyma yapar."
+
+[node name="BtnBuy" type="Button" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardConveyorCrusher/Margin/VBox" unique_id=1849201960]
+layout_mode = 2
+text = "1500 Coin"
+
+[node name="CardSentryDrone" type="PanelContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid" unique_id=1948291065]
+custom_minimum_size = Vector2(365, 95)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_card")
+metadata/device_id = "sentry_drone"
+
+[node name="Margin" type="MarginContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardSentryDrone" unique_id=1948291066]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 8
+
+[node name="VBox" type="VBoxContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardSentryDrone/Margin" unique_id=1948291067]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Title" type="Label" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardSentryDrone/Margin/VBox" unique_id=1948291068]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0.9, 1, 1)
+theme_override_font_sizes/font_size = 14
+text = "Uçan Lazer Dronu (Sentry Drone)"
+
+[node name="Desc" type="Label" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardSentryDrone/Margin/VBox" unique_id=1948291069]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.85, 0.9, 1)
+theme_override_font_sizes/font_size = 11
+text = "Oyuncunun yanında süzülen güvenlik dronu. Havadaki balonları lazerle otomatik vurur."
+
+[node name="BtnBuy" type="Button" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardSentryDrone/Margin/VBox" unique_id=1948291070]
+layout_mode = 2
+text = "2400 Coin"
+
+[node name="CardSmallRoom" type="PanelContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid" unique_id=543042405]
+custom_minimum_size = Vector2(365, 95)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_card")
+metadata/room_id = "small_room"
+
+[node name="Margin" type="MarginContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardSmallRoom" unique_id=752031821]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 8
+
+[node name="VBox" type="VBoxContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardSmallRoom/Margin" unique_id=400394509]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Title" type="Label" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardSmallRoom/Margin/VBox" unique_id=922708013]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 1, 0.6, 1)
+theme_override_font_sizes/font_size = 14
+text = "Küçük Salon (Small Room)"
+
+[node name="Desc" type="Label" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardSmallRoom/Margin/VBox" unique_id=1545736803]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.75, 0.85, 0.9, 1)
+theme_override_font_sizes/font_size = 11
+text = "Başlangıç salonu. 16x16m taban alanı ve 6m tavan yüksekliği."
+
+[node name="BtnBuy" type="Button" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardSmallRoom/Margin/VBox" unique_id=1107164397]
+layout_mode = 2
+disabled = true
+text = "KULLANILIYOR"
+
+[node name="CardMediumRoom" type="PanelContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid" unique_id=60053481]
+custom_minimum_size = Vector2(365, 95)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_card")
+metadata/room_id = "medium_room"
+
+[node name="Margin" type="MarginContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardMediumRoom" unique_id=1023428936]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 8
+
+[node name="VBox" type="VBoxContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardMediumRoom/Margin" unique_id=604605197]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Title" type="Label" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardMediumRoom/Margin/VBox" unique_id=400652975]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.8, 1, 1)
+theme_override_font_sizes/font_size = 14
+text = "Geniş Salon (Medium Room)"
+
+[node name="Desc" type="Label" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardMediumRoom/Margin/VBox" unique_id=986784186]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.75, 0.85, 0.9, 1)
+theme_override_font_sizes/font_size = 11
+text = "26x26m taban alanı, 7.5m tavan. +30 Kapasite ve %25 daha hızlı döküm."
+
+[node name="BtnBuy" type="Button" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardMediumRoom/Margin/VBox" unique_id=1208465022]
+layout_mode = 2
+text = "500 Coin"
+
+[node name="CardLargeRoom" type="PanelContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid" unique_id=877630260]
+custom_minimum_size = Vector2(365, 95)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_card")
+metadata/room_id = "large_room"
+
+[node name="Margin" type="MarginContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardLargeRoom" unique_id=456983344]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 8
+
+[node name="VBox" type="VBoxContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardLargeRoom/Margin" unique_id=1185226268]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Title" type="Label" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardLargeRoom/Margin/VBox" unique_id=512637634]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.8, 1, 1)
+theme_override_font_sizes/font_size = 14
+text = "Büyük Kompleks (Large Room)"
+
+[node name="Desc" type="Label" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardLargeRoom/Margin/VBox" unique_id=2092142981]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.75, 0.85, 0.9, 1)
+theme_override_font_sizes/font_size = 11
+text = "38x38m taban alanı, 9m tavan, çift menfez. +70 Kapasite ve %60 akış."
+
+[node name="BtnBuy" type="Button" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardLargeRoom/Margin/VBox" unique_id=1876297640]
+layout_mode = 2
+text = "2500 Coin"
+
+[node name="CardWarehouse" type="PanelContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid" unique_id=153788895]
+custom_minimum_size = Vector2(365, 95)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_card")
+metadata/room_id = "warehouse"
+
+[node name="Margin" type="MarginContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardWarehouse" unique_id=1845803966]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 8
+
+[node name="VBox" type="VBoxContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardWarehouse/Margin" unique_id=30596757]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Title" type="Label" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardWarehouse/Margin/VBox" unique_id=610936582]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.8, 1, 1)
+theme_override_font_sizes/font_size = 14
+text = "Sanayi Deposu (Warehouse)"
+
+[node name="Desc" type="Label" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardWarehouse/Margin/VBox" unique_id=727398373]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.75, 0.85, 0.9, 1)
+theme_override_font_sizes/font_size = 11
+text = "54x54m taban alanı, 11m tavan, 3 menfez. +130 Kapasite ve 2.0x akış hızı."
+
+[node name="BtnBuy" type="Button" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardWarehouse/Margin/VBox" unique_id=1010170672]
+layout_mode = 2
+text = "12000 Coin"
+
+[node name="CardHangar" type="PanelContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid" unique_id=596651448]
+custom_minimum_size = Vector2(365, 95)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_card")
+metadata/room_id = "hangar"
+
+[node name="Margin" type="MarginContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardHangar" unique_id=506723395]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 8
+
+[node name="VBox" type="VBoxContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardHangar/Margin" unique_id=1339986245]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Title" type="Label" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardHangar/Margin/VBox" unique_id=438580790]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.8, 1, 1)
+theme_override_font_sizes/font_size = 14
+text = "Mega Hangar (Hangar)"
+
+[node name="Desc" type="Label" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardHangar/Margin/VBox" unique_id=16807738]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.75, 0.85, 0.9, 1)
+theme_override_font_sizes/font_size = 11
+text = "75x75m devasa alan, 14m tavan, 4 menfez. +220 Kapasite ve 2.6x akış hızı."
+
+[node name="BtnBuy" type="Button" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardHangar/Margin/VBox" unique_id=73321189]
+layout_mode = 2
+text = "45000 Coin"
+
+[node name="CardVentRate" type="PanelContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid" unique_id=1215316992]
+custom_minimum_size = Vector2(365, 95)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_card")
+metadata/upgrade_id = "vent_rate"
+
+[node name="Margin" type="MarginContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardVentRate" unique_id=324071718]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 8
+
+[node name="VBox" type="VBoxContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardVentRate/Margin" unique_id=39299641]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Title" type="Label" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardVentRate/Margin/VBox" unique_id=456143335]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.8, 1, 1)
+theme_override_font_sizes/font_size = 14
+text = "Balon Dökülme Hızı"
+
+[node name="Desc" type="Label" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardVentRate/Margin/VBox" unique_id=1897904230]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.75, 0.8, 1)
+theme_override_font_sizes/font_size = 11
+text = "Tavandan saniyede dökülen balon sayısını artırır."
+
+[node name="BtnBuy" type="Button" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardVentRate/Margin/VBox" unique_id=422292630]
+layout_mode = 2
+text = "10 Coin"
+
+[node name="CardRoomCapacity" type="PanelContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid" unique_id=858903033]
+custom_minimum_size = Vector2(365, 95)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_card")
+metadata/upgrade_id = "room_capacity"
+
+[node name="Margin" type="MarginContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardRoomCapacity" unique_id=458325188]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 8
+
+[node name="VBox" type="VBoxContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardRoomCapacity/Margin" unique_id=2050693693]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Title" type="Label" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardRoomCapacity/Margin/VBox" unique_id=75153614]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.8, 1, 1)
+theme_override_font_sizes/font_size = 14
+text = "Oda Kapasitesi"
+
+[node name="Desc" type="Label" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardRoomCapacity/Margin/VBox" unique_id=491450951]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.75, 0.8, 1)
+theme_override_font_sizes/font_size = 11
+text = "Odada aynı anda bulunabilecek maksimum balon limitini artırır."
+
+[node name="BtnBuy" type="Button" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardRoomCapacity/Margin/VBox" unique_id=472769675]
+layout_mode = 2
+text = "15 Coin"
+
+[node name="CardReach" type="PanelContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid" unique_id=1550095433]
+custom_minimum_size = Vector2(365, 95)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_card")
+metadata/upgrade_id = "reach"
+
+[node name="Margin" type="MarginContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardReach" unique_id=1209619821]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 8
+
+[node name="VBox" type="VBoxContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardReach/Margin" unique_id=375182174]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Title" type="Label" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardReach/Margin/VBox" unique_id=1431580937]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.8, 1, 1)
+theme_override_font_sizes/font_size = 14
+text = "Reach / Uzun İğne"
+
+[node name="Desc" type="Label" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardReach/Margin/VBox" unique_id=1625910423]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.75, 0.8, 1)
+theme_override_font_sizes/font_size = 11
+text = "İğnenin vuruş ve tıklama menzilini uzatır."
+
+[node name="BtnBuy" type="Button" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardReach/Margin/VBox" unique_id=1707682478]
+layout_mode = 2
+text = "12 Coin"
+
+[node name="CardNudge" type="PanelContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid" unique_id=954572863]
+custom_minimum_size = Vector2(365, 95)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_card")
+metadata/upgrade_id = "nudge"
+
+[node name="Margin" type="MarginContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardNudge" unique_id=1359069101]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 8
+
+[node name="VBox" type="VBoxContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardNudge/Margin" unique_id=405915163]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Title" type="Label" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardNudge/Margin/VBox" unique_id=1465121866]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.8, 1, 1)
+theme_override_font_sizes/font_size = 14
+text = "Nudge / Hava Körüğü"
+
+[node name="Desc" type="Label" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardNudge/Margin/VBox" unique_id=1664026957]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.75, 0.8, 1)
+theme_override_font_sizes/font_size = 11
+text = "Sağ tıkla balonları daha güçlü süpürür."
+
+[node name="BtnBuy" type="Button" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardNudge/Margin/VBox" unique_id=1783002744]
+layout_mode = 2
+text = "25 Coin"
+
+[node name="CardAutoPop" type="PanelContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid" unique_id=908788476]
+custom_minimum_size = Vector2(365, 95)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_card")
+metadata/upgrade_id = "auto_pop"
+
+[node name="Margin" type="MarginContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardAutoPop" unique_id=1283828676]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 8
+
+[node name="VBox" type="VBoxContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardAutoPop/Margin" unique_id=1318204969]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Title" type="Label" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardAutoPop/Margin/VBox" unique_id=1950473916]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.8, 1, 1)
+theme_override_font_sizes/font_size = 14
+text = "Auto-Pop"
+
+[node name="Desc" type="Label" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardAutoPop/Margin/VBox" unique_id=334657747]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.75, 0.8, 1)
+theme_override_font_sizes/font_size = 11
+text = "Sol tıka basılı tutulduğunda aralıksız seri iğne batırma özelliğini açar."
+
+[node name="BtnBuy" type="Button" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardAutoPop/Margin/VBox" unique_id=1758340303]
+layout_mode = 2
+text = "40 Coin"
+
+[node name="CardSplashPop" type="PanelContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid" unique_id=894782266]
+custom_minimum_size = Vector2(365, 95)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_card")
+metadata/upgrade_id = "splash_pop"
+
+[node name="Margin" type="MarginContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardSplashPop" unique_id=1809357997]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 8
+
+[node name="VBox" type="VBoxContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardSplashPop/Margin" unique_id=738864603]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Title" type="Label" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardSplashPop/Margin/VBox" unique_id=1979203738]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.8, 1, 1)
+theme_override_font_sizes/font_size = 14
+text = "Splash / Alan Patlatma"
+
+[node name="Desc" type="Label" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardSplashPop/Margin/VBox" unique_id=818201387]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.75, 0.8, 1)
+theme_override_font_sizes/font_size = 11
+text = "Her iğne darbesinde şok dalgası oluşturup çevredeki birden çok balonu zincirleme patlatır."
+
+[node name="BtnBuy" type="Button" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardSplashPop/Margin/VBox" unique_id=495833993]
+layout_mode = 2
+text = "80 Coin"
+
+[node name="CardEnergyCap" type="PanelContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid" unique_id=1111990068]
+custom_minimum_size = Vector2(365, 95)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_card")
+metadata/upgrade_id = "energy_cap"
+
+[node name="Margin" type="MarginContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardEnergyCap" unique_id=282628720]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 8
+
+[node name="VBox" type="VBoxContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardEnergyCap/Margin" unique_id=1181636465]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Title" type="Label" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardEnergyCap/Margin/VBox" unique_id=349787191]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.8, 1, 1)
+theme_override_font_sizes/font_size = 14
+text = "Energy Capacity"
+
+[node name="Desc" type="Label" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardEnergyCap/Margin/VBox" unique_id=2005320914]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.75, 0.8, 1)
+theme_override_font_sizes/font_size = 11
+text = "Maksimum enerji havuzunu +25 birim artırır."
+
+[node name="BtnBuy" type="Button" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardEnergyCap/Margin/VBox" unique_id=414030829]
+layout_mode = 2
+text = "10 Coin"
+
+[node name="CardEnergyRegen" type="PanelContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid" unique_id=1526192952]
+custom_minimum_size = Vector2(365, 95)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_card")
+metadata/upgrade_id = "energy_regen"
+
+[node name="Margin" type="MarginContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardEnergyRegen" unique_id=1003323529]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 8
+
+[node name="VBox" type="VBoxContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardEnergyRegen/Margin" unique_id=1426005909]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Title" type="Label" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardEnergyRegen/Margin/VBox" unique_id=697979411]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.8, 1, 1)
+theme_override_font_sizes/font_size = 14
+text = "Energy Regen"
+
+[node name="Desc" type="Label" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardEnergyRegen/Margin/VBox" unique_id=1576598870]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.75, 0.8, 1)
+theme_override_font_sizes/font_size = 11
+text = "Dinlenirken enerjinin saniyede dolum hızını artırır."
+
+[node name="BtnBuy" type="Button" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardEnergyRegen/Margin/VBox" unique_id=132193898]
+layout_mode = 2
+text = "10 Coin"
+
+[node name="CardSpeed" type="PanelContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid" unique_id=2078902051]
+custom_minimum_size = Vector2(365, 95)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_card")
+metadata/upgrade_id = "speed"
+
+[node name="Margin" type="MarginContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardSpeed" unique_id=2016827579]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 8
+
+[node name="VBox" type="VBoxContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardSpeed/Margin" unique_id=1140077946]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Title" type="Label" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardSpeed/Margin/VBox" unique_id=134570721]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.8, 1, 1)
+theme_override_font_sizes/font_size = 14
+text = "Speed"
+
+[node name="Desc" type="Label" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardSpeed/Margin/VBox" unique_id=1881253179]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.75, 0.8, 1)
+theme_override_font_sizes/font_size = 11
+text = "Yürüme ve koşma hızını artırır."
+
+[node name="BtnBuy" type="Button" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardSpeed/Margin/VBox" unique_id=2027277571]
+layout_mode = 2
+text = "10 Coin"
+
+[node name="CardSprintEff" type="PanelContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid" unique_id=40038924]
+custom_minimum_size = Vector2(365, 95)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_card")
+metadata/upgrade_id = "sprint_efficiency"
+
+[node name="Margin" type="MarginContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardSprintEff" unique_id=1878565909]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 8
+
+[node name="VBox" type="VBoxContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardSprintEff/Margin" unique_id=629684127]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Title" type="Label" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardSprintEff/Margin/VBox" unique_id=446959139]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.8, 1, 1)
+theme_override_font_sizes/font_size = 14
+text = "Sprint Efficiency"
+
+[node name="Desc" type="Label" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardSprintEff/Margin/VBox" unique_id=836780093]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.75, 0.8, 1)
+theme_override_font_sizes/font_size = 11
+text = "Basılı tutarak patlatma ve süpürme enerji harcamasını azaltır."
+
+[node name="BtnBuy" type="Button" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardSprintEff/Margin/VBox" unique_id=701777971]
+layout_mode = 2
+text = "20 Coin"
+
+[node name="StartupModal" type="Control" parent="UI" unique_id=1709316011]
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Backdrop" type="ColorRect" parent="UI/StartupModal" unique_id=1348775981]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.04, 0.05, 0.08, 0.88)
+
+[node name="Panel" type="PanelContainer" parent="UI/StartupModal" unique_id=2137577100]
+custom_minimum_size = Vector2(560, 260)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -280.0
+offset_top = -130.0
+offset_right = 280.0
+offset_bottom = 130.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_glass_panel")
+
+[node name="Margin" type="MarginContainer" parent="UI/StartupModal/Panel" unique_id=1645647460]
+layout_mode = 2
+theme_override_constants/margin_left = 30
+theme_override_constants/margin_top = 25
+theme_override_constants/margin_right = 30
+theme_override_constants/margin_bottom = 25
+
+[node name="VBox" type="VBoxContainer" parent="UI/StartupModal/Panel/Margin" unique_id=1983280632]
+layout_mode = 2
+theme_override_constants/separation = 16
+alignment = 1
+
+[node name="Title" type="Label" parent="UI/StartupModal/Panel/Margin/VBox" unique_id=972525672]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.85, 1, 1)
+theme_override_font_sizes/font_size = 26
+text = "BALLOON ROOM"
+horizontal_alignment = 1
+
+[node name="PromptLabel" type="Label" parent="UI/StartupModal/Panel/Margin/VBox" unique_id=661777189]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.9, 0.95, 1)
+theme_override_font_sizes/font_size = 15
+text = "Nasıl başlamak istersiniz?"
+horizontal_alignment = 1
+
+[node name="SaveInfoLabel" type="Label" parent="UI/StartupModal/Panel/Margin/VBox" unique_id=399553773]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.82, 0.3, 1)
+theme_override_font_sizes/font_size = 13
+text = "Kayıt Detayı: 0 Patlatma | 0 Coin"
+horizontal_alignment = 1
+
+[node name="Buttons" type="HBoxContainer" parent="UI/StartupModal/Panel/Margin/VBox" unique_id=1658818249]
+layout_mode = 2
+theme_override_constants/separation = 20
+alignment = 1
+
+[node name="BtnContinue" type="Button" parent="UI/StartupModal/Panel/Margin/VBox/Buttons" unique_id=22500510]
+custom_minimum_size = Vector2(220, 44)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 1, 0.6, 1)
+theme_override_font_sizes/font_size = 14
+text = "Kayıtlı Oyuna Devam Et"
+
+[node name="BtnNewGame" type="Button" parent="UI/StartupModal/Panel/Margin/VBox/Buttons" unique_id=1633908147]
+custom_minimum_size = Vector2(220, 44)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.55, 0.4, 1)
+theme_override_font_sizes/font_size = 14
+text = "Sıfırdan Başla (Yeni Oyun)"
+
+[node name="VictoryModal" type="Control" parent="UI" unique_id=1948293817]
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Backdrop" type="ColorRect" parent="UI/VictoryModal" unique_id=1849103960]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.04, 0.05, 0.08, 0.85)
+
+[node name="Panel" type="PanelContainer" parent="UI/VictoryModal" unique_id=1849103961]
+custom_minimum_size = Vector2(560, 340)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -280.0
+offset_top = -170.0
+offset_right = 280.0
+offset_bottom = 170.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_glass_panel")
+
+[node name="Margin" type="MarginContainer" parent="UI/VictoryModal/Panel" unique_id=1849103962]
+layout_mode = 2
+theme_override_constants/margin_left = 32
+theme_override_constants/margin_top = 28
+theme_override_constants/margin_right = 32
+theme_override_constants/margin_bottom = 28
+
+[node name="VBox" type="VBoxContainer" parent="UI/VictoryModal/Panel/Margin" unique_id=1849103963]
+layout_mode = 2
+theme_override_constants/separation = 16
+alignment = 1
+
+[node name="Title" type="Label" parent="UI/VictoryModal/Panel/Margin/VBox" unique_id=1849103964]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
+theme_override_font_sizes/font_size = 24
+text = "1.000.000 BALON PATLATILDI!"
+horizontal_alignment = 1
+
+[node name="Desc" type="Label" parent="UI/VictoryModal/Panel/Margin/VBox" unique_id=1849103965]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.95, 1, 1)
+theme_override_font_sizes/font_size = 14
+text = "Tebrikler! Balon Fabrikası nihai hedefine ulaştı. 1 Milyonluk devasa balon imparatorluğunu kurdun. Şimdi fabrikanı sonsuz modda yönetmeye devam edebilirsin!"
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="Buttons" type="HBoxContainer" parent="UI/VictoryModal/Panel/Margin/VBox" unique_id=1849103967]
+layout_mode = 2
+theme_override_constants/separation = 16
+alignment = 1
+
+[node name="BtnCloseVictory" type="Button" parent="UI/VictoryModal/Panel/Margin/VBox/Buttons" unique_id=1849103966]
+custom_minimum_size = Vector2(210, 44)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 1, 0.6, 1)
+theme_override_font_sizes/font_size = 14
+text = "Sonsuz Modda Devam Et"
+
+[node name="BtnPrestige" type="Button" parent="UI/VictoryModal/Panel/Margin/VBox/Buttons" unique_id=1849103968]
+custom_minimum_size = Vector2(240, 44)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
+theme_override_font_sizes/font_size = 14
+text = "Helyum Dönüşümü (Prestige)"
+
+[connection signal="body_entered" from="Environment/SideOffice/ComputerDesk/DeskArea" to="." method="_on_desk_area_entered"]
+[connection signal="body_exited" from="Environment/SideOffice/ComputerDesk/DeskArea" to="." method="_on_desk_area_exited"]
