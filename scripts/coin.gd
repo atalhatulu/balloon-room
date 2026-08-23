@@ -33,9 +33,10 @@ func init(spawn_pos: Vector3, val: int = 1) -> void:
 	)
 	
 	# Initial spawn squash and stretch
-	scale = Vector3(0.4, 0.4, 0.4)
+	var target_scale = Vector3(1.25, 1.25, 1.25) if val >= 10 else Vector3.ONE
+	scale = target_scale * 0.4
 	var tween = create_tween()
-	tween.tween_property(self, "scale", Vector3.ONE, 0.12).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tween.tween_property(self, "scale", target_scale, 0.12).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 
 func _ready() -> void:
 	add_to_group("coins")

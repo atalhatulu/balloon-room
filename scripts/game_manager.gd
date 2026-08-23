@@ -126,18 +126,19 @@ func on_balloon_popped(pop_position: Vector3, _balloon_color: Color, combo_step:
 		var pitch_idx = (combo_step if combo_step > 0 else (total_pops % 8))
 		sound_manager.play_pop(pitch_idx)
 		
-	# Apply Room Tier Coin Multiplier (1.0x in Small -> 8.0x in Hyper Lab!)
-	var room_mult = 1.0
-	if shop_manager and shop_manager.has_method("get_current_room_data"):
-		var r_data = shop_manager.get_current_room_data()
-		room_mult = r_data.get("coin_multiplier", 1.0)
+	# Drop 1 coin every 10 balloon pops (Worth 10x Coins!)
+	if total_pops % 10 == 0:
+		var room_mult = 1.0
+		if shop_manager and shop_manager.has_method("get_current_room_data"):
+			var r_data = shop_manager.get_current_room_data()
+			room_mult = r_data.get("coin_multiplier", 1.0)
+			
+		var coin_reward = max(10, int(10.0 * room_mult))
 		
-	var coin_reward = max(1, int(1.0 * room_mult))
-	
-	# Drop physical gold coin to floor for player to collect
-	var main_node = get_node_or_null("/root/Main")
-	if main_node and main_node.has_method("spawn_floor_coin"):
-		main_node.spawn_floor_coin(pop_position, coin_reward)
+		# Drop physical gold coin to floor for player to collect
+		var main_node = get_node_or_null("/root/Main")
+		if main_node and main_node.has_method("spawn_floor_coin"):
+			main_node.spawn_floor_coin(pop_position, coin_reward)
 		
 	pop_registered.emit(total_pops)
 	active_count_changed.emit(active_balloons, max_room_balloons)
