@@ -1939,13 +1939,12 @@ func drop_balloons_from_vent(count: int) -> void:
 func spawn_floor_coin(pop_pos: Vector3, val: int = 1) -> void:
 	if not coin_scene or not coin_container: return
 	
-	# Performance Safeguard: Cap max coin nodes on floor to 60 (merge value if maxed)
-	if coin_container.get_child_count() >= 60:
-		var c = coin_container.get_child(randi() % coin_container.get_child_count())
-		if c and is_instance_valid(c):
-			c.set("coin_value", c.get("coin_value") + val)
-		return
-		
+	# If floor has too many coins, auto-collect the oldest coin to keep performance crisp
+	if coin_container.get_child_count() >= 120:
+		var old_coin = coin_container.get_child(0)
+		if old_coin and is_instance_valid(old_coin) and old_coin.has_method("collect_coin"):
+			old_coin.collect_coin()
+			
 	var coin = coin_scene.instantiate()
 	coin_container.add_child(coin)
 	if coin.has_method("init"):
