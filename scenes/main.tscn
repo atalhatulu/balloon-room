@@ -237,8 +237,6 @@ corner_radius_bottom_left = 8
 
 [node name="Main" type="Node3D" unique_id=186584726]
 script = ExtResource("1_main_script")
-balloon_scene = null
-coin_scene = null
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=794446808]
 environment = SubResource("Environment_room")

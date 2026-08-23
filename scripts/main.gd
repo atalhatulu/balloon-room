@@ -568,7 +568,7 @@ func update_ceiling_vents() -> void:
 	var W: float = r_data["floor_size"].x
 	var L: float = r_data["floor_size"].y
 	var H: float = r_data["ceiling_height"]
-	var vent_y = H - 0.4
+	var vent_y = H - 0.85
 	
 	var xs = [-W * 0.28, 0.0, W * 0.28]
 	var zs = [-L * 0.28, 0.0, L * 0.28]
@@ -1898,9 +1898,9 @@ func drop_balloons_from_vent(count: int) -> void:
 	var grav = balloon_gravity_scales[idx]
 	var damp = balloon_linear_damps[idx]
 	
-	var default_vent_y = 4.2
+	var default_vent_y = 4.0
 	if shop_manager and shop_manager.has_method("get_current_room_data"):
-		default_vent_y = shop_manager.get_current_room_data().get("ceiling_height", 4.8) - 0.45
+		default_vent_y = shop_manager.get_current_room_data().get("ceiling_height", 4.8) - 0.85
 		
 	for i in range(count):
 		var chosen_vent = Vector3(0, default_vent_y, 0)
