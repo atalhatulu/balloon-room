@@ -26,10 +26,10 @@ var auto_pop_timer: float = 0.0
 # - Holding Right Click: Continuous Sweeper, drains energy
 # - Running (Shift): 0 Energy
 # - When Energy hits 0 -> Exhausted: CANNOT POP AT ALL until energy >= 30%!
-var pop_hold_energy_cost: float = 0.8
-var continuous_nudge_cost_per_sec: float = 10.0
-var energy_regen_rate: float = 45.0
-var energy_regen_delay: float = 0.15
+var pop_hold_energy_cost: float = 6.0
+var continuous_nudge_cost_per_sec: float = 24.0
+var energy_regen_rate: float = 24.0
+var energy_regen_delay: float = 0.60
 var time_since_action: float = 0.0
 var is_exhausted: bool = false
 
@@ -88,10 +88,11 @@ func apply_upgrade(upgrade_id: String, level: int) -> void:
 			current_energy += (max_energy - old_max)
 			energy_changed.emit(current_energy, max_energy, is_exhausted)
 		"energy_regen":
-			energy_regen_rate = 45.0 + (level * 15.0)
+			energy_regen_rate = 24.0 + (level * 10.0)
+			energy_regen_delay = max(0.25, 0.60 - (level * 0.05))
 		"sprint_efficiency":
-			pop_hold_energy_cost = max(0.12, 0.8 - (level * 0.10))
-			continuous_nudge_cost_per_sec = max(2.0, 10.0 - (level * 1.2))
+			pop_hold_energy_cost = max(1.2, 6.0 - (level * 0.65))
+			continuous_nudge_cost_per_sec = max(6.0, 24.0 - (level * 2.5))
 		"speed":
 			walk_speed = base_walk_speed + (level * 0.4)
 			sprint_speed = base_sprint_speed + (level * 0.65)
