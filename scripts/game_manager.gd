@@ -88,7 +88,7 @@ func on_balloon_spawned(count: int = 1) -> void:
 	active_balloons += count
 	active_count_changed.emit(active_balloons, max_room_balloons)
 
-func on_balloon_popped(_pop_position: Vector3, _balloon_color: Color, combo_step: int = 0, _b_type: int = 0) -> void:
+func on_balloon_popped(pop_position: Vector3, _balloon_color: Color, combo_step: int = 0, _b_type: int = 0) -> void:
 	total_pops += 1
 	active_balloons = max(0, active_balloons - 1)
 	
@@ -104,8 +104,10 @@ func on_balloon_popped(_pop_position: Vector3, _balloon_color: Color, combo_step
 		
 	var coin_reward = max(1, int(1.0 * room_mult))
 	
-	if shop_manager and shop_manager.has_method("add_coins"):
-		shop_manager.add_coins(coin_reward)
+	# Drop physical gold coin to floor for player to collect
+	var main_node = get_node_or_null("/root/Main")
+	if main_node and main_node.has_method("spawn_floor_coin"):
+		main_node.spawn_floor_coin(pop_position, coin_reward)
 		
 	pop_registered.emit(total_pops)
 	active_count_changed.emit(active_balloons, max_room_balloons)

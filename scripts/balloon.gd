@@ -74,10 +74,34 @@ static func get_cached_material(color: Color) -> StandardMaterial3D:
 	_material_cache[key] = mat
 	return mat
 
+static var _highlight_mat_cache: Dictionary = {}
+static func get_highlight_material(color: Color) -> StandardMaterial3D:
+	var key = color.to_html(false)
+	if _highlight_mat_cache.has(key):
+		return _highlight_mat_cache[key]
+		
+	var mat = StandardMaterial3D.new()
+	mat.albedo_color = color.lightened(0.25)
+	mat.shading_mode = BaseMaterial3D.SHADING_MODE_PER_PIXEL
+	mat.roughness = 0.2
+	mat.emission_enabled = true
+	mat.emission = Color(1.0, 1.0, 1.0)
+	mat.emission_energy_multiplier = 0.6
+	
+	_highlight_mat_cache[key] = mat
+	return mat
+
 func _apply_cached_material() -> void:
 	var mat = get_cached_material(balloon_color)
 	if mesh_instance:
 		mesh_instance.material_override = mat
+
+func set_highlight(active: bool) -> void:
+	if not mesh_instance or is_popped: return
+	if active:
+		mesh_instance.material_override = get_highlight_material(balloon_color)
+	else:
+		_apply_cached_material()
 
 func pop(_trigger_source: String = "manual", combo_depth: int = 0) -> void:
 	if is_popped:

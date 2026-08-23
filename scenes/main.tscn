@@ -199,6 +199,18 @@ corner_radius_top_right = 6
 corner_radius_bottom_right = 6
 corner_radius_bottom_left = 6
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_crosshair_ring"]
+bg_color = Color(0, 0, 0, 0)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(1, 1, 1, 0.9)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_crosshair_stamina_bg"]
 bg_color = Color(0.05, 0.05, 0.08, 0.7)
 corner_radius_top_left = 2
@@ -589,6 +601,8 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13.5, 0.6, 0)
 
 [node name="BalloonContainer" type="Node3D" parent="." unique_id=1695133593]
 
+[node name="CoinContainer" type="Node3D" parent="." unique_id=1948291088]
+
 [node name="GameManager" type="Node" parent="." unique_id=600839778]
 script = ExtResource("7_gm_script")
 
@@ -712,6 +726,13 @@ layout_mode = 2
 mouse_filter = 2
 color = Color(1, 1, 1, 0.85)
 pivot_offset = Vector2(3, 3)
+
+[node name="ReticleRing" type="Panel" parent="UI/HUD/CrosshairContainer/VBox/DotContainer" unique_id=1948291041]
+modulate = Color(1, 1, 1, 0)
+custom_minimum_size = Vector2(24, 24)
+layout_mode = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_crosshair_ring")
 
 [node name="StaminaBar" type="ProgressBar" parent="UI/HUD/CrosshairContainer/VBox" unique_id=1152280943]
 modulate = Color(1, 1, 1, 0)

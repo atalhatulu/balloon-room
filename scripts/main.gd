@@ -1,6 +1,7 @@
 extends Node3D
 
 @export var balloon_scene: PackedScene = preload("res://scenes/balloon.tscn")
+@export var coin_scene: PackedScene = preload("res://scenes/coin.tscn")
 
 @onready var game_manager: Node = $GameManager
 @onready var sound_manager: Node = $SoundManager
@@ -8,6 +9,7 @@ extends Node3D
 @onready var save_manager: Node = $SaveManager
 @onready var player: CharacterBody3D = $Player
 @onready var balloon_container: Node3D = $BalloonContainer
+@onready var coin_container: Node3D = $CoinContainer
 @onready var corner_fan: Node3D = $Environment/MainRoom/CornerFan
 
 # Processing Wall & Automation Devices (Task 03)
@@ -75,10 +77,12 @@ var nearby_device: Node3D = null
 @onready var fps_label: Label = get_node_or_null("UI/HUD/FPSPanel/Margin/FPSLabel")
 var fps_update_timer: float = 0.0
 
-# Crosshair Stamina UI
+# Crosshair UI & Context Reticle
 @onready var crosshair_stamina_bar: ProgressBar = $UI/HUD/CrosshairContainer/VBox/StaminaBar
 @onready var crosshair_container: Control = $UI/HUD/CrosshairContainer
 @onready var crosshair_dot: ColorRect = $UI/HUD/CrosshairContainer/VBox/DotContainer/Dot
+@onready var reticle_ring: Panel = $UI/HUD/CrosshairContainer/VBox/DotContainer/ReticleRing
+var highlighted_balloon: Node = null
 
 # Startup Dialog Modal
 @onready var startup_modal: Control = $UI/StartupModal
@@ -694,11 +698,15 @@ func update_raycast_interaction() -> void:
 	nearby_device = null
 	
 	if not player or not is_instance_valid(player):
+		_clear_balloon_highlight()
+		_reset_crosshair_style()
 		if desk_prompt: desk_prompt.visible = false
 		return
 		
 	var cam: Camera3D = player.get_node_or_null("Head/Camera3D")
 	if not cam:
+		_clear_balloon_highlight()
+		_reset_crosshair_style()
 		if desk_prompt: desk_prompt.visible = false
 		return
 		
@@ -719,39 +727,70 @@ func update_raycast_interaction() -> void:
 	if result:
 		var col = result.collider
 		if col and is_instance_valid(col):
-			# 1. Looking at Computer Desk / Monitor
+			# 1. Looking at a Balloon (Targeting lock & Glowing Outline)
+			if col.is_in_group("balloons") and col.has_method("set_highlight"):
+				if highlighted_balloon != col:
+					_clear_balloon_highlight()
+					highlighted_balloon = col
+					highlighted_balloon.set_highlight(true)
+				if reticle_ring: reticle_ring.modulate = Color(1.0, 0.3, 0.5, 0.9)
+				if crosshair_dot: crosshair_dot.color = Color(1.0, 0.4, 0.6, 1.0)
+				if desk_prompt: desk_prompt.visible = false
+				return
+				
+			_clear_balloon_highlight()
+			
+			# 2. Looking at Computer Desk / Monitor
 			if _is_desk(col):
 				raycast_target_type = "desk"
 				is_near_desk = true
+				if reticle_ring: reticle_ring.modulate = Color(0.2, 1.0, 0.6, 0.95)
+				if crosshair_dot: crosshair_dot.color = Color(0.2, 1.0, 0.6, 1.0)
 				if desk_prompt:
 					desk_prompt.text = "[E] Bilgisayarı Aç / Dükkana Gir"
 					desk_prompt.visible = true
 				return
 				
-			# 2. Looking at Gravity Terminal
+			# 3. Looking at Gravity Terminal
 			if _is_gravity_terminal(col):
 				raycast_target_type = "gravity_terminal"
 				is_near_grav_terminal = true
 				var g_mode = gravity_mode_names[clamp(current_gravity_idx, 0, gravity_mode_names.size() - 1)]
+				if reticle_ring: reticle_ring.modulate = Color(1.0, 0.65, 0.2, 0.95)
+				if crosshair_dot: crosshair_dot.color = Color(1.0, 0.65, 0.2, 1.0)
 				if desk_prompt:
 					desk_prompt.text = "[E] Yerçekimi Değiştir (Mevcut: " + g_mode + ")"
 					desk_prompt.visible = true
 				return
 				
-			# 3. Looking at Automation Device
+			# 4. Looking at Automation Device
 			var dev = _get_device_from_collider(col)
 			if not dev.is_empty():
 				raycast_target_type = "device"
 				raycast_target_device = dev["node"]
 				raycast_target_name = dev["name"]
 				nearby_device = dev["node"]
+				if reticle_ring: reticle_ring.modulate = Color(0.3, 0.8, 1.0, 0.95)
+				if crosshair_dot: crosshair_dot.color = Color(0.3, 0.8, 1.0, 1.0)
 				if desk_prompt:
 					desk_prompt.text = "[E] " + dev["name"] + " Taşı (Izgara Modu)"
 					desk_prompt.visible = true
 				return
 
+	_clear_balloon_highlight()
+	_reset_crosshair_style()
 	if desk_prompt:
 		desk_prompt.visible = false
+
+func _clear_balloon_highlight() -> void:
+	if highlighted_balloon and is_instance_valid(highlighted_balloon):
+		if highlighted_balloon.has_method("set_highlight"):
+			highlighted_balloon.set_highlight(false)
+	highlighted_balloon = null
+
+func _reset_crosshair_style() -> void:
+	if reticle_ring: reticle_ring.modulate = Color(1, 1, 1, 0)
+	if crosshair_dot: crosshair_dot.color = Color(1, 1, 1, 0.85)
 
 func _is_desk(col: Object) -> bool:
 	if not col: return false
@@ -1563,6 +1602,21 @@ func drop_balloons_from_vent(count: int) -> void:
 			await get_tree().create_timer(0.008).timeout
 			
 	vent_cycle_idx = (vent_cycle_idx + count) % max(1, active_vent_positions.size())
+
+func spawn_floor_coin(pop_pos: Vector3, val: int = 1) -> void:
+	if not coin_scene or not coin_container: return
+	
+	# Performance Safeguard: Cap max coin nodes on floor to 60 (merge value if maxed)
+	if coin_container.get_child_count() >= 60:
+		var c = coin_container.get_child(randi() % coin_container.get_child_count())
+		if c and is_instance_valid(c):
+			c.set("coin_value", c.get("coin_value") + val)
+		return
+		
+	var coin = coin_scene.instantiate()
+	coin_container.add_child(coin)
+	if coin.has_method("init"):
+		coin.init(pop_pos, val)
 
 func _on_pop_registered(total: int) -> void:
 	update_pop_counter(total)
