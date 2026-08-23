@@ -718,66 +718,92 @@ func update_raycast_interaction() -> void:
 	var space_state = world.direct_space_state
 	if not space_state: return
 	
+	var exclude_rids = [player.get_rid()]
+	var nudge_cone = player.get_node_or_null("Head/Camera3D/WindCone")
+	if nudge_cone:
+		exclude_rids.append(nudge_cone.get_rid())
+		
 	var query = PhysicsRayQueryParameters3D.create(from, to)
 	query.collide_with_areas = true
 	query.collide_with_bodies = true
-	query.exclude = [player.get_rid()]
+	query.exclude = exclude_rids
 	
 	var result = space_state.intersect_ray(query)
-	if result:
-		var col = result.collider
-		if col and is_instance_valid(col):
-			# 1. Looking at a Balloon (Targeting lock & Glowing Outline)
-			if col.is_in_group("balloons") and col.has_method("set_highlight"):
-				if highlighted_balloon != col:
-					_clear_balloon_highlight()
-					highlighted_balloon = col
-					highlighted_balloon.set_highlight(true)
-				if reticle_ring: reticle_ring.modulate = Color(1.0, 0.3, 0.5, 0.9)
-				if crosshair_dot: crosshair_dot.color = Color(1.0, 0.4, 0.6, 1.0)
-				if desk_prompt: desk_prompt.visible = false
-				return
-				
+	var col = result.collider if result else null
+	var hit_balloon = null
+	
+	# Direct hit check for balloon
+	if col and is_instance_valid(col) and col.is_in_group("balloons"):
+		hit_balloon = col
+	elif not col or (not _is_desk(col) and not _is_gravity_terminal(col) and _get_device_from_collider(col).is_empty()):
+		# Forgiving camera ray cone check if direct thin ray barely missed balloon curve
+		var cam_pos = cam.global_position
+		var look_dir = -cam.global_transform.basis.z.normalized()
+		var balloons = get_tree().get_nodes_in_group("balloons")
+		var best_dot = 0.980 # ~11 degree focused cone
+		var reach = 5.2
+		for b in balloons:
+			if b is RigidBody3D and is_instance_valid(b) and not b.get("is_popped") and not b.is_queued_for_deletion():
+				var to_b = b.global_position - cam_pos
+				var dist = to_b.length()
+				if dist <= reach and dist > 0.4:
+					var dot = look_dir.dot(to_b / dist)
+					if dot > best_dot:
+						best_dot = dot
+						hit_balloon = b
+						
+	# 1. Looking at a Balloon (Targeting lock & Glowing Inverted Hull Outline)
+	if hit_balloon and is_instance_valid(hit_balloon):
+		if highlighted_balloon != hit_balloon:
 			_clear_balloon_highlight()
-			
-			# 2. Looking at Computer Desk / Monitor
-			if _is_desk(col):
-				raycast_target_type = "desk"
-				is_near_desk = true
-				if reticle_ring: reticle_ring.modulate = Color(0.2, 1.0, 0.6, 0.95)
-				if crosshair_dot: crosshair_dot.color = Color(0.2, 1.0, 0.6, 1.0)
-				if desk_prompt:
-					desk_prompt.text = "[E] Bilgisayarı Aç / Dükkana Gir"
-					desk_prompt.visible = true
-				return
-				
-			# 3. Looking at Gravity Terminal
-			if _is_gravity_terminal(col):
-				raycast_target_type = "gravity_terminal"
-				is_near_grav_terminal = true
-				var g_mode = gravity_mode_names[clamp(current_gravity_idx, 0, gravity_mode_names.size() - 1)]
-				if reticle_ring: reticle_ring.modulate = Color(1.0, 0.65, 0.2, 0.95)
-				if crosshair_dot: crosshair_dot.color = Color(1.0, 0.65, 0.2, 1.0)
-				if desk_prompt:
-					desk_prompt.text = "[E] Yerçekimi Değiştir (Mevcut: " + g_mode + ")"
-					desk_prompt.visible = true
-				return
-				
-			# 4. Looking at Automation Device
-			var dev = _get_device_from_collider(col)
-			if not dev.is_empty():
-				raycast_target_type = "device"
-				raycast_target_device = dev["node"]
-				raycast_target_name = dev["name"]
-				nearby_device = dev["node"]
-				if reticle_ring: reticle_ring.modulate = Color(0.3, 0.8, 1.0, 0.95)
-				if crosshair_dot: crosshair_dot.color = Color(0.3, 0.8, 1.0, 1.0)
-				if desk_prompt:
-					desk_prompt.text = "[E] " + dev["name"] + " Taşı (Izgara Modu)"
-					desk_prompt.visible = true
-				return
-
+			highlighted_balloon = hit_balloon
+			if highlighted_balloon.has_method("set_highlight"):
+				highlighted_balloon.set_highlight(true)
+		if reticle_ring: reticle_ring.modulate = Color(1.0, 0.3, 0.5, 0.9)
+		if crosshair_dot: crosshair_dot.color = Color(1.0, 0.4, 0.6, 1.0)
+		if desk_prompt: desk_prompt.visible = false
+		return
+		
 	_clear_balloon_highlight()
+	
+	if col and is_instance_valid(col):
+		# 2. Looking at Computer Desk / Monitor
+		if _is_desk(col):
+			raycast_target_type = "desk"
+			is_near_desk = true
+			if reticle_ring: reticle_ring.modulate = Color(0.2, 1.0, 0.6, 0.95)
+			if crosshair_dot: crosshair_dot.color = Color(0.2, 1.0, 0.6, 1.0)
+			if desk_prompt:
+				desk_prompt.text = "[E] Bilgisayarı Aç / Dükkana Gir"
+				desk_prompt.visible = true
+			return
+			
+		# 3. Looking at Gravity Terminal
+		if _is_gravity_terminal(col):
+			raycast_target_type = "gravity_terminal"
+			is_near_grav_terminal = true
+			var g_mode = gravity_mode_names[clamp(current_gravity_idx, 0, gravity_mode_names.size() - 1)]
+			if reticle_ring: reticle_ring.modulate = Color(1.0, 0.65, 0.2, 0.95)
+			if crosshair_dot: crosshair_dot.color = Color(1.0, 0.65, 0.2, 1.0)
+			if desk_prompt:
+				desk_prompt.text = "[E] Yerçekimi Değiştir (Mevcut: " + g_mode + ")"
+				desk_prompt.visible = true
+			return
+			
+		# 4. Looking at Automation Device
+		var dev = _get_device_from_collider(col)
+		if not dev.is_empty():
+			raycast_target_type = "device"
+			raycast_target_device = dev["node"]
+			raycast_target_name = dev["name"]
+			nearby_device = dev["node"]
+			if reticle_ring: reticle_ring.modulate = Color(0.3, 0.8, 1.0, 0.95)
+			if crosshair_dot: crosshair_dot.color = Color(0.3, 0.8, 1.0, 1.0)
+			if desk_prompt:
+				desk_prompt.text = "[E] " + dev["name"] + " Taşı (Izgara Modu)"
+				desk_prompt.visible = true
+			return
+
 	_reset_crosshair_style()
 	if desk_prompt:
 		desk_prompt.visible = false

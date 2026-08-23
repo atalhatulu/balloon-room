@@ -61,6 +61,11 @@ func _ready() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	energy_changed.emit(current_energy, max_energy, is_exhausted)
 	
+	if interaction_ray:
+		interaction_ray.add_exception(self)
+		if nudge_cone:
+			interaction_ray.add_exception_rid(nudge_cone.get_rid())
+	
 	var shop_manager = get_node_or_null("../ShopManager")
 	if shop_manager and shop_manager.has_signal("upgrade_purchased"):
 		shop_manager.upgrade_purchased.connect(apply_upgrade)
