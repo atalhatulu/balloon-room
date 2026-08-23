@@ -26,10 +26,10 @@ var auto_pop_timer: float = 0.0
 # - Holding Right Click: Continuous Sweeper, drains energy
 # - Running (Shift): 0 Energy
 # - When Energy hits 0 -> Exhausted: CANNOT POP AT ALL until energy >= 30%!
-var pop_hold_energy_cost: float = 2.0
-var continuous_nudge_cost_per_sec: float = 16.0
-var energy_regen_rate: float = 38.0
-var energy_regen_delay: float = 0.3
+var pop_hold_energy_cost: float = 0.8
+var continuous_nudge_cost_per_sec: float = 10.0
+var energy_regen_rate: float = 45.0
+var energy_regen_delay: float = 0.15
 var time_since_action: float = 0.0
 var is_exhausted: bool = false
 
@@ -80,7 +80,7 @@ func apply_upgrade(upgrade_id: String, level: int) -> void:
 	match upgrade_id:
 		"auto_pop":
 			auto_pop_unlocked = (level > 0)
-			var cooldowns = [0.33, 0.20, 0.125, 0.083, 0.055, 0.038, 0.026, 0.018]
+			var cooldowns = [0.20, 0.12, 0.075, 0.045, 0.028, 0.018, 0.012, 0.008]
 			auto_pop_cooldown = cooldowns[clamp(level - 1, 0, cooldowns.size() - 1)]
 		"energy_cap":
 			var old_max = max_energy
@@ -88,10 +88,10 @@ func apply_upgrade(upgrade_id: String, level: int) -> void:
 			current_energy += (max_energy - old_max)
 			energy_changed.emit(current_energy, max_energy, is_exhausted)
 		"energy_regen":
-			energy_regen_rate = 38.0 + (level * 10.0)
+			energy_regen_rate = 45.0 + (level * 15.0)
 		"sprint_efficiency":
-			pop_hold_energy_cost = max(0.2, 2.0 - (level * 0.22))
-			continuous_nudge_cost_per_sec = max(3.0, 16.0 - (level * 1.6))
+			pop_hold_energy_cost = max(0.12, 0.8 - (level * 0.10))
+			continuous_nudge_cost_per_sec = max(2.0, 10.0 - (level * 1.2))
 		"speed":
 			walk_speed = base_walk_speed + (level * 0.4)
 			sprint_speed = base_sprint_speed + (level * 0.65)
@@ -101,8 +101,8 @@ func apply_upgrade(upgrade_id: String, level: int) -> void:
 		"nudge":
 			nudge_power_mult = 1.0 + (level * 0.25)
 		"splash_pop":
-			var radii = [0.0, 2.5, 3.8, 5.5, 7.5, 10.0, 14.0, 20.0]
-			var limits = [0, 8, 18, 32, 55, 90, 150, 250]
+			var radii = [0.0, 2.8, 4.2, 6.0, 8.5, 11.5, 15.5, 22.0]
+			var limits = [0, 15, 30, 55, 90, 140, 220, 350]
 			splash_radius = radii[clamp(level, 0, radii.size() - 1)]
 			splash_max_targets = limits[clamp(level, 0, limits.size() - 1)]
 

@@ -6,8 +6,8 @@ extends Node3D
 var widths: Array[float] = [0.0, 3.5, 5.0, 7.0, 9.5, 13.0]
 var lengths: Array[float] = [0.0, 3.5, 5.0, 7.0, 9.5, 13.0]
 var zap_heights: Array[float] = [0.0, 2.0, 2.4, 2.8, 3.4, 4.0]
-var cooldown_intervals: Array[float] = [3.5, 3.0, 2.5, 2.0, 1.6, 1.2]
-var max_burst_caps: Array[int] = [0, 12, 18, 26, 36, 50]
+var cooldown_intervals: Array[float] = [2.0, 1.4, 1.0, 0.75, 0.55, 0.40]
+var max_burst_caps: Array[int] = [0, 24, 45, 75, 120, 180]
 
 var cooldown_timer: float = 0.0
 

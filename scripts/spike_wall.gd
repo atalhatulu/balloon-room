@@ -6,8 +6,8 @@ extends Node3D
 
 var widths: Array[float] = [0.0, 3.5, 5.0, 7.0, 9.5, 13.0]
 var lengths: Array[float] = [0.0, 3.5, 5.0, 7.0, 9.5, 13.0]
-var cooldown_intervals: Array[float] = [2.8, 2.4, 2.0, 1.6, 1.3, 1.0]
-var batch_capacities: Array[int] = [0, 8, 14, 22, 32, 45]
+var cooldown_intervals: Array[float] = [1.8, 1.3, 0.95, 0.70, 0.50, 0.35]
+var batch_capacities: Array[int] = [0, 16, 32, 55, 90, 140]
 
 var cooldown_timer: float = 0.0
 
