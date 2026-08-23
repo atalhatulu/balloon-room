@@ -470,22 +470,8 @@ func apply_room_layout(room_id: String) -> void:
 				main_room_light.light_color = Color(0.70, 0.90, 1.0)
 				main_room_light.light_energy = 4.2
 				
-	# 6. Configure 3x3 Symmetrical Ceiling Vents Matrix (9 Pipes)
-	active_vent_positions.clear()
-	var vent_y = H - 0.4
-	var xs = [-W * 0.28, 0.0, W * 0.28]
-	var zs = [-L * 0.28, 0.0, L * 0.28]
-	
-	var vent_idx = 0
-	for z_pos in zs:
-		for x_pos in xs:
-			var pos = Vector3(x_pos, vent_y, z_pos)
-			active_vent_positions.append(pos)
-			if ceiling_vents_container and vent_idx < ceiling_vents_container.get_child_count():
-				var vent_node = ceiling_vents_container.get_child(vent_idx)
-				if vent_node:
-					vent_node.position = Vector3(x_pos, H - 0.35, z_pos)
-			vent_idx += 1
+	# 6. Configure Progressive Ceiling Vents (Pipes Unlocked: 1 to 9)
+	update_ceiling_vents()
 		
 	# Update HUD Signboard
 	if game_manager:
@@ -516,6 +502,66 @@ func apply_room_layout(room_id: String) -> void:
 			if b is RigidBody3D and is_instance_valid(b) and not b.is_queued_for_deletion():
 				if abs(b.global_position.x) > (half_w + 1.0) or abs(b.global_position.z) > (half_l + 1.0) or b.global_position.y < -0.4:
 					b.pop("room_resize")
+
+func update_ceiling_vents() -> void:
+	active_vent_positions.clear()
+	if not shop_manager: return
+	
+	var r_data = shop_manager.get_current_room_data()
+	var W: float = r_data["floor_size"].x
+	var L: float = r_data["floor_size"].y
+	var H: float = r_data["ceiling_height"]
+	var vent_y = H - 0.4
+	
+	var xs = [-W * 0.28, 0.0, W * 0.28]
+	var zs = [-L * 0.28, 0.0, L * 0.28]
+	
+	# All 9 theoretical grid positions
+	var all_positions: Array[Vector3] = []
+	for z_pos in zs:
+		for x_pos in xs:
+			all_positions.append(Vector3(x_pos, vent_y, z_pos))
+			
+	# Update physical node positions in 3D scene
+	if ceiling_vents_container:
+		for i in range(min(all_positions.size(), ceiling_vents_container.get_child_count())):
+			var vent_node = ceiling_vents_container.get_child(i)
+			if vent_node:
+				vent_node.position = Vector3(all_positions[i].x, H - 0.35, all_positions[i].z)
+				
+	# Calculate which pipes are actively unlocked
+	# Level 0 (1 pipe) -> Level 8 (9 pipes)
+	var pipe_lvl = 0
+	if shop_manager.upgrades.has("pipe_count"):
+		pipe_lvl = clamp(shop_manager.upgrades["pipe_count"]["level"], 0, 8)
+		
+	# Progressive layout across 3x3 grid:
+	var pipe_patterns = [
+		[4],                         # 1 Pipe: Center
+		[1, 7],                      # 2 Pipes: North + South
+		[4, 1, 7],                   # 3 Pipes: Center + North + South
+		[0, 2, 6, 8],                # 4 Pipes: 4 Corners
+		[4, 0, 2, 6, 8],             # 5 Pipes: Center + 4 Corners (Plus)
+		[0, 1, 2, 6, 7, 8],          # 6 Pipes: North 3 + South 3
+		[4, 0, 1, 2, 6, 7, 8],       # 7 Pipes: North 3 + South 3 + Center
+		[0, 1, 2, 3, 5, 6, 7, 8],    # 8 Pipes: Outer Ring of 8
+		[0, 1, 2, 3, 4, 5, 6, 7, 8]  # 9 Pipes: Complete 3x3 Matrix
+	]
+	
+	var active_indices = pipe_patterns[pipe_lvl]
+	
+	# Apply visibility to 3D meshes in ceiling
+	if ceiling_vents_container:
+		for i in range(ceiling_vents_container.get_child_count()):
+			var vent_node = ceiling_vents_container.get_child(i)
+			if vent_node:
+				var is_active = (i in active_indices)
+				vent_node.visible = is_active
+				
+	# Populate active drop points for balloon spawning
+	for idx in active_indices:
+		if idx < all_positions.size():
+			active_vent_positions.append(all_positions[idx])
 
 func _on_room_switched(room_id: String) -> void:
 	apply_room_layout(room_id)
@@ -946,6 +992,7 @@ func load_saved_data() -> void:
 			game_manager.active_balloons = loaded_balloons.size()
 			
 	update_pop_counter(loaded_pops)
+	update_ceiling_vents()
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_WM_CLOSE_REQUEST:
@@ -1077,6 +1124,8 @@ func _on_coins_changed(total_coins: int) -> void:
 
 func _on_upgrade_purchased(upgrade_id: String, _level: int) -> void:
 	update_all_shop_cards()
+	if upgrade_id == "pipe_count":
+		update_ceiling_vents()
 	if upgrade_id == "fan" and corner_fan:
 		corner_fan.visible = true
 		corner_fan.set("is_active", true)
@@ -1274,7 +1323,14 @@ func update_all_shop_cards() -> void:
 						title_lbl.text = up_data["title"] + "  [" + format_level_pips(lvl, max_lvl) + "] (Sv. " + str(lvl) + "/" + str(max_lvl) + ")"
 						title_lbl.modulate = Color(0.35, 0.9, 1.0) if lvl > 0 else Color(1, 1, 1)
 					if desc_lbl:
-						if u_id == "vent_rate" and up_data.has("rates"):
+						if u_id == "pipe_count" and up_data.has("pipes"):
+							var curr_p = up_data["pipes"][lvl]
+							if lvl >= max_lvl:
+								desc_lbl.text = "Maksimum Hat: " + str(curr_p) + " (Tüm 3x3 Izgara Açık!)"
+							else:
+								var next_p = up_data["pipes"][lvl + 1]
+								desc_lbl.text = "Mevcut: " + str(curr_p) + " ➔ Yükseltme: " + str(next_p) + " (Tavana Yeni Boru)"
+						elif u_id == "vent_rate" and up_data.has("rates"):
 							var curr_r = up_data["rates"][lvl]
 							if lvl >= max_lvl:
 								desc_lbl.text = "Maksimum Hız: Saniyede " + str(curr_r) + " Balon!"

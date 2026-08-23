@@ -1209,6 +1209,39 @@ text = "75x75m devasa alan, 14m tavan, 4 menfez. +220 Kapasite ve 2.6x akış h�
 layout_mode = 2
 text = "45000 Coin"
 
+[node name="CardPipeCount" type="PanelContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid" unique_id=1948291099]
+custom_minimum_size = Vector2(365, 95)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_card")
+metadata/upgrade_id = "pipe_count"
+
+[node name="Margin" type="MarginContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardPipeCount" unique_id=1948291100]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 8
+
+[node name="VBox" type="VBoxContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardPipeCount/Margin" unique_id=1948291101]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Title" type="Label" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardPipeCount/Margin/VBox" unique_id=1948291102]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.8, 1, 1)
+theme_override_font_sizes/font_size = 14
+text = "Tavan Menfez Sayısı (Boru Hattı)"
+
+[node name="Desc" type="Label" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardPipeCount/Margin/VBox" unique_id=1948291103]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.75, 0.8, 1)
+theme_override_font_sizes/font_size = 11
+text = "Tavana ek boru hattı çeker. Her yeni boru toplam balon dökülme akışını katlar (1x - 9x)."
+
+[node name="BtnBuy" type="Button" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardPipeCount/Margin/VBox" unique_id=1948291104]
+layout_mode = 2
+text = "120 Coin"
+
 [node name="CardVentRate" type="PanelContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid" unique_id=1215316992]
 custom_minimum_size = Vector2(365, 95)
 layout_mode = 2

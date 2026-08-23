@@ -56,10 +56,14 @@ func recalculate_effective_stats() -> void:
 		room_cap_bonus = r_data.get("cap_bonus", 0)
 		room_flow_multiplier = r_data.get("flow_mult", 1.0)
 	
+	var pipe_count = 1
+	if shop_manager and shop_manager.upgrades.has("pipe_count"):
+		pipe_count = 1 + shop_manager.upgrades["pipe_count"]["level"]
+		
 	var base_rate = base_rate_table[clamp(current_vent_level, 0, base_rate_table.size() - 1)]
 	var base_cap = base_cap_table[clamp(current_cap_level, 0, base_cap_table.size() - 1)]
 	
-	balloons_per_second = base_rate * room_flow_multiplier * prestige_bonus
+	balloons_per_second = (base_rate * float(pipe_count)) * room_flow_multiplier * prestige_bonus
 	max_room_balloons = base_cap + room_cap_bonus
 	active_count_changed.emit(active_balloons, max_room_balloons)
 
@@ -113,6 +117,8 @@ func _on_upgrade_purchased(upgrade_id: String, level: int) -> void:
 			recalculate_effective_stats()
 		"room_capacity":
 			current_cap_level = level
+			recalculate_effective_stats()
+		"pipe_count":
 			recalculate_effective_stats()
 
 func _on_room_switched(_room_id: String) -> void:

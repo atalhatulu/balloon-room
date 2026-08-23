@@ -162,7 +162,17 @@ var rooms: Dictionary = {
 
 # Core Standard Upgrades
 var upgrades: Dictionary = {
-	# 1. BALON AKIŞI
+	# 1. BALON AKIŞI & BORU HATTI
+	"pipe_count": {
+		"category": "upgrades",
+		"unlock_pops": 80,
+		"level": 0,
+		"max_level": 8,
+		"title": "Tavan Menfez Sayısı (Boru Hattı)",
+		"desc": "Tavana ek boru hattı çeker. Her yeni boru toplam dökülme akışını katlar (1x ➔ 9x)!",
+		"pipes": ["1 Boru (1x Akış)", "2 Boru (2x Akış)", "3 Boru (3x Akış)", "4 Boru (4x Akış)", "5 Boru (5x Akış)", "6 Boru (6x Akış)", "7 Boru (7x Akış)", "8 Boru (8x Akış)", "9 Boru (9x Matrix)"],
+		"costs": [120, 600, 2500, 9000, 32000, 110000, 350000, 1200000]
+	},
 	"vent_rate": {
 		"category": "upgrades",
 		"unlock_pops": 0,
