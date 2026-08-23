@@ -707,10 +707,11 @@ layout_mode = 2
 mouse_filter = 2
 
 [node name="Dot" type="ColorRect" parent="UI/HUD/CrosshairContainer/VBox/DotContainer" unique_id=1129103675]
-custom_minimum_size = Vector2(4, 4)
+custom_minimum_size = Vector2(6, 6)
 layout_mode = 2
 mouse_filter = 2
 color = Color(1, 1, 1, 0.85)
+pivot_offset = Vector2(3, 3)
 
 [node name="StaminaBar" type="ProgressBar" parent="UI/HUD/CrosshairContainer/VBox" unique_id=1152280943]
 modulate = Color(1, 1, 1, 0)

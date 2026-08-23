@@ -1,6 +1,7 @@
 extends CharacterBody3D
 
-signal pop_triggered(combo_boost: bool)
+signal pop_triggered(is_hit: bool)
+signal nudge_triggered()
 signal energy_changed(current: float, max_energy: float, is_exhausted: bool)
 
 @export var base_walk_speed: float = 5.2
@@ -42,14 +43,12 @@ var splash_radius: float = 0.0
 var splash_max_targets: int = 0
 
 var can_pop: bool = true
-var is_punching: bool = false
 var left_hold_time: float = 0.0
 var is_ui_open: bool = false
 
 @onready var head: Node3D = $Head
 @onready var camera: Camera3D = $Head/Camera3D
 @onready var interaction_ray: RayCast3D = $Head/Camera3D/InteractionRay
-@onready var hand_tool: Node3D = $Head/Camera3D/HandTool
 @onready var nudge_cone: Area3D = $Head/Camera3D/WindCone
 
 func _ready() -> void:
@@ -262,14 +261,6 @@ func execute_pop_hit(costs_energy: bool) -> void:
 	if costs_energy:
 		consume_energy(pop_hold_energy_cost)
 		
-	# Visual jab
-	if hand_tool and not is_punching:
-		is_punching = true
-		var tween = create_tween()
-		tween.tween_property(hand_tool, "position:z", -0.68, 0.035)
-		tween.tween_property(hand_tool, "position:z", -0.45, 0.045)
-		tween.finished.connect(func(): is_punching = false)
-		
 	# Hit detection (force raycast update for high-speed continuous pop)
 	if interaction_ray:
 		interaction_ray.target_position = Vector3(0, 0, -5.0)
@@ -309,6 +300,8 @@ func execute_pop_hit(costs_energy: bool) -> void:
 			pop_triggered.emit(true)
 			if splash_radius > 0.0:
 				trigger_splash_pop(hit_pos, splash_radius)
+		else:
+			pop_triggered.emit(false)
 
 func trigger_splash_pop(origin: Vector3, custom_radius: float = 0.0) -> void:
 	var r = custom_radius if custom_radius > 0.0 else splash_radius
@@ -362,9 +355,7 @@ func try_continuous_nudge(delta: float) -> void:
 		return
 		
 	consume_energy(continuous_nudge_cost_per_sec * delta)
-	
-	if hand_tool and not is_punching:
-		hand_tool.rotation.z = lerp_angle(hand_tool.rotation.z, deg_to_rad(-18), 10.0 * delta)
+	nudge_triggered.emit()
 		
 	if nudge_cone:
 		var bodies = nudge_cone.get_overlapping_bodies()

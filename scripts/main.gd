@@ -78,6 +78,7 @@ var fps_update_timer: float = 0.0
 # Crosshair Stamina UI
 @onready var crosshair_stamina_bar: ProgressBar = $UI/HUD/CrosshairContainer/VBox/StaminaBar
 @onready var crosshair_container: Control = $UI/HUD/CrosshairContainer
+@onready var crosshair_dot: ColorRect = $UI/HUD/CrosshairContainer/VBox/DotContainer/Dot
 
 # Startup Dialog Modal
 @onready var startup_modal: Control = $UI/StartupModal
@@ -178,8 +179,13 @@ func _ready() -> void:
 		game_manager.spawn_requested.connect(_on_spawn_requested)
 		game_manager.active_count_changed.connect(_on_active_count_changed)
 		
-	if player and player.has_signal("energy_changed"):
-		player.energy_changed.connect(_on_player_energy_changed)
+	if player:
+		if player.has_signal("pop_triggered"):
+			player.pop_triggered.connect(_on_player_pop_triggered)
+		if player.has_signal("nudge_triggered"):
+			player.nudge_triggered.connect(_on_player_nudge_triggered)
+		if player.has_signal("energy_changed"):
+			player.energy_changed.connect(_on_player_energy_changed)
 		
 	if shop_manager:
 		shop_manager.coins_changed.connect(_on_coins_changed)
@@ -1432,6 +1438,36 @@ func _on_buy_room_pressed(room_id: String) -> void:
 func _on_buy_device_pressed(device_id: String) -> void:
 	if shop_manager and game_manager:
 		shop_manager.buy_device(device_id, game_manager.total_pops)
+
+func _on_player_pop_triggered(is_hit: bool) -> void:
+	pulse_crosshair(is_hit)
+
+func _on_player_nudge_triggered() -> void:
+	pulse_crosshair_nudge()
+
+func pulse_crosshair(is_hit: bool) -> void:
+	if not crosshair_dot: return
+	var tween = create_tween()
+	tween.set_parallel(true)
+	if is_hit:
+		crosshair_dot.scale = Vector2(2.6, 2.6)
+		crosshair_dot.color = Color(0.2, 1.0, 0.7, 1.0) # Vibrant lime/cyan hit flash
+		tween.tween_property(crosshair_dot, "scale", Vector2.ONE, 0.09).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+		tween.tween_property(crosshair_dot, "color", Color(1, 1, 1, 0.85), 0.09)
+	else:
+		crosshair_dot.scale = Vector2(1.5, 1.5)
+		crosshair_dot.color = Color(1.0, 0.8, 0.3, 0.9) # Amber click flash
+		tween.tween_property(crosshair_dot, "scale", Vector2.ONE, 0.06).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+		tween.tween_property(crosshair_dot, "color", Color(1, 1, 1, 0.85), 0.06)
+
+func pulse_crosshair_nudge() -> void:
+	if not crosshair_dot: return
+	var tween = create_tween()
+	tween.set_parallel(true)
+	crosshair_dot.scale = Vector2(1.9, 1.9)
+	crosshair_dot.color = Color(0.3, 0.75, 1.0, 0.95) # Cyan breeze flash
+	tween.tween_property(crosshair_dot, "scale", Vector2.ONE, 0.12).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	tween.tween_property(crosshair_dot, "color", Color(1, 1, 1, 0.85), 0.12)
 
 func _on_player_energy_changed(current: float, max_energy: float, is_exhausted: bool) -> void:
 	if crosshair_stamina_bar:
