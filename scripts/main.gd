@@ -33,6 +33,8 @@ var grid_ghost: MeshInstance3D = null
 var carried_device: Node3D = null
 var carried_original_pos: Vector3 = Vector3.ZERO
 var carried_original_rot_y: float = 0.0
+var carried_placement_pos: Vector3 = Vector3.ZERO
+var carried_placement_rot_y: float = 0.0
 var nearby_device: Node3D = null
 
 # Environment Nodes for Dynamic Room Expansion
@@ -708,10 +710,11 @@ func _process(delta: float) -> void:
 		auto_save_timer = 0.0
 		save_current_data()
 		
-	# 1. Carrying / Grid Placement Active
+	# 1. Carrying / Grid Placement Active (First-Person Held in Hands + Holographic Floor Grid Ghost)
 	if carried_device and player and is_instance_valid(player):
 		var cam = player.get_node_or_null("Head/Camera3D")
 		if cam:
+			# Calculate floor placement grid target
 			var ray_orig = cam.global_position
 			var ray_dir = -cam.global_transform.basis.z
 			var floor_plane = Plane(Vector3.UP, 0.05)
@@ -735,19 +738,31 @@ func _process(delta: float) -> void:
 			var clamped_x = clamp(hit_pos.x, -max_x, max_x)
 			var clamped_z = clamp(hit_pos.z, -max_z, max_z)
 			
-			# Snap to 1.5m grid
+			# Snap to 1.5m floor grid
 			var snap_x = round(clamped_x / 1.5) * 1.5
 			var snap_z = round(clamped_z / 1.5) * 1.5
-			var target_pos = Vector3(snap_x, 0.05, snap_z)
+			carried_placement_pos = Vector3(snap_x, 0.05, snap_z)
 			
+			# Update Holographic Grid Ghost on the floor
 			var g = _get_or_create_grid_ghost()
 			if g:
-				g.position = target_pos
+				g.global_position = carried_placement_pos
+				g.rotation.y = carried_placement_rot_y
 				
-			carried_device.position = target_pos
+			# Hold the Physical Device in Front of the Camera (Held in Hands)
+			var bob = sin(Time.get_ticks_msec() * 0.0045) * 0.012
+			var hand_offset = (-cam.global_transform.basis.z * 0.90) + (cam.global_transform.basis.y * (-0.28 + bob)) + (cam.global_transform.basis.x * 0.24)
+			var target_hand_pos = cam.global_position + hand_offset
+			carried_device.global_position = carried_device.global_position.lerp(target_hand_pos, delta * 22.0)
+			
+			# Align device orientation with camera + custom placement rotation
+			var target_rot_y = cam.global_rotation.y + carried_placement_rot_y
+			carried_device.global_rotation.y = lerp_angle(carried_device.global_rotation.y, target_rot_y, delta * 18.0)
+			carried_device.global_rotation.x = lerp_angle(carried_device.global_rotation.x, cam.global_rotation.x * 0.3, delta * 18.0)
+			carried_device.global_rotation.z = lerp_angle(carried_device.global_rotation.z, 0.0, delta * 18.0)
 			
 			if desk_prompt:
-				desk_prompt.text = "[Sol Tık / E] Izgaraya Yerleştir  |  [Q / Sağ Tık] İptal  |  [R] 45° Döndür"
+				desk_prompt.text = "[Sol Tık / E] Zemine Yerleştir  |  [R] 45° Döndür  |  [Q / Sağ Tık] İptal"
 				desk_prompt.visible = true
 		return
 		
@@ -1218,7 +1233,7 @@ func _input(event: InputEvent) -> void:
 				get_viewport().set_input_as_handled()
 				return
 			elif event.keycode == KEY_R:
-				carried_device.rotate_y(PI * 0.25)
+				carried_placement_rot_y += PI * 0.25
 				get_viewport().set_input_as_handled()
 				return
 				
@@ -1243,22 +1258,39 @@ func start_carrying_device(device_node: Node3D) -> void:
 	carried_device = device_node
 	carried_original_pos = device_node.position
 	carried_original_rot_y = device_node.rotation.y
+	carried_placement_rot_y = device_node.rotation.y
+	carried_placement_pos = device_node.position
 	var g = _get_or_create_grid_ghost()
 	if g:
-		g.position = device_node.position
+		g.global_position = device_node.position
+		g.rotation.y = carried_placement_rot_y
 		
 func place_carried_device() -> void:
 	if not carried_device: return
 	_destroy_grid_ghost()
 	if sound_manager and sound_manager.has_method("play_pop"):
 		sound_manager.play_pop(3)
+		
+	var dev_to_drop = carried_device
+	var target_p = carried_placement_pos
+	var target_r_y = carried_placement_rot_y
 	carried_device = null
+	
+	var tw = create_tween()
+	tw.set_parallel(true)
+	tw.tween_property(dev_to_drop, "position", target_p, 0.12).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	tw.tween_property(dev_to_drop, "rotation:y", target_r_y, 0.12)
+	tw.tween_property(dev_to_drop, "rotation:x", 0.0, 0.12)
+	tw.tween_property(dev_to_drop, "rotation:z", 0.0, 0.12)
+	
 	save_current_data()
 	
 func cancel_carrying_device() -> void:
 	if not carried_device: return
 	carried_device.position = carried_original_pos
 	carried_device.rotation.y = carried_original_rot_y
+	carried_device.rotation.x = 0.0
+	carried_device.rotation.z = 0.0
 	_destroy_grid_ghost()
 	carried_device = null
 
@@ -1267,14 +1299,14 @@ func _get_or_create_grid_ghost() -> MeshInstance3D:
 		return grid_ghost
 	grid_ghost = MeshInstance3D.new()
 	var mesh = BoxMesh.new()
-	mesh.size = Vector3(1.4, 0.05, 1.4)
+	mesh.size = Vector3(1.48, 0.08, 1.48)
 	grid_ghost.mesh = mesh
 	var mat = StandardMaterial3D.new()
 	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	mat.albedo_color = Color(0.2, 0.9, 1.0, 0.35)
+	mat.albedo_color = Color(0.1, 0.85, 1.0, 0.45)
 	mat.emission_enabled = true
-	mat.emission = Color(0.2, 0.8, 1.0)
-	mat.emission_energy_multiplier = 0.8
+	mat.emission = Color(0.1, 0.85, 1.0)
+	mat.emission_energy_multiplier = 1.2
 	grid_ghost.material_override = mat
 	if env_main_room:
 		env_main_room.add_child(grid_ghost)
@@ -1309,6 +1341,20 @@ func setup_shop_ui_events() -> void:
 		btn_tab_devices.pressed.connect(func(): set_category_filter("devices"))
 	if btn_tab_rooms:
 		btn_tab_rooms.pressed.connect(func(): set_category_filter("rooms"))
+		
+	if upgrades_container:
+		for card in upgrades_container.get_children():
+			var btn: Button = card.get_node_or_null("Margin/VBox/BtnBuy")
+			if not btn: continue
+			if card.has_meta("upgrade_id"):
+				var up_id = card.get_meta("upgrade_id")
+				btn.pressed.connect(func(): _on_buy_button_pressed(up_id))
+			elif card.has_meta("room_id"):
+				var r_id = card.get_meta("room_id")
+				btn.pressed.connect(func(): _on_buy_room_pressed(r_id))
+			elif card.has_meta("device_id"):
+				var d_id = card.get_meta("device_id")
+				btn.pressed.connect(func(): _on_buy_device_pressed(d_id))
 
 func set_category_filter(filter_name: String) -> void:
 	current_filter = filter_name
@@ -1667,8 +1713,22 @@ func _on_buy_room_pressed(room_id: String) -> void:
 		shop_manager.buy_room(room_id, game_manager.total_pops)
 
 func _on_buy_device_pressed(device_id: String) -> void:
-	if shop_manager and game_manager:
-		shop_manager.buy_device(device_id, game_manager.total_pops)
+	if not shop_manager or not game_manager: return
+	var total = game_manager.total_pops
+	if device_id == "gravity_regulator":
+		shop_manager.buy_device_upgrade(device_id, total)
+		return
+		
+	var d_data = shop_manager.devices.get(device_id, {})
+	var cur_count = d_data.get("count", 0)
+	var max_count = d_data.get("max_count", 6)
+	var lvl = d_data.get("level", 0)
+	var max_lvl = d_data.get("max_level", 6)
+	
+	if cur_count < max_count:
+		shop_manager.buy_device_unit(device_id, total)
+	elif lvl < max_lvl:
+		shop_manager.buy_device_upgrade(device_id, total)
 
 func _on_player_pop_triggered(is_hit: bool) -> void:
 	pulse_crosshair(is_hit)
