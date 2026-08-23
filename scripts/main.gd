@@ -171,6 +171,9 @@ func update_gravity_terminal_display() -> void:
 		gravity_display_label.text = "YERÇEKİMİ KONTROLÜ\n[ " + str(g_val) + " G ]\n" + g_name.to_upper()
 
 func cycle_gravity_mode() -> void:
+	if shop_manager and shop_manager.devices.has("gravity_regulator"):
+		max_unlocked_gravity_idx = shop_manager.devices["gravity_regulator"].get("level", 0)
+		
 	if max_unlocked_gravity_idx <= 0:
 		if desk_prompt:
 			desk_prompt.text = "Yerçekimi Regülatörü Kilitli! Marketteki Cihazlar sekmesinden satın alın."
@@ -1090,6 +1093,10 @@ func load_saved_data() -> void:
 				elif d_info is int or d_info is float:
 					shop_manager.devices[dev_id]["level"] = int(d_info)
 					shop_manager.devices[dev_id]["count"] = 1 if int(d_info) > 0 else 0
+					
+				if dev_id == "gravity_regulator":
+					max_unlocked_gravity_idx = shop_manager.devices["gravity_regulator"].get("level", 0)
+					apply_gravity_to_active_balloons()
 					
 		# Clear existing placed devices
 		for dev in active_placed_devices:
