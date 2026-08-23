@@ -73,6 +73,10 @@ func _process(delta: float) -> void:
 	if not is_game_started:
 		return
 		
+	var bc = get_node_or_null("../BalloonContainer")
+	if bc and is_instance_valid(bc):
+		active_balloons = bc.get_child_count()
+		
 	if active_balloons < max_room_balloons:
 		spawn_accumulator += delta * balloons_per_second
 		if spawn_accumulator >= 1.0:

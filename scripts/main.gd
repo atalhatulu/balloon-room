@@ -220,6 +220,7 @@ func _ready() -> void:
 			shop_manager.device_unit_purchased.connect(_on_device_unit_purchased)
 		shop_manager.device_purchased.connect(_on_device_tech_upgraded)
 		
+	update_ceiling_vents()
 	setup_shop_ui_events()
 	setup_startup_modal()
 	setup_victory_modal()
@@ -1877,12 +1878,19 @@ func drop_balloons_from_vent(count: int) -> void:
 	if not balloon_scene or not balloon_container:
 		return
 		
+	if active_vent_positions.is_empty():
+		update_ceiling_vents()
+		
 	var idx = clamp(current_gravity_idx, 0, balloon_gravity_scales.size() - 1)
 	var grav = balloon_gravity_scales[idx]
 	var damp = balloon_linear_damps[idx]
 	
+	var default_vent_y = 4.2
+	if shop_manager and shop_manager.has_method("get_current_room_data"):
+		default_vent_y = shop_manager.get_current_room_data().get("ceiling_height", 4.8) - 0.45
+		
 	for i in range(count):
-		var chosen_vent = Vector3(0, 6.5, 0)
+		var chosen_vent = Vector3(0, default_vent_y, 0)
 		if not active_vent_positions.is_empty():
 			var v_idx = (vent_cycle_idx + i) % active_vent_positions.size()
 			chosen_vent = active_vent_positions[v_idx]
