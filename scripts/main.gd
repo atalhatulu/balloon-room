@@ -864,7 +864,16 @@ func update_raycast_interaction() -> void:
 				desk_prompt.text = "[E] Bilgisayarı Aç / Dükkana Gir"
 			elif raycast_target_type == "gravity_terminal":
 				var g_mode = gravity_mode_names[clamp(current_gravity_idx, 0, gravity_mode_names.size() - 1)]
-				desk_prompt.text = "[E] Yerçekimi Değiştir (Mevcut: " + g_mode + ")"
+				var d_data = shop_manager.devices.get("gravity_regulator", {}) if shop_manager else {}
+				var cur_lvl = d_data.get("level", 0)
+				var max_lvl = d_data.get("max_level", 4)
+				var costs = d_data.get("costs", [400, 1800, 8500, 35000])
+				if cur_lvl < max_lvl:
+					var next_cost = costs[cur_lvl]
+					var next_mode = gravity_mode_names[cur_lvl + 1]
+					desk_prompt.text = "[E] Yerçekimi: [" + g_mode + "]   |   [F] Seviye Yükselt [" + next_mode + "] : " + str(next_cost) + " Coin"
+				else:
+					desk_prompt.text = "[E] Yerçekimi: [" + g_mode + "]   |   [MAX SEVİYE (6.00 G)]"
 			elif raycast_target_type == "device" and best_target_dev:
 				desk_prompt.text = _get_device_interaction_prompt(best_target_dev, best_target_name)
 			desk_prompt.visible = true
@@ -1315,7 +1324,9 @@ func _input(event: InputEvent) -> void:
 			elif nearby_device != null and is_instance_valid(nearby_device):
 				start_carrying_device(nearby_device)
 		elif event.keycode == KEY_F:
-			if raycast_target_type == "device" and raycast_target_device != null and is_instance_valid(raycast_target_device):
+			if raycast_target_type == "gravity_terminal" or is_near_grav_terminal:
+				upgrade_gravity_terminal()
+			elif raycast_target_type == "device" and raycast_target_device != null and is_instance_valid(raycast_target_device):
 				upgrade_specific_device(raycast_target_device)
 			elif nearby_device != null and is_instance_valid(nearby_device):
 				upgrade_specific_device(nearby_device)
@@ -1323,6 +1334,33 @@ func _input(event: InputEvent) -> void:
 			cycle_gravity_mode()
 		elif event.keycode == KEY_ESCAPE and shop_modal and shop_modal.visible:
 			toggle_shop_modal()
+
+func upgrade_gravity_terminal() -> void:
+	if not shop_manager or not game_manager: return
+	var d_data = shop_manager.devices.get("gravity_regulator", {})
+	var cur_lvl = d_data.get("level", 0)
+	var max_lvl = d_data.get("max_level", 4)
+	if cur_lvl >= max_lvl:
+		if desk_prompt:
+			desk_prompt.text = "Yerçekimi Regülatörü maksimum kademede! (6.00 G)"
+			desk_prompt.visible = true
+		return
+	var costs = d_data.get("costs", [400, 1800, 8500, 35000])
+	var cost = costs[cur_lvl]
+	if shop_manager.coins < cost:
+		if desk_prompt:
+			desk_prompt.text = "Yetersiz Coin! Yeni Yerçekimi Modu için " + str(cost) + " Coin gerekli."
+			desk_prompt.visible = true
+		return
+	if shop_manager.buy_device_upgrade("gravity_regulator", game_manager.total_pops):
+		if sound_manager and sound_manager.has_method("play_buy"):
+			sound_manager.play_buy()
+		update_gravity_terminal_display()
+		if desk_prompt:
+			var new_lvl = shop_manager.devices["gravity_regulator"].get("level", 0)
+			var new_mode = gravity_mode_names[new_lvl]
+			desk_prompt.text = "Yerçekimi Regülatörü Yükseltildi! Yeni Kademe: [" + new_mode + "]"
+			desk_prompt.visible = true
 
 func upgrade_specific_device(d_node: Node3D) -> void:
 	if not d_node or not is_instance_valid(d_node) or not shop_manager: return
@@ -1561,32 +1599,58 @@ func update_all_shop_cards() -> void:
 					cost_btn.text = "KİLİTLİ"
 					cost_btn.disabled = true
 			else:
-				if title_lbl:
-					title_lbl.text = d_data["name"] + "  |  Sahada: " + str(cur_count) + " / " + str(max_count) + " Adet"
-					title_lbl.modulate = Color(0.3, 0.95, 0.6) if cur_count > 0 else Color(1, 1, 1)
-				if desc_lbl:
-					if d_id == "sentry_drone":
-						desc_lbl.text = "Uçan Güvenlik Dronu. Satın alınınca doğrudan yanınıza katılır ve havada süzülür.\nSahadaki filo: " + str(cur_count) + " / " + str(max_count) + " aktif.\n[F] tuşuyla baktığınız dronun seviyesini yükseltebilirsiniz."
-					elif d_id == "gravity_regulator":
-						desc_lbl.text = "Duvara monte yerçekimi regülatörü. [G] veya terminal üzerinden kontrol edilir."
-					else:
-						desc_lbl.text = d_data.get("desc", "") + "\nSatın aldığınızda elinize gelir; [Sol Tık / E] ile ızgaraya yerleştirebilir, [F] ile seviyesini yükseltebilirsiniz."
-					desc_lbl.modulate = Color(0.85, 0.88, 0.95)
+				if d_id == "gravity_regulator":
+					var lvl = d_data.get("level", 0)
+					var max_lvl = d_data.get("max_level", 4)
+					var costs = d_data.get("costs", [400, 1800, 8500, 35000])
+					var modes = d_data.get("modes", ["0.25 G (Standart)", "0.80 G (Ağır Döküm)", "1.80 G (Hızlı Şelale)", "3.50 G (Ağır Çöküş)", "6.00 G (Hiper Yerçekimi)"])
 					
-				if cost_btn:
-					if cur_count >= max_count:
-						sort_priority = 500
-						cost_btn.text = "MAX KAPASİTE (" + str(max_count) + "/" + str(max_count) + ")"
-						cost_btn.disabled = true
-					else:
-						sort_priority = 100
-						var u_costs = d_data.get("unit_costs", d_data.get("costs", [500]))
-						var u_cost = u_costs[clamp(cur_count, 0, u_costs.size() - 1)]
-						if cur_count == 0:
-							cost_btn.text = "SATIN AL & YERLEŞTİR (1. Adet) : " + str(u_cost) + " Coin"
+					if title_lbl:
+						title_lbl.text = "Yerçekimi & Gaz Regülatörü  [" + format_level_pips(lvl, max_lvl) + "] (Sv. " + str(lvl) + "/" + str(max_lvl) + ")"
+						title_lbl.modulate = Color(0.35, 0.9, 1.0) if lvl > 0 else Color(1, 1, 1)
+					if desc_lbl:
+						var curr_mode = modes[clamp(lvl, 0, modes.size() - 1)]
+						if lvl >= max_lvl:
+							desc_lbl.text = "Maksimum Kademe: " + curr_mode + " (Tüm Yerçekimi Kademeleri Açık! [G] ile Değiştir)"
 						else:
-							cost_btn.text = "YENİ ADET AL (" + str(cur_count + 1) + "/" + str(max_count) + ") : " + str(u_cost) + " Coin"
-						cost_btn.disabled = shop_manager.coins < u_cost
+							var next_mode = modes[lvl + 1]
+							desc_lbl.text = "Mevcut: " + curr_mode + " ➔ Yükseltme: [" + next_mode + "]\n[G] tuşu veya duvardaki [E] butonuyla yerçekimini anında değiştirin."
+						desc_lbl.modulate = Color(0.85, 0.88, 0.95)
+					if cost_btn:
+						if lvl >= max_lvl:
+							sort_priority = 500
+							cost_btn.text = "MAKSİMUM SEVİYE (6.00 G)"
+							cost_btn.disabled = true
+						else:
+							sort_priority = 100
+							var next_cost = costs[lvl]
+							cost_btn.text = "SEVİYE " + str(lvl + 1) + " AÇ [" + modes[lvl + 1] + "] : " + str(next_cost) + " Coin"
+							cost_btn.disabled = (shop_manager.coins < next_cost)
+				else:
+					if title_lbl:
+						title_lbl.text = d_data["name"] + "  |  Sahada: " + str(cur_count) + " / " + str(max_count) + " Adet"
+						title_lbl.modulate = Color(0.3, 0.95, 0.6) if cur_count > 0 else Color(1, 1, 1)
+					if desc_lbl:
+						if d_id == "sentry_drone":
+							desc_lbl.text = "Uçan Güvenlik Dronu. Satın alınınca doğrudan yanınıza katılır ve havada süzülür.\nSahadaki filo: " + str(cur_count) + " / " + str(max_count) + " aktif.\n[F] tuşuyla baktığınız dronun seviyesini yükseltebilirsiniz."
+						else:
+							desc_lbl.text = d_data.get("desc", "") + "\nSatın aldığınızda elinize gelir; [Sol Tık / E] ile ızgaraya yerleştirebilir, [F] ile seviyesini yükseltebilirsiniz."
+						desc_lbl.modulate = Color(0.85, 0.88, 0.95)
+						
+					if cost_btn:
+						if cur_count >= max_count:
+							sort_priority = 500
+							cost_btn.text = "MAX KAPASİTE (" + str(max_count) + "/" + str(max_count) + ")"
+							cost_btn.disabled = true
+						else:
+							sort_priority = 100
+							var u_costs = d_data.get("unit_costs", d_data.get("costs", [500]))
+							var u_cost = u_costs[clamp(cur_count, 0, u_costs.size() - 1)]
+							if cur_count == 0:
+								cost_btn.text = "SATIN AL & YERLEŞTİR (1. Adet) : " + str(u_cost) + " Coin"
+							else:
+								cost_btn.text = "YENİ ADET AL (" + str(cur_count + 1) + "/" + str(max_count) + ") : " + str(u_cost) + " Coin"
+							cost_btn.disabled = shop_manager.coins < u_cost
 
 		# 2. Room Expansion Cards (Tab: "rooms")
 		elif child.has_meta("room_id"):
@@ -1799,7 +1863,13 @@ func _on_buy_room_pressed(room_id: String) -> void:
 
 func _on_buy_device_pressed(device_id: String) -> void:
 	if not shop_manager or not game_manager: return
-	shop_manager.buy_device_unit(device_id, game_manager.total_pops)
+	if device_id == "gravity_regulator":
+		if shop_manager.buy_device_upgrade("gravity_regulator", game_manager.total_pops):
+			if sound_manager and sound_manager.has_method("play_buy"):
+				sound_manager.play_buy()
+			update_gravity_terminal_display()
+	else:
+		shop_manager.buy_device_unit(device_id, game_manager.total_pops)
 
 func _on_buy_tech_pressed(tech_id: String) -> void:
 	if not shop_manager or not game_manager: return

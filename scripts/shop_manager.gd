@@ -63,7 +63,7 @@ var devices: Dictionary = {
 		"id": "gravity_regulator",
 		"name": "Yerçekimi & Gaz Regülatörü (Gravity Regulator)",
 		"category": "devices",
-		"unlock_pops": 800,
+		"unlock_pops": 250,
 		"level": 0,
 		"max_level": 4,
 		"count": 1,
