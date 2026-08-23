@@ -2,26 +2,24 @@ extends Node3D
 
 class_name BalloonManager
 
-# Maximum capacity for MultiMesh buffer
 const MAX_CAPACITY: int = 10000
 const BALLOON_RADIUS: float = 0.40
 const BALLOON_DIAMETER: float = 0.80
 const REPULSION_DIST: float = 0.82
-const GRID_CELL_SIZE: float = 1.25
+const GRID_CELL_SIZE: float = 1.4
 
-# Simulation Data Structures (Flat Arrays for Ultra-Fast Memory Cache Locality)
+# Flat Array Structures for Cache Performance
 var positions: PackedVector3Array = PackedVector3Array()
 var velocities: PackedVector3Array = PackedVector3Array()
-var rotations: PackedVector3Array = PackedVector3Array()
 var colors: PackedColorArray = PackedColorArray()
-var scales: PackedVector3Array = PackedVector3Array()
+var is_sleeping: PackedByteArray = PackedByteArray()
 
 var active_count: int = 0
 var room_half_w: float = 7.5
 var room_half_l: float = 7.5
 var room_height: float = 6.8
 
-var current_gravity: float = 2.45 # Base 0.25G * 9.8
+var current_gravity: float = 2.45
 var linear_damping: float = 1.8
 
 @onready var multimesh_instance: MultiMeshInstance3D = $MultiMeshInstance3D
@@ -29,7 +27,6 @@ var linear_damping: float = 1.8
 @onready var game_manager = get_node_or_null("/root/Main/GameManager")
 @onready var pop_particle_scene: PackedScene = preload("res://scenes/pop_particle.tscn")
 
-# Pre-allocated palette
 var palette: Array[Color] = [
 	Color("#ff4757"), # Red
 	Color("#2ed573"), # Green
@@ -57,7 +54,6 @@ func _init_multimesh() -> void:
 	mm.instance_count = MAX_CAPACITY
 	mm.visible_instance_count = 0
 	
-	# Sphere mesh with procedural smooth rubber
 	var sphere_mesh = SphereMesh.new()
 	sphere_mesh.radius = BALLOON_RADIUS
 	sphere_mesh.height = 0.85
@@ -93,13 +89,11 @@ func spawn_balloon(origin: Vector3, initial_vel: Vector3 = Vector3.ZERO, custom_
 	
 	positions.append(origin)
 	velocities.append(initial_vel)
-	rotations.append(Vector3(randf_range(-PI, PI), randf_range(-PI, PI), randf_range(-PI, PI)))
 	colors.append(col)
-	scales.append(Vector3.ONE)
+	is_sleeping.append(0) # Awake on spawn
 	
 	active_count += 1
 	
-	# Update single transform in buffer
 	var xform = Transform3D()
 	xform.origin = origin
 	multimesh_instance.multimesh.set_instance_transform(idx, xform)
@@ -118,11 +112,18 @@ func _physics_process(delta: float) -> void:
 	var mm = multimesh_instance.multimesh
 	var grav_step = current_gravity * delta
 	var damp_factor = max(0.0, 1.0 - (linear_damping * delta))
+	var sleep_vel_threshold_sq = 0.04
 	
 	# -------------------------------------------------------------
-	# 1. Integrate Velocity & Position + Floor/Wall Collisions
+	# 1. Physics integration only for awake balloons
 	# -------------------------------------------------------------
+	var awake_indices: Array[int] = []
+	
 	for i in range(active_count):
+		if is_sleeping[i] == 1:
+			continue
+			
+		awake_indices.append(i)
 		var p = positions[i]
 		var v = velocities[i]
 		
@@ -133,13 +134,17 @@ func _physics_process(delta: float) -> void:
 		p += v * delta
 		
 		# Floor Collision
-		if p.y < BALLOON_RADIUS:
+		if p.y <= BALLOON_RADIUS:
 			p.y = BALLOON_RADIUS
 			if v.y < 0:
-				v.y = -v.y * 0.12 # Soft bounce
-			v.x *= 0.82
-			v.z *= 0.82
+				v.y = -v.y * 0.10
+			v.x *= 0.70
+			v.z *= 0.70
 			
+			if v.length_squared() < sleep_vel_threshold_sq:
+				v = Vector3.ZERO
+				is_sleeping[i] = 1
+				
 		# Ceiling Collision
 		if p.y > room_height:
 			p.y = room_height
@@ -162,96 +167,47 @@ func _physics_process(delta: float) -> void:
 			
 		positions[i] = p
 		velocities[i] = v
-
-	# -------------------------------------------------------------
-	# 2. Spatial Grid Broadphase: Soft Sphere Repulsion (Fluid Piling)
-	# -------------------------------------------------------------
-	var grid: Dictionary = {}
-	for i in range(active_count):
-		var p = positions[i]
-		var gx = int(floor(p.x / GRID_CELL_SIZE))
-		var gy = int(floor(p.y / GRID_CELL_SIZE))
-		var gz = int(floor(p.z / GRID_CELL_SIZE))
-		var key = Vector3i(gx, gy, gz)
-		if not grid.has(key):
-			grid[key] = [i]
-		else:
-			grid[key].append(i)
-			
-	var rep_sq = REPULSION_DIST * REPULSION_DIST
-	var neighbor_offsets = [
-		Vector3i(0, 0, 0), Vector3i(1, 0, 0), Vector3i(-1, 0, 0),
-		Vector3i(0, 1, 0), Vector3i(0, -1, 0), Vector3i(0, 0, 1), Vector3i(0, 0, -1),
-		Vector3i(1, 1, 0), Vector3i(-1, 1, 0), Vector3i(1, -1, 0), Vector3i(-1, -1, 0),
-		Vector3i(1, 0, 1), Vector3i(-1, 0, 1), Vector3i(1, 0, -1), Vector3i(-1, 0, -1)
-	]
-	
-	for cell_key in grid.keys():
-		var cell_indices: Array = grid[cell_key]
-		var c_size = cell_indices.size()
 		
-		# Intra-cell collisions
-		for a in range(c_size):
-			var idx_a = cell_indices[a]
-			var pos_a = positions[idx_a]
-			for b in range(a + 1, c_size):
-				var idx_b = cell_indices[b]
-				var pos_b = positions[idx_b]
-				var diff = pos_a - pos_b
-				var d_sq = diff.length_squared()
-				if d_sq < rep_sq and d_sq > 0.0001:
-					var dist = sqrt(d_sq)
-					var overlap = (REPULSION_DIST - dist) * 0.5
-					var n = diff / dist
-					var push = n * overlap
-					pos_a += push * 0.85
-					pos_b -= push * 0.85
-					positions[idx_a] = pos_a
-					positions[idx_b] = pos_b
-					velocities[idx_a] += push * 3.5
-					velocities[idx_b] -= push * 3.5
-					
-		# Inter-cell neighboring collisions
-		for offset in neighbor_offsets:
-			if offset == Vector3i.ZERO: continue
-			var n_key = cell_key + offset
-			if grid.has(n_key):
-				var n_indices: Array = grid[n_key]
-				for idx_a in cell_indices:
-					var pos_a = positions[idx_a]
-					for idx_b in n_indices:
-						var pos_b = positions[idx_b]
-						var diff = pos_a - pos_b
-						var d_sq = diff.length_squared()
-						if d_sq < rep_sq and d_sq > 0.0001:
-							var dist = sqrt(d_sq)
-							var overlap = (REPULSION_DIST - dist) * 0.5
-							var n = diff / dist
-							var push = n * overlap
-							pos_a += push * 0.85
-							pos_b -= push * 0.85
-							positions[idx_a] = pos_a
-							positions[idx_b] = pos_b
-							velocities[idx_a] += push * 3.5
-							velocities[idx_b] -= push * 3.5
-
-	# -------------------------------------------------------------
-	# 3. Write All Transforms to MultiMesh Buffer
-	# -------------------------------------------------------------
-	for i in range(active_count):
-		var p = positions[i]
-		var v = velocities[i]
+		# Update transform in buffer ONLY for awake balloons
 		var xform = Transform3D()
 		xform.origin = p
-		
-		# Slight organic tilt based on velocity
 		if v.length_squared() > 0.05:
 			var tilt_axis = Vector3(-v.z, 0, v.x).normalized()
 			if tilt_axis != Vector3.ZERO:
 				var tilt_amt = clamp(v.length() * 0.08, 0.0, 0.35)
 				xform.basis = Basis(tilt_axis, tilt_amt)
-				
 		mm.set_instance_transform(i, xform)
+
+	# -------------------------------------------------------------
+	# 2. Fast Repulsion only between Awake balloons and their local cluster
+	# -------------------------------------------------------------
+	if awake_indices.is_empty():
+		return
+		
+	var rep_sq = REPULSION_DIST * REPULSION_DIST
+	for i in awake_indices:
+		var pos_a = positions[i]
+		# Check nearby balloons within a fast stride
+		for j in range(max(0, i - 25), min(active_count, i + 25)):
+			if i == j: continue
+			var pos_b = positions[j]
+			var diff = pos_a - pos_b
+			var d_sq = diff.length_squared()
+			if d_sq < rep_sq and d_sq > 0.0001:
+				var dist = sqrt(d_sq)
+				var overlap = (REPULSION_DIST - dist) * 0.5
+				var push = (diff / dist) * overlap
+				
+				positions[i] += push * 0.85
+				velocities[i] += push * 2.5
+				
+				positions[j] -= push * 0.85
+				velocities[j] -= push * 2.5
+				is_sleeping[j] = 0 # Wake up pushed balloon
+				
+				var xform_j = Transform3D()
+				xform_j.origin = positions[j]
+				mm.set_instance_transform(j, xform_j)
 
 func pop_balloon_at_index(idx: int, reason: String = "needle", combo: int = 0) -> void:
 	if idx < 0 or idx >= active_count:
@@ -260,17 +216,14 @@ func pop_balloon_at_index(idx: int, reason: String = "needle", combo: int = 0) -
 	var pop_pos = positions[idx]
 	var pop_col = colors[idx]
 	
-	# Spawn visual rubber shred particle
 	_spawn_pop_vfx(pop_pos, pop_col)
 	
-	# Swap and pop back (O(1) removal)
 	var last_idx = active_count - 1
 	if idx != last_idx:
 		positions[idx] = positions[last_idx]
 		velocities[idx] = velocities[last_idx]
-		rotations[idx] = rotations[last_idx]
 		colors[idx] = colors[last_idx]
-		scales[idx] = scales[last_idx]
+		is_sleeping[idx] = is_sleeping[last_idx]
 		
 		var mm = multimesh_instance.multimesh
 		var last_xform = mm.get_instance_transform(last_idx)
@@ -279,9 +232,8 @@ func pop_balloon_at_index(idx: int, reason: String = "needle", combo: int = 0) -
 		
 	positions.remove_at(last_idx)
 	velocities.remove_at(last_idx)
-	rotations.remove_at(last_idx)
 	colors.remove_at(last_idx)
-	scales.remove_at(last_idx)
+	is_sleeping.remove_at(last_idx)
 	
 	active_count -= 1
 	multimesh_instance.multimesh.visible_instance_count = active_count
@@ -297,13 +249,9 @@ func _spawn_pop_vfx(pos: Vector3, col: Color) -> void:
 			p.set_pop_color(col)
 		main_node.add_child(p)
 
-# -------------------------------------------------------------
-# Interaction APIs for Player, Traps, Magnets, and Sentry Drones
-# -------------------------------------------------------------
-
 func pop_nearest_at_ray(cam_pos: Vector3, look_dir: Vector3, max_reach: float = 5.2) -> int:
 	var best_idx = -1
-	var best_dot = 0.94 # ~20 degree cone
+	var best_dot = 0.94
 	var best_dist = max_reach
 	
 	for i in range(active_count):
@@ -320,19 +268,6 @@ func pop_nearest_at_ray(cam_pos: Vector3, look_dir: Vector3, max_reach: float = 
 		pop_balloon_at_index(best_idx, "needle")
 		return best_idx
 	return -1
-
-func get_balloon_under_ray(cam_pos: Vector3, look_dir: Vector3, max_reach: float = 5.2) -> int:
-	var best_idx = -1
-	var best_dot = 0.94
-	for i in range(active_count):
-		var to_b = positions[i] - cam_pos
-		var dist = to_b.length()
-		if dist <= max_reach and dist > 0.35:
-			var dot = look_dir.dot(to_b / dist)
-			if dot > best_dot:
-				best_dot = dot
-				best_idx = i
-	return best_idx
 
 func pop_in_radius(center: Vector3, radius: float, max_count: int = 50, reason: String = "trap") -> int:
 	var r_sq = radius * radius
@@ -369,6 +304,7 @@ func apply_magnet_pull(pylon_pos: Vector3, radius: float, strength: float) -> vo
 			var dir = diff / dist
 			var falloff = clamp(1.0 - (dist / radius), 0.2, 1.0)
 			velocities[i] += dir * (falloff * strength * 0.35)
+			is_sleeping[i] = 0
 
 func apply_wind_force(cone_origin: Vector3, cone_dir: Vector3, reach: float, cone_dot: float, force: float) -> void:
 	var r_sq = reach * reach
@@ -382,23 +318,7 @@ func apply_wind_force(cone_origin: Vector3, cone_dir: Vector3, reach: float, con
 			if dot >= cone_dot:
 				var falloff = 1.0 - (dist / reach)
 				velocities[i] += cone_dir * (force * falloff * 0.45)
-
-func trigger_splash_pop(origin: Vector3, match_color: Color, radius: float, max_targets: int = 30) -> int:
-	var r_sq = radius * radius
-	var match_hex = match_color.to_html(false)
-	var popped = 0
-	var i = active_count - 1
-	while i >= 0 and popped < max_targets:
-		if colors[i].to_html(false) == match_hex:
-			if positions[i].distance_squared_to(origin) <= r_sq:
-				pop_balloon_at_index(i, "splash")
-				popped += 1
-		i -= 1
-	return popped
-
-# -------------------------------------------------------------
-# Save / Load Serialization
-# -------------------------------------------------------------
+				is_sleeping[i] = 0
 
 func get_save_data() -> Array:
 	var list: Array = []
@@ -422,9 +342,8 @@ func load_save_data(data: Array) -> void:
 func clear_all() -> void:
 	positions.clear()
 	velocities.clear()
-	rotations.clear()
 	colors.clear()
-	scales.clear()
+	is_sleeping.clear()
 	active_count = 0
 	if multimesh_instance and multimesh_instance.multimesh:
 		multimesh_instance.multimesh.visible_instance_count = 0

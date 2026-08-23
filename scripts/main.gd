@@ -1231,7 +1231,7 @@ func load_saved_data() -> void:
 			if balloon.has_signal("popped"):
 				balloon.popped.connect(func(_b, pos, col, combo = 0, b_type = 0): 
 					if game_manager: 
-					game_manager.on_balloon_popped(pos, col, combo, b_type)
+						game_manager.on_balloon_popped(pos, col, combo, b_type)
 				)
 				
 		if game_manager:
