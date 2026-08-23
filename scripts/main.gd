@@ -1125,6 +1125,8 @@ func load_saved_data() -> void:
 			if shop_manager.upgrades.has(up_id):
 				var lvl = int(loaded_upgrades[up_id])
 				shop_manager.upgrades[up_id]["level"] = lvl
+				if player and player.has_method("apply_upgrade"):
+					player.apply_upgrade(up_id, lvl)
 				
 		for dev_id in loaded_devices.keys():
 			if dev_id == "gravity_mode":

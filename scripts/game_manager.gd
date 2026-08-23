@@ -8,9 +8,9 @@ var total_pops: int = 0
 var active_balloons: int = 0
 var is_game_started: bool = false
 
-# Base Upgrade Tables (Balanced, satisfying factory waterfall flow with 144 FPS)
-var base_rate_table: Array = [2.0, 3.5, 5.5, 8.5, 13.0, 20.0, 30.0, 45.0, 65.0, 95.0, 140.0, 200.0, 280.0]
-var base_cap_table: Array = [60, 90, 130, 180, 240, 300, 380, 480, 600, 750, 900]
+# Base Upgrade Tables (Substantial factory waterfall flow & high capacity with 144 FPS)
+var base_rate_table: Array = [2.5, 4.5, 7.5, 12.0, 18.0, 28.0, 42.0, 60.0, 85.0, 120.0, 170.0, 240.0, 320.0]
+var base_cap_table: Array = [120, 220, 380, 600, 950, 1450, 2100, 2900, 3800, 5000, 6800]
 
 var current_vent_level: int = 0
 var current_cap_level: int = 0
@@ -19,8 +19,8 @@ var current_cap_level: int = 0
 var room_cap_bonus: int = 0
 var room_flow_multiplier: float = 1.0
 
-var balloons_per_second: float = 2.0
-var max_room_balloons: int = 60
+var balloons_per_second: float = 2.5
+var max_room_balloons: int = 120
 var spawn_accumulator: float = 0.0
 
 @onready var sound_manager = get_node_or_null("../SoundManager")

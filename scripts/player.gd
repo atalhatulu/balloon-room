@@ -304,7 +304,6 @@ func trigger_splash_pop(origin: Vector3, match_color: Color = Color.WHITE, custo
 	spawn_shockwave_vfx(origin, r, match_color)
 	
 	var r_sq = r * r
-	var match_hex = match_color.to_html(false)
 	var balloons = get_tree().get_nodes_in_group("balloons")
 	var popped_so_far = 0
 	var max_t = (splash_max_targets + 25) if custom_radius > 0.0 else splash_max_targets
@@ -312,15 +311,12 @@ func trigger_splash_pop(origin: Vector3, match_color: Color = Color.WHITE, custo
 	for b in balloons:
 		if b is RigidBody3D and is_instance_valid(b) and not b.is_queued_for_deletion():
 			if not b.get("is_popped"):
-				var b_col = b.get("balloon_color")
-				# Color match check: only cascade pop balloons of the exact same color!
-				if b_col and (b_col.to_html(false) == match_hex or b_col.is_equal_approx(match_color)):
-					if origin.distance_squared_to(b.global_position) <= r_sq:
-						if b.has_method("pop"):
-							b.pop("splash")
-							popped_so_far += 1
-							if max_t > 0 and popped_so_far >= max_t:
-								break
+				if origin.distance_squared_to(b.global_position) <= r_sq:
+					if b.has_method("pop"):
+						b.pop("splash")
+						popped_so_far += 1
+						if max_t > 0 and popped_so_far >= max_t:
+							break
 
 func spawn_shockwave_vfx(origin: Vector3, radius: float, shock_color: Color = Color(0.35, 0.85, 1.0)) -> void:
 	var mesh_inst = MeshInstance3D.new()
