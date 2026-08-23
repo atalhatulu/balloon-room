@@ -117,28 +117,29 @@ func on_balloon_spawned(count: int = 1) -> void:
 	active_balloons += count
 	active_count_changed.emit(active_balloons, max_room_balloons)
 
-func on_balloon_popped(pop_position: Vector3, _balloon_color: Color, combo_step: int = 0, _b_type: int = 0) -> void:
-	total_pops += 1
+func on_balloon_popped(pop_position: Vector3, _balloon_color: Color, combo_step: int = 0, b_tier_val: int = 1) -> void:
+	var value = max(1, b_tier_val)
+	total_pops += value
 	active_balloons = max(0, active_balloons - 1)
-	pop_history.append(Time.get_ticks_msec() / 1000.0)
+	
+	for _i in range(min(value, 5)):
+		pop_history.append(Time.get_ticks_msec() / 1000.0)
 	
 	if sound_manager and sound_manager.has_method("play_pop"):
 		var pitch_idx = (combo_step if combo_step > 0 else (total_pops % 8))
 		sound_manager.play_pop(pitch_idx)
 		
-	# Drop 1 coin every 10 balloon pops (Worth 10x Coins!)
-	if total_pops % 10 == 0:
-		var room_mult = 1.0
-		if shop_manager and shop_manager.has_method("get_current_room_data"):
-			var r_data = shop_manager.get_current_room_data()
-			room_mult = r_data.get("coin_multiplier", 1.0)
-			
-		var coin_reward = max(10, int(10.0 * room_mult))
+	# Apply Room Tier Coin Multiplier (1.0x in Small -> 8.0x in Hyper Lab!)
+	var room_mult = 1.0
+	if shop_manager and shop_manager.has_method("get_current_room_data"):
+		var r_data = shop_manager.get_current_room_data()
+		room_mult = r_data.get("coin_multiplier", 1.0)
 		
-		# Drop physical gold coin to floor for player to collect
-		var main_node = get_node_or_null("/root/Main")
-		if main_node and main_node.has_method("spawn_floor_coin"):
-			main_node.spawn_floor_coin(pop_position, coin_reward)
+	# Drop physical coin matching balloon tier (1x Copper, 5x Silver, 10x Gold, 50x Ruby)
+	var coin_reward = max(value, int(float(value) * room_mult))
+	var main_node = get_node_or_null("/root/Main")
+	if main_node and main_node.has_method("spawn_floor_coin"):
+		main_node.spawn_floor_coin(pop_position, coin_reward, value)
 		
 	pop_registered.emit(total_pops)
 	active_count_changed.emit(active_balloons, max_room_balloons)

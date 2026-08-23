@@ -7,6 +7,8 @@ signal popped(balloon_node: RigidBody3D, pop_position: Vector3, balloon_color: C
 var balloon_color: Color = Color(1.0, 0.35, 0.45)
 var is_popped: bool = false
 var custom_color_set: bool = false
+var tier: int = 1
+var tier_value: int = 1
 
 # Shared static material cache to batch draw calls across all balloons
 static var _material_cache: Dictionary = {}
@@ -37,6 +39,31 @@ func _ready() -> void:
 		setup_random_color()
 	else:
 		_apply_cached_material()
+
+func setup_tier(t: int) -> void:
+	tier = t
+	tier_value = t
+	custom_color_set = true
+	
+	match tier:
+		1:
+			scale = Vector3.ONE
+			setup_random_color()
+		5:
+			scale = Vector3(1.30, 1.30, 1.30)
+			balloon_color = Color("#00d2d3") # Emerald Cyan
+			_apply_cached_material()
+		10:
+			scale = Vector3(1.65, 1.65, 1.65)
+			balloon_color = Color("#ffd32a") # Pure Golden Yellow
+			_apply_cached_material()
+		50:
+			scale = Vector3(2.15, 2.15, 2.15)
+			balloon_color = Color("#9b59b6") # Royal Purple / Plasma
+			_apply_cached_material()
+		_:
+			scale = Vector3.ONE
+			setup_random_color()
 
 func wake_physics() -> void:
 	sleeping = false
@@ -129,7 +156,7 @@ func pop(_trigger_source: String = "manual", combo_depth: int = 0) -> void:
 	var pop_pos = global_position
 	var pop_col = balloon_color
 	
-	popped.emit(self, pop_pos, pop_col, combo_depth, 0)
+	popped.emit(self, pop_pos, pop_col, combo_depth, tier_value)
 	
 	# Hide visual and disable collision immediately
 	if mesh_instance: mesh_instance.visible = false

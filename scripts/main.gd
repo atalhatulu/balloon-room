@@ -2008,9 +2008,23 @@ func drop_balloons_from_vent(count: int) -> void:
 		var offset = Vector3(randf_range(-0.35, 0.35), randf_range(-0.1, 0.1), randf_range(-0.35, 0.35))
 		var spawn_pos = chosen_vent + offset
 		
+		# Weighted Tier Random Roll: 75% 1x (Normal), 18% 5x (Large Cyan), 6% 10x (Golden), 1% 50x (Mega Purple)
+		var roll = randf()
+		var b_tier = 1
+		if roll < 0.01:
+			b_tier = 50
+		elif roll < 0.07:
+			b_tier = 10
+		elif roll < 0.25:
+			b_tier = 5
+		else:
+			b_tier = 1
+
 		var balloon = balloon_scene.instantiate()
 		balloon.position = spawn_pos
 		balloon_container.add_child(balloon)
+		if balloon.has_method("setup_tier"):
+			balloon.setup_tier(b_tier)
 		
 		if balloon is RigidBody3D:
 			balloon.gravity_scale = grav
@@ -2021,7 +2035,7 @@ func drop_balloons_from_vent(count: int) -> void:
 			balloon.angular_velocity = Vector3(randf_range(-2, 2), randf_range(-2, 2), randf_range(-2, 2))
 			
 		if balloon.has_signal("popped"):
-			balloon.popped.connect(func(_b, pos, col, combo = 0, b_type = 0): 
+			balloon.popped.connect(func(_b, pos, col, combo = 0, b_type = 1): 
 				if game_manager: 
 					game_manager.on_balloon_popped(pos, col, combo, b_type)
 			)
@@ -2031,7 +2045,7 @@ func drop_balloons_from_vent(count: int) -> void:
 			
 	vent_cycle_idx = (vent_cycle_idx + count) % max(1, active_vent_positions.size())
 
-func spawn_floor_coin(pop_pos: Vector3, val: int = 1) -> void:
+func spawn_floor_coin(pop_pos: Vector3, val: int = 1, tier: int = 1) -> void:
 	if not coin_scene or not coin_container: return
 	
 	# If floor has too many coins, auto-collect the oldest coin to keep performance crisp
@@ -2043,7 +2057,7 @@ func spawn_floor_coin(pop_pos: Vector3, val: int = 1) -> void:
 	var coin = coin_scene.instantiate()
 	coin_container.add_child(coin)
 	if coin.has_method("init"):
-		coin.init(pop_pos, val)
+		coin.init(pop_pos, val, tier)
 
 func _on_pop_registered(total: int) -> void:
 	update_pop_counter(total)

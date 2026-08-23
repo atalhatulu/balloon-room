@@ -14,7 +14,7 @@ var collect_speed: float = 2.0
 
 @onready var mesh_instance: MeshInstance3D = $MeshInstance3D
 
-func init(spawn_pos: Vector3, val: int = 1) -> void:
+func init(spawn_pos: Vector3, val: int = 1, tier: int = 1) -> void:
 	global_position = spawn_pos
 	coin_value = val
 	
@@ -32,8 +32,48 @@ func init(spawn_pos: Vector3, val: int = 1) -> void:
 		randf_range(-14.0, 14.0)
 	)
 	
-	# Initial spawn squash and stretch
-	var target_scale = Vector3(1.25, 1.25, 1.25) if val >= 10 else Vector3.ONE
+	# Visual Coin Tiers (1, 5, 10, 50)
+	var target_scale = Vector3.ONE
+	var coin_col = Color("#d35400") # Bronze / Copper (1x)
+	var metallic_val: float = 0.75
+	var roughness_val: float = 0.40
+	var emissive_val: Color = Color.BLACK
+	
+	if tier == 50 or val >= 50:
+		target_scale = Vector3(1.75, 1.75, 1.75)
+		coin_col = Color("#9b59b6") # Radiant Purple / Amethyst
+		emissive_val = Color("#8e44ad") * 0.7
+		metallic_val = 0.95
+		roughness_val = 0.15
+	elif tier == 10 or val >= 10:
+		target_scale = Vector3(1.40, 1.40, 1.40)
+		coin_col = Color("#f1c40f") # Radiant Pure Gold
+		emissive_val = Color("#f39c12") * 0.35
+		metallic_val = 0.95
+		roughness_val = 0.20
+	elif tier == 5 or val >= 5:
+		target_scale = Vector3(1.12, 1.12, 1.12)
+		coin_col = Color("#dfe6e9") # Polished Silver
+		metallic_val = 0.90
+		roughness_val = 0.25
+	else:
+		target_scale = Vector3(0.85, 0.85, 0.85)
+		coin_col = Color("#d35400") # Bronze / Copper
+		metallic_val = 0.75
+		roughness_val = 0.40
+		
+	if not mesh_instance:
+		mesh_instance = get_node_or_null("MeshInstance3D")
+	if mesh_instance:
+		var mat = StandardMaterial3D.new()
+		mat.albedo_color = coin_col
+		mat.metallic = metallic_val
+		mat.roughness = roughness_val
+		if emissive_val != Color.BLACK:
+			mat.emission_enabled = true
+			mat.emission = emissive_val
+		mesh_instance.material_override = mat
+		
 	scale = target_scale * 0.4
 	var tween = create_tween()
 	tween.tween_property(self, "scale", target_scale, 0.12).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
