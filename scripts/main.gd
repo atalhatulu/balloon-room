@@ -10,9 +10,9 @@ extends Node3D
 @onready var player: CharacterBody3D = $Player
 @onready var balloon_container: Node3D = $BalloonContainer
 @onready var coin_container: Node3D = $CoinContainer
-@onready var corner_fan: Node3D = $Environment/MainRoom/CornerFan
 
 # Automation Devices (Instantiated on demand)
+var corner_fan: Node3D = null
 var electric_wall: Node3D = null
 var spike_wall: Node3D = null
 var magnet_pylon: Node3D = null
