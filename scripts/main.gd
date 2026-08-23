@@ -280,6 +280,25 @@ func format_time(seconds_val: float) -> String:
 	var secs = total_sec % 60
 	return "%02d:%02d:%02d" % [hrs, mins, secs]
 
+func format_eta(seconds_val: float) -> String:
+	if seconds_val < 0.0:
+		return "--"
+	if seconds_val <= 0.0:
+		return "Tamamlandı"
+	var total_sec = int(seconds_val)
+	if total_sec < 60:
+		return "~%d sn" % total_sec
+	elif total_sec < 3600:
+		var mins = int(total_sec / 60)
+		return "~%d dk" % mins
+	else:
+		var hrs = int(total_sec / 3600)
+		var mins = int((total_sec % 3600) / 60)
+		if mins > 0:
+			return "~%d sa %d dk" % [hrs, mins]
+		else:
+			return "~%d sa" % hrs
+
 func show_victory_screen() -> void:
 	is_victory_shown = true
 	var is_new_record = false
@@ -709,7 +728,8 @@ func _process(delta: float) -> void:
 	playtime_seconds += delta
 	if playtime_label:
 		var c_str = format_number(shop_manager.coins) if shop_manager else "0"
-		playtime_label.text = "Süre: %s  |  Kasa: %s Coin" % [format_time(playtime_seconds), c_str]
+		var eta_str = format_eta(game_manager.get_eta_to_target(1000000)) if (game_manager and game_manager.has_method("get_eta_to_target")) else "--"
+		playtime_label.text = "Süre: %s  |  Kasa: %s Coin  |  1M Tahmini: %s" % [format_time(playtime_seconds), c_str, eta_str]
 	if game_manager:
 		update_pop_counter(game_manager.total_pops)
 		
@@ -1954,11 +1974,12 @@ func update_pop_counter(pops: int) -> void:
 		var target = 1000000
 		var remaining = max(0, target - pops)
 		var pct = (float(pops) / float(target)) * 100.0
+		var eta_str = format_eta(game_manager.get_eta_to_target(target)) if (game_manager and game_manager.has_method("get_eta_to_target")) else "--"
 		if pops >= target:
 			grand_goal_label.text = "1.000.000 HEDEFİ TAMAMLANDI! (%100)"
 			grand_goal_label.add_theme_color_override("font_color", Color("#2ecc71"))
 		else:
-			grand_goal_label.text = "Hedef: 1.000.000 (%%%0.1f) | Kalan: %s" % [pct, format_number(remaining)]
+			grand_goal_label.text = "Hedef: 1.000.000 (%%%0.1f) | Kalan: %s | Tahmini: %s" % [pct, format_number(remaining), eta_str]
 			
 	if pops >= 1000000 and not is_victory_shown:
 		show_victory_screen()

@@ -72,6 +72,16 @@ func recalculate_effective_stats() -> void:
 
 var pop_history: Array[float] = []
 var pops_per_second: int = 0
+var smooth_pps: float = 0.0
+
+func get_eta_to_target(target: int = 1000000) -> float:
+	var remaining = max(0, target - total_pops)
+	if remaining <= 0:
+		return 0.0
+	var effective_rate = max(smooth_pps, float(pops_per_second))
+	if effective_rate < 0.5:
+		return -1.0
+	return float(remaining) / effective_rate
 
 func _process(delta: float) -> void:
 	# Calculate real-time Pops Per Second (rolling 1-second window)
@@ -79,6 +89,7 @@ func _process(delta: float) -> void:
 	while not pop_history.is_empty() and pop_history[0] < (now - 1.0):
 		pop_history.remove_at(0)
 	pops_per_second = pop_history.size()
+	smooth_pps = lerp(smooth_pps, float(pops_per_second), clamp(delta * 1.5, 0.0, 1.0))
 
 	if not is_game_started:
 		return
