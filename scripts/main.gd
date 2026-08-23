@@ -120,10 +120,9 @@ var is_victory_shown: bool = false
 @onready var btn_close_shop: Button = $UI/ShopModal/Panel/Margin/VBox/Header/BtnClose
 @onready var upgrades_container: GridContainer = $UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid
 
-# Filter Tabs (4 Primary Categories: Upgrades, Devices, Tech/AR-GE, Rooms)
+# Filter Tabs (3 Primary Categories: Upgrades, Devices, Rooms)
 @onready var btn_tab_upgrades: Button = $UI/ShopModal/Panel/Margin/VBox/CategoryTabs/BtnTabUpgrades
 @onready var btn_tab_devices: Button = $UI/ShopModal/Panel/Margin/VBox/CategoryTabs/BtnTabDevices
-@onready var btn_tab_tech: Button = get_node_or_null("UI/ShopModal/Panel/Margin/VBox/CategoryTabs/BtnTabTech")
 @onready var btn_tab_rooms: Button = $UI/ShopModal/Panel/Margin/VBox/CategoryTabs/BtnTabRooms
 
 # 3D Gravity Terminal
@@ -888,7 +887,7 @@ func update_raycast_interaction() -> void:
 			if reticle_ring: reticle_ring.modulate = Color(0.3, 0.8, 1.0, 0.95)
 			if crosshair_dot: crosshair_dot.color = Color(0.3, 0.8, 1.0, 1.0)
 			if desk_prompt:
-				desk_prompt.text = "[E] " + dev["name"] + " Taşı (Izgara Modu)"
+				desk_prompt.text = _get_device_interaction_prompt(dev["node"], dev["name"])
 				desk_prompt.visible = true
 			return
 			
@@ -912,13 +911,34 @@ func update_raycast_interaction() -> void:
 					if reticle_ring: reticle_ring.modulate = Color(0.3, 0.8, 1.0, 0.95)
 					if crosshair_dot: crosshair_dot.color = Color(0.3, 0.8, 1.0, 1.0)
 					if desk_prompt:
-						desk_prompt.text = "[E] " + d_name + " Taşı (Izgara Modu)"
+						desk_prompt.text = _get_device_interaction_prompt(d_node, d_name)
 						desk_prompt.visible = true
 					return
 
 	_reset_crosshair_style()
 	if desk_prompt:
 		desk_prompt.visible = false
+
+func _get_device_interaction_prompt(d_node: Node3D, d_name: String) -> String:
+	if not d_node or not is_instance_valid(d_node): return ""
+	var d_type = d_node.get_meta("device_type") if d_node.has_meta("device_type") else ""
+	var cur_lvl = d_node.get("level") if ("level" in d_node) else 1
+	if cur_lvl <= 0: cur_lvl = 1
+	var max_lvl = 6
+	if shop_manager and shop_manager.devices.has(d_type):
+		max_lvl = shop_manager.devices[d_type].get("max_level", 6)
+		
+	var prompt = "[E] " + d_name + " Taşı (Sv. " + str(cur_lvl) + ")"
+	if cur_lvl >= max_lvl:
+		prompt += "  |  [MAX SEVİYE " + str(max_lvl) + "]"
+	else:
+		var cost = 500
+		if shop_manager and shop_manager.devices.has(d_type):
+			var costs_arr = shop_manager.devices[d_type].get("costs", [500])
+			var c_idx = clamp(cur_lvl - 1, 0, costs_arr.size() - 1)
+			cost = costs_arr[c_idx]
+		prompt += "  |  [F] Seviye Yükselt (Sv. " + str(cur_lvl) + " ➔ " + str(cur_lvl + 1) + ") : " + str(cost) + " Coin"
+	return prompt
 
 func _clear_balloon_highlight() -> void:
 	if highlighted_balloon and is_instance_valid(highlighted_balloon):
@@ -1014,10 +1034,13 @@ func save_current_data() -> void:
 		if is_instance_valid(dev) and dev.visible:
 			var d_type = dev.get_meta("device_type") if dev.has_meta("device_type") else ""
 			if d_type != "":
+				var d_lvl = dev.get("level") if ("level" in dev) else 1
+				if d_lvl <= 0: d_lvl = 1
 				placed_devices_data.append({
 					"type": d_type,
 					"pos": [dev.position.x, dev.position.y, dev.position.z],
-					"rot_y": dev.rotation.y
+					"rot_y": dev.rotation.y,
+					"level": d_lvl
 				})
 		
 	var coins_data: Array = []
@@ -1123,9 +1146,12 @@ func load_saved_data() -> void:
 				var pos_arr = p_data.get("pos", [0, 0.05, 0])
 				dev.position = Vector3(pos_arr[0], pos_arr[1], pos_arr[2])
 				dev.rotation.y = float(p_data.get("rot_y", 0.0))
-				var d_lvl = shop_manager.devices[d_type].get("level", 1) if shop_manager.devices.has(d_type) else 1
+				var d_lvl = int(p_data.get("level", 1))
+				if d_lvl <= 0: d_lvl = 1
 				if dev.has_method("setup_level"):
 					dev.setup_level(d_lvl)
+				else:
+					dev.set("level", d_lvl)
 				active_placed_devices.append(dev)
 				
 	# 2. Restore Progress & Coins
@@ -1262,10 +1288,61 @@ func _input(event: InputEvent) -> void:
 				toggle_shop_modal()
 			elif nearby_device != null and is_instance_valid(nearby_device):
 				start_carrying_device(nearby_device)
+		elif event.keycode == KEY_F:
+			if raycast_target_type == "device" and raycast_target_device != null and is_instance_valid(raycast_target_device):
+				upgrade_specific_device(raycast_target_device)
+			elif nearby_device != null and is_instance_valid(nearby_device):
+				upgrade_specific_device(nearby_device)
 		elif event.keycode == KEY_G:
 			cycle_gravity_mode()
 		elif event.keycode == KEY_ESCAPE and shop_modal and shop_modal.visible:
 			toggle_shop_modal()
+
+func upgrade_specific_device(d_node: Node3D) -> void:
+	if not d_node or not is_instance_valid(d_node) or not shop_manager: return
+	var d_type = d_node.get_meta("device_type") if d_node.has_meta("device_type") else ""
+	if not shop_manager.devices.has(d_type): return
+	
+	var d_data = shop_manager.devices[d_type]
+	var cur_lvl = d_node.get("level") if ("level" in d_node) else 1
+	if cur_lvl <= 0: cur_lvl = 1
+	var max_lvl = d_data.get("max_level", 6)
+	
+	if cur_lvl >= max_lvl:
+		if desk_prompt:
+			desk_prompt.text = "Bu cihaz zaten maksimum teknoloji seviyesinde! (Sv. " + str(max_lvl) + ")"
+			desk_prompt.visible = true
+		return
+		
+	var costs_arr = d_data.get("costs", [500])
+	var c_idx = clamp(cur_lvl - 1, 0, costs_arr.size() - 1)
+	var cost = costs_arr[c_idx]
+	
+	if shop_manager.coins < cost:
+		if desk_prompt:
+			desk_prompt.text = "Yetersiz Coin! Bu cihazı Sv. " + str(cur_lvl + 1) + " yapmak için " + str(cost) + " Coin gerekli."
+			desk_prompt.visible = true
+		return
+		
+	shop_manager.coins -= cost
+	shop_manager.coins_changed.emit(shop_manager.coins)
+	
+	var next_lvl = cur_lvl + 1
+	if d_node.has_method("setup_level"):
+		d_node.setup_level(next_lvl)
+	else:
+		d_node.set("level", next_lvl)
+		
+	# Play upgrade sound & punchy visual scale pulse
+	if sound_manager and sound_manager.has_method("play_pop"):
+		sound_manager.play_pop(6)
+		
+	var tw = create_tween()
+	tw.tween_property(d_node, "scale", Vector3(1.22, 1.22, 1.22), 0.08).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tw.tween_property(d_node, "scale", Vector3.ONE, 0.12)
+	
+	save_current_data()
+	update_raycast_interaction()
 
 func start_carrying_device(device_node: Node3D) -> void:
 	if not device_node or not is_instance_valid(device_node): return
@@ -1353,8 +1430,6 @@ func setup_shop_ui_events() -> void:
 		btn_tab_upgrades.pressed.connect(func(): set_category_filter("upgrades"))
 	if btn_tab_devices:
 		btn_tab_devices.pressed.connect(func(): set_category_filter("devices"))
-	if btn_tab_tech:
-		btn_tab_tech.pressed.connect(func(): set_category_filter("tech"))
 	if btn_tab_rooms:
 		btn_tab_rooms.pressed.connect(func(): set_category_filter("rooms"))
 		
@@ -1371,16 +1446,12 @@ func setup_shop_ui_events() -> void:
 			elif card.has_meta("device_id"):
 				var d_id = card.get_meta("device_id")
 				btn.pressed.connect(func(): _on_buy_device_pressed(d_id))
-			elif card.has_meta("tech_id"):
-				var t_id = card.get_meta("tech_id")
-				btn.pressed.connect(func(): _on_buy_tech_pressed(t_id))
 
 func set_category_filter(filter_name: String) -> void:
 	current_filter = filter_name
 	
 	if btn_tab_upgrades: btn_tab_upgrades.modulate = Color(0.2, 0.9, 1.2) if filter_name == "upgrades" else Color(0.7, 0.7, 0.7)
 	if btn_tab_devices: btn_tab_devices.modulate = Color(0.3, 1.2, 0.6) if filter_name == "devices" else Color(0.7, 0.7, 0.7)
-	if btn_tab_tech: btn_tab_tech.modulate = Color(1.2, 0.7, 0.2) if filter_name == "tech" else Color(0.7, 0.7, 0.7)
 	if btn_tab_rooms: btn_tab_rooms.modulate = Color(1.1, 0.4, 1.1) if filter_name == "rooms" else Color(0.7, 0.7, 0.7)
 	
 	update_all_shop_cards()
@@ -1466,11 +1537,11 @@ func update_all_shop_cards() -> void:
 					title_lbl.modulate = Color(0.3, 0.95, 0.6) if cur_count > 0 else Color(1, 1, 1)
 				if desc_lbl:
 					if d_id == "sentry_drone":
-						desc_lbl.text = "Uçan Güvenlik Dronu. Satın alınınca doğrudan yanınıza katılır ve havada süzülür.\nSahadaki filo: " + str(cur_count) + " / " + str(max_count) + " aktif."
+						desc_lbl.text = "Uçan Güvenlik Dronu. Satın alınınca doğrudan yanınıza katılır ve havada süzülür.\nSahadaki filo: " + str(cur_count) + " / " + str(max_count) + " aktif.\n[F] tuşuyla baktığınız dronun seviyesini yükseltebilirsiniz."
 					elif d_id == "gravity_regulator":
 						desc_lbl.text = "Duvara monte yerçekimi regülatörü. [G] veya terminal üzerinden kontrol edilir."
 					else:
-						desc_lbl.text = d_data.get("desc", "") + "\nSatın aldığınızda elinize gelir; [Sol Tık / E] ile ızgaraya yerleştirebilirsiniz."
+						desc_lbl.text = d_data.get("desc", "") + "\nSatın aldığınızda elinize gelir; [Sol Tık / E] ile ızgaraya yerleştirebilir, [F] ile seviyesini yükseltebilirsiniz."
 					desc_lbl.modulate = Color(0.85, 0.88, 0.95)
 					
 				if cost_btn:
@@ -1487,87 +1558,6 @@ func update_all_shop_cards() -> void:
 						else:
 							cost_btn.text = "YENİ ADET AL (" + str(cur_count + 1) + "/" + str(max_count) + ") : " + str(u_cost) + " Coin"
 						cost_btn.disabled = shop_manager.coins < u_cost
-
-		# 2. Device Tech & Research Cards (Tab: "tech")
-		elif child.has_meta("tech_id"):
-			var t_id = child.get_meta("tech_id")
-			var d_data = shop_manager.devices.get(t_id)
-			var matches_filter = (current_filter == "tech")
-			child.visible = matches_filter
-			
-			if not matches_filter or not d_data:
-				continue
-				
-			var title_lbl = child.get_node_or_null("Margin/VBox/Title")
-			var desc_lbl = child.get_node_or_null("Margin/VBox/Desc")
-			var cost_btn: Button = child.get_node_or_null("Margin/VBox/BtnBuy")
-			
-			var unlock_req = d_data.get("unlock_pops", 0)
-			var is_unlocked = total_pops >= unlock_req
-			var lvl = d_data.get("level", 0)
-			var max_lvl = d_data.get("max_level", 6)
-			var cur_count = d_data.get("count", 0)
-			
-			if not is_unlocked and cur_count == 0 and lvl == 0:
-				sort_priority = 1000 + unlock_req
-				if title_lbl:
-					title_lbl.text = "🔒 " + d_data["name"].to_upper() + " (AR-GE)"
-					title_lbl.modulate = Color(0.65, 0.68, 0.72)
-				if desc_lbl:
-					var pct = int(clamp(float(total_pops) / float(max(1, unlock_req)), 0.0, 1.0) * 100)
-					desc_lbl.text = "🔒 KİLİTLİ — " + str(unlock_req) + " POP GEREKLİ\nİlerleme: " + str(total_pops) + " / " + str(unlock_req) + " (% " + str(pct) + ")"
-					desc_lbl.modulate = Color(1.0, 0.62, 0.25)
-				if cost_btn:
-					cost_btn.text = "KİLİTLİ"
-					cost_btn.disabled = true
-			elif cur_count == 0 and lvl == 0:
-				sort_priority = 800
-				if title_lbl:
-					title_lbl.text = d_data["name"] + " [AR-GE]"
-					title_lbl.modulate = Color(0.6, 0.6, 0.6)
-				if desc_lbl:
-					desc_lbl.text = "Bu cihaz henüz sahada yok. Önce 'Cihazlar' sekmesinden 1 adet satın alıp kurmalısınız."
-					desc_lbl.modulate = Color(0.85, 0.6, 0.3)
-				if cost_btn:
-					cost_btn.text = "CİHAZ KURULMADI"
-					cost_btn.disabled = true
-			else:
-				if title_lbl:
-					title_lbl.text = d_data["name"] + "  [" + format_level_pips(lvl, max_lvl) + "] (Sv. " + str(lvl) + "/" + str(max_lvl) + ")"
-					title_lbl.modulate = Color(1.0, 0.6, 0.2) if lvl > 0 else Color(1, 1, 1)
-				if desc_lbl:
-					if d_data.has("modes"):
-						if lvl >= max_lvl:
-							desc_lbl.text = "Maksimum Hız: " + str(d_data["modes"][max_lvl - 1]) + " (Tüm Modlar Açık!)"
-						elif lvl > 0:
-							var curr_m = d_data["modes"][lvl - 1]
-							var next_m = d_data["modes"][lvl]
-							desc_lbl.text = "Mevcut: " + str(curr_m) + " ➔ Açılacak: " + str(next_m) + " ([G] ile Seçim)"
-						else:
-							desc_lbl.text = d_data["desc"]
-					elif d_data.has("widths"):
-						var curr_w = d_data["widths"][clamp(lvl - 1 if lvl > 0 else 0, 0, d_data["widths"].size() - 1)]
-						if lvl >= max_lvl:
-							desc_lbl.text = "Maksimum Güç: " + str(curr_w) + " (Sahadaki tüm " + str(cur_count) + " cihaz için aktif)"
-						elif lvl > 0:
-							var next_w = d_data["widths"][clamp(lvl, 0, d_data["widths"].size() - 1)]
-							desc_lbl.text = "Mevcut: " + str(curr_w) + "\n➔ Yükseltme: " + str(next_w) + " (Sahadaki tüm " + str(cur_count) + " cihaz güçlenir)"
-						else:
-							desc_lbl.text = d_data["desc"]
-					else:
-						desc_lbl.text = d_data.get("desc", "")
-					desc_lbl.modulate = Color(0.85, 0.88, 0.95)
-					
-				if cost_btn:
-					if lvl >= max_lvl:
-						sort_priority = 500
-						cost_btn.text = "MAX TEKNOLOJİ"
-						cost_btn.disabled = true
-					else:
-						sort_priority = 100
-						var up_cost = d_data["costs"][lvl]
-						cost_btn.text = "TÜMÜNÜ GELİŞTİR (Sv. " + str(lvl + 1) + ") : " + str(up_cost) + " Coin"
-						cost_btn.disabled = shop_manager.coins < up_cost
 
 		# 2. Room Expansion Cards (Tab: "rooms")
 		elif child.has_meta("room_id"):
