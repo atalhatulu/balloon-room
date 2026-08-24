@@ -3,9 +3,9 @@ extends Node3D
 @export var is_active: bool = false
 @export var level: int = 1
 
-var cooldown_intervals: Array[float] = [0.0, 1.40, 1.10, 0.85, 0.65, 0.45, 0.28]
-var batch_capacities: Array[int] = [0, 2, 4, 7, 12, 20, 35]
-var trigger_radii: Array[float] = [0.0, 1.1, 1.3, 1.5, 1.7, 2.0, 2.3]
+var cooldown_intervals: Array[float] = [0.0, 0.90, 0.70, 0.55, 0.42, 0.32, 0.22]
+var batch_capacities: Array[int] = [0, 5, 10, 18, 30, 50, 85]
+var trigger_radii: Array[float] = [0.0, 1.2, 1.5, 1.9, 2.3, 2.8, 3.4]
 
 var cooldown_timer: float = 0.0
 
@@ -35,10 +35,19 @@ func update_visuals() -> void:
 		return
 		
 	visible = true
-	if spikes_mesh and spikes_mesh.material_override is StandardMaterial3D:
-		var mat = spikes_mesh.material_override as StandardMaterial3D
-		# Color shifts to hotter orange-red with level
-		mat.albedo_color = Color(1.0, 0.35 - (level * 0.04), 0.15, 1.0)
+	var idx = clamp(level, 1, trigger_radii.size() - 1)
+	var r = trigger_radii[idx]
+	var scale_factor = (r * 2.0) / 3.5
+	
+	if plate_mesh:
+		plate_mesh.scale = Vector3(scale_factor, 1.0, scale_factor)
+	if spikes_mesh:
+		spikes_mesh.scale = Vector3(scale_factor, 1.0, scale_factor)
+		if spikes_mesh.material_override is StandardMaterial3D:
+			var mat = spikes_mesh.material_override as StandardMaterial3D
+			mat.albedo_color = Color(1.0, 0.40 - (level * 0.05), 0.15, 1.0)
+	if impact_particles:
+		impact_particles.emission_box_extents = Vector3(r * 0.85, 0.1, r * 0.85)
 
 func _physics_process(delta: float) -> void:
 	if not is_active or level <= 0:

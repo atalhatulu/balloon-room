@@ -37,17 +37,17 @@ var devices: Dictionary = {
 		"id": "spike_wall",
 		"name": "Dikenli Zemin Tuzağı (Floor Spikes)",
 		"category": "devices",
-		"unlock_pops": 800,
+		"unlock_pops": 300,
 		"level": 0,
 		"max_level": 6,
 		"count": 0,
 		"max_count": 6,
-		"desc": "Zemine serilen sivri çelik iğneler. Balonlar üzerine düştükçe sürekli seri darbelerle deler.",
-		"widths": ["1.40s Bekleme (2 Balon)", "1.10s Bekleme (4 Balon)", "0.85s Bekleme (7 Balon)", "0.65s Bekleme (12 Balon)", "0.45s Bekleme (20 Balon)", "0.28s Bekleme (35 Balon)"],
+		"desc": "Zemine serilen sivri çelik iğneler. Seviye atladıkça fiziksel alanı büyür ve daha seri darbeler vurur.",
+		"widths": ["2.4m Alan | 0.90s (5 Balon)", "3.0m Alan | 0.70s (10 Balon)", "3.8m Alan | 0.55s (18 Balon)", "4.6m Alan | 0.42s (30 Balon)", "5.6m Alan | 0.32s (50 Balon)", "6.8m Alan | 0.22s (85 Balon)"],
 		"unit_costs": [400, 1500, 6000, 22000, 70000, 180000],
-		"unit_req_pops": [800, 4000, 20000, 80000, 220000, 550000],
+		"unit_req_pops": [300, 1500, 7000, 30000, 100000, 300000],
 		"costs": [800, 2500, 9000, 32000, 110000, 300000],
-		"req_pops": [1200, 5000, 25000, 90000, 250000, 600000]
+		"req_pops": [450, 2000, 8500, 35000, 120000, 350000]
 	},
 	"electric_wall": {
 		"id": "electric_wall",

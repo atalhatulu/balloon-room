@@ -921,7 +921,7 @@ layout_mode = 2
 size_flags_vertical = 3
 theme_override_colors/font_color = Color(0.85, 0.88, 0.95, 1)
 theme_override_font_sizes/font_size = 11
-text = "Zemine serilen sivri çelik iğneler. Üzerine düşen balonları seri deler."
+text = "Zemine serilen sivri çelik iğneler. Seviye atladıkça boyutu büyür ve seri deler."
 autowrap_mode = 3
 
 [node name="BtnBuy" type="Button" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardSpikeWall/Margin/VBox" unique_id=426536584]
