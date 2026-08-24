@@ -3,8 +3,8 @@ extends Node3D
 @export var is_active: bool = false
 @export var level: int = 0
 
-static var pull_ranges: Array[float] = [0.0, 2.5, 3.2, 4.0, 5.0, 6.2, 7.5, 9.0]
-static var pull_strengths: Array[float] = [0.0, 0.6, 1.0, 1.6, 2.4, 3.5, 4.8, 6.5]
+static var pull_ranges: Array[float] = [0.0, 5.5, 7.5, 10.0, 13.0, 16.5, 20.0]
+static var pull_strengths: Array[float] = [0.0, 4.5, 6.5, 9.0, 12.5, 17.0, 23.0]
 static var global_pull_multiplier: float = 1.0
 
 var tick_timer: float = 0.0
@@ -38,11 +38,11 @@ func update_visuals() -> void:
 	var r = pull_ranges[idx]
 	
 	if magnet_light:
-		magnet_light.omni_range = max(5.0, r * 0.8)
-		magnet_light.light_energy = 0.8 + level * 0.25
+		magnet_light.omni_range = max(6.0, r * 0.85)
+		magnet_light.light_energy = 1.2 + level * 0.35
 		
 	if particles:
-		particles.emission_sphere_radius = clamp(r * 0.25, 1.0, 4.0)
+		particles.emission_sphere_radius = clamp(r * 0.40, 1.8, 6.0)
 		particles.emitting = true
 
 func _physics_process(delta: float) -> void:
@@ -66,7 +66,7 @@ func apply_magnetic_pull() -> void:
 	var idx = clamp(level, 1, pull_ranges.size() - 1)
 	var max_range = pull_ranges[idx]
 	var strength = pull_strengths[idx]
-	var center_pos = global_position + Vector3(0, 0.6, 0)
+	var center_pos = global_position + Vector3(0, 0.75, 0)
 	
 	var shape_query = PhysicsShapeQueryParameters3D.new()
 	var sphere = SphereShape3D.new()
@@ -77,18 +77,18 @@ func apply_magnetic_pull() -> void:
 	shape_query.collide_with_bodies = true
 	shape_query.collide_with_areas = false
 	
-	var max_pull_targets = 30 + (level * 10)
+	var max_pull_targets = 40 + (level * 20)
 	var results = space_state.intersect_shape(shape_query, max_pull_targets)
 	for res in results:
 		var b = res.collider
 		if b is RigidBody3D and is_instance_valid(b) and not b.is_queued_for_deletion() and not b.get("is_popped"):
 			var diff = center_pos - b.global_position
-			var dist_sq = diff.length_squared()
-			if dist_sq > 0.35:
+			var dist = diff.length()
+			if dist > 0.4:
 				if b.has_method("wake_physics"):
 					b.wake_physics()
-				var dist = sqrt(dist_sq)
 				var dir = diff / dist
-				var falloff = clamp(1.0 - (dist / max_range), 0.05, 1.0)
-				var force = dir * (falloff * (strength * global_pull_multiplier) * 0.035)
+				var falloff = clamp(1.0 - (dist / max_range), 0.20, 1.0)
+				var impulse_mag = (strength * global_pull_multiplier) * falloff * 0.22
+				var force = (dir + Vector3(0, 0.12, 0)).normalized() * impulse_mag
 				b.apply_central_impulse(force)

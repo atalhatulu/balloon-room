@@ -75,7 +75,7 @@ var devices: Dictionary = {
 		"count": 0,
 		"max_count": 6,
 		"desc": "Dikey elektromanyetik kule. Çevredeki düşen balonları kendi merkezine ve altındaki tuzaklara çeker.",
-		"widths": ["3.5m Çekim", "4.5m Çekim", "5.8m Çekim", "7.2m Çekim", "8.8m Çekim", "10.5m Çekim"],
+		"widths": ["5.5m Çekim (4.5 Güç)", "7.5m Çekim (6.5 Güç)", "10.0m Çekim (9.0 Güç)", "13.0m Çekim (12.5 Güç)", "16.5m Çekim (17.0 Güç)", "20.0m Çekim (23.0 Güç)"],
 		"unit_costs": [1000, 3000, 12000, 45000, 120000, 280000],
 		"unit_req_pops": [15000, 35000, 90000, 220000, 500000, 750000],
 		"costs": [1500, 4500, 15000, 55000, 150000, 350000],
