@@ -1519,157 +1519,43 @@ custom_minimum_size = Vector2(0, 34)
 layout_mode = 2
 text = "100 Coin"
 
-[node name="CardEnergyCap" type="PanelContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid" unique_id=1111990068]
+[node name="CardAthleteTraining" type="PanelContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid" unique_id=1111990068]
 custom_minimum_size = Vector2(285, 175)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_styles/panel = SubResource("StyleBoxFlat_card")
-metadata/upgrade_id = "energy_cap"
+metadata/upgrade_id = "athlete_training"
 
-[node name="Margin" type="MarginContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardEnergyCap" unique_id=282628720]
+[node name="Margin" type="MarginContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardAthleteTraining" unique_id=282628720]
 layout_mode = 2
 theme_override_constants/margin_left = 14
 theme_override_constants/margin_top = 12
 theme_override_constants/margin_right = 14
 theme_override_constants/margin_bottom = 12
 
-[node name="VBox" type="VBoxContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardEnergyCap/Margin" unique_id=1181636465]
+[node name="VBox" type="VBoxContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardAthleteTraining/Margin" unique_id=1181636465]
 layout_mode = 2
 theme_override_constants/separation = 6
 
-[node name="Title" type="Label" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardEnergyCap/Margin/VBox" unique_id=349787191]
+[node name="Title" type="Label" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardAthleteTraining/Margin/VBox" unique_id=349787191]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.3, 0.85, 1, 1)
 theme_override_font_sizes/font_size = 14
-text = "Energy Capacity"
+text = "Kondisyon & Çeviklik"
 autowrap_mode = 3
 
-[node name="Desc" type="Label" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardEnergyCap/Margin/VBox" unique_id=2005320914]
+[node name="Desc" type="Label" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardAthleteTraining/Margin/VBox" unique_id=2005320914]
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_colors/font_color = Color(0.85, 0.88, 0.95, 1)
 theme_override_font_sizes/font_size = 11
-text = "Maksimum enerji havuzunu +25 birim artırır."
+text = "Maksimum dayanıklılığı, enerji dolum hızını ve yürüme/koşma çevikliğini artırır."
 autowrap_mode = 3
 
-[node name="BtnBuy" type="Button" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardEnergyCap/Margin/VBox" unique_id=414030829]
+[node name="BtnBuy" type="Button" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardAthleteTraining/Margin/VBox" unique_id=414030829]
 custom_minimum_size = Vector2(0, 34)
 layout_mode = 2
-text = "10 Coin"
-
-[node name="CardEnergyRegen" type="PanelContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid" unique_id=1526192952]
-custom_minimum_size = Vector2(285, 175)
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_styles/panel = SubResource("StyleBoxFlat_card")
-metadata/upgrade_id = "energy_regen"
-
-[node name="Margin" type="MarginContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardEnergyRegen" unique_id=1003323529]
-layout_mode = 2
-theme_override_constants/margin_left = 14
-theme_override_constants/margin_top = 12
-theme_override_constants/margin_right = 14
-theme_override_constants/margin_bottom = 12
-
-[node name="VBox" type="VBoxContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardEnergyRegen/Margin" unique_id=1426005909]
-layout_mode = 2
-theme_override_constants/separation = 6
-
-[node name="Title" type="Label" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardEnergyRegen/Margin/VBox" unique_id=697979411]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.3, 0.85, 1, 1)
-theme_override_font_sizes/font_size = 14
-text = "Energy Regen"
-autowrap_mode = 3
-
-[node name="Desc" type="Label" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardEnergyRegen/Margin/VBox" unique_id=1576598870]
-layout_mode = 2
-size_flags_vertical = 3
-theme_override_colors/font_color = Color(0.85, 0.88, 0.95, 1)
-theme_override_font_sizes/font_size = 11
-text = "Dinlenirken enerjinin saniyede dolum hızını artırır."
-autowrap_mode = 3
-
-[node name="BtnBuy" type="Button" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardEnergyRegen/Margin/VBox" unique_id=132193898]
-custom_minimum_size = Vector2(0, 34)
-layout_mode = 2
-text = "10 Coin"
-
-[node name="CardSpeed" type="PanelContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid" unique_id=2078902051]
-custom_minimum_size = Vector2(285, 175)
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_styles/panel = SubResource("StyleBoxFlat_card")
-metadata/upgrade_id = "speed"
-
-[node name="Margin" type="MarginContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardSpeed" unique_id=2016827579]
-layout_mode = 2
-theme_override_constants/margin_left = 14
-theme_override_constants/margin_top = 12
-theme_override_constants/margin_right = 14
-theme_override_constants/margin_bottom = 12
-
-[node name="VBox" type="VBoxContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardSpeed/Margin" unique_id=1140077946]
-layout_mode = 2
-theme_override_constants/separation = 6
-
-[node name="Title" type="Label" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardSpeed/Margin/VBox" unique_id=134570721]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.3, 0.85, 1, 1)
-theme_override_font_sizes/font_size = 14
-text = "Speed"
-autowrap_mode = 3
-
-[node name="Desc" type="Label" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardSpeed/Margin/VBox" unique_id=1881253179]
-layout_mode = 2
-size_flags_vertical = 3
-theme_override_colors/font_color = Color(0.85, 0.88, 0.95, 1)
-theme_override_font_sizes/font_size = 11
-text = "Yürüme ve koşma hızını artırır."
-autowrap_mode = 3
-
-[node name="BtnBuy" type="Button" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardSpeed/Margin/VBox" unique_id=2027277571]
-custom_minimum_size = Vector2(0, 34)
-layout_mode = 2
-text = "20 Coin"
-
-[node name="CardSprintEff" type="PanelContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid" unique_id=40038924]
-custom_minimum_size = Vector2(285, 175)
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_styles/panel = SubResource("StyleBoxFlat_card")
-metadata/upgrade_id = "sprint_efficiency"
-
-[node name="Margin" type="MarginContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardSprintEff" unique_id=1878565909]
-layout_mode = 2
-theme_override_constants/margin_left = 14
-theme_override_constants/margin_top = 12
-theme_override_constants/margin_right = 14
-theme_override_constants/margin_bottom = 12
-
-[node name="VBox" type="VBoxContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardSprintEff/Margin" unique_id=629684127]
-layout_mode = 2
-theme_override_constants/separation = 6
-
-[node name="Title" type="Label" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardSprintEff/Margin/VBox" unique_id=446959139]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.3, 0.85, 1, 1)
-theme_override_font_sizes/font_size = 14
-text = "Sprint Efficiency"
-autowrap_mode = 3
-
-[node name="Desc" type="Label" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardSprintEff/Margin/VBox" unique_id=836780093]
-layout_mode = 2
-size_flags_vertical = 3
-theme_override_colors/font_color = Color(0.85, 0.88, 0.95, 1)
-theme_override_font_sizes/font_size = 11
-text = "Koşarken tüketilen enerjiyi azaltır."
-autowrap_mode = 3
-
-[node name="BtnBuy" type="Button" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardSprintEff/Margin/VBox" unique_id=701777971]
-custom_minimum_size = Vector2(0, 34)
-layout_mode = 2
-text = "15 Coin"
+text = "30 Coin"
 
 [node name="CardCoinMagnet" type="PanelContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid" unique_id=1948291188]
 custom_minimum_size = Vector2(285, 175)

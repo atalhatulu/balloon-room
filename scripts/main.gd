@@ -1231,6 +1231,14 @@ func load_saved_data() -> void:
 				shop_manager.upgrades[up_id]["level"] = lvl
 				if player and player.has_method("apply_upgrade"):
 					player.apply_upgrade(up_id, lvl)
+					
+		# Backwards compatibility migration for athlete_training
+		if not loaded_upgrades.has("athlete_training") and shop_manager.upgrades.has("athlete_training"):
+			var legacy_lvl = max(int(loaded_upgrades.get("energy_cap", 0)), int(loaded_upgrades.get("speed", 0)))
+			if legacy_lvl > 0:
+				shop_manager.upgrades["athlete_training"]["level"] = legacy_lvl
+				if player and player.has_method("apply_upgrade"):
+					player.apply_upgrade("athlete_training", legacy_lvl)
 				
 		for dev_id in loaded_devices.keys():
 			if dev_id == "gravity_mode":
@@ -1943,38 +1951,23 @@ func update_all_shop_cards() -> void:
 						else:
 							var next_t = targets_arr[lvl + 1]
 							desc_lbl.text = "Mevcut: " + str(curr_t) + " ➔ Yükseltme: " + str(next_t) + " (Aynı Renk Zincirleme)"
-					elif u_id == "reach":
-						var curr_reach = 4.5 + (lvl * 1.0)
+					elif u_id == "athlete_training":
+						var cur_stamina = 100 + (lvl * 25)
+						var cur_spd = lvl * 6
 						if lvl >= max_lvl:
-							desc_lbl.text = "Maksimum Menzil: " + str(curr_reach) + "m"
+							desc_lbl.text = "Maksimum Kondisyon: %d Enerji, +%%%d Hız!" % [cur_stamina, cur_spd]
 						else:
-							var next_reach = 4.5 + ((lvl + 1) * 1.0)
-							desc_lbl.text = "Mevcut: " + str(curr_reach) + "m ➔ Yükseltme: " + str(next_reach) + "m İğne Menzili"
-
-					elif u_id == "energy_cap":
-						var curr_e = int(100 + (lvl * 25))
+							var next_stamina = 100 + ((lvl + 1) * 25)
+							var next_spd = (lvl + 1) * 6
+							desc_lbl.text = "Mevcut: %d Enerji (+%%%d Hız)\nSonraki: %d Enerji (+%%%d Hız, Hızlı Dolum)" % [cur_stamina, cur_spd, next_stamina, next_spd]
+					elif u_id == "coin_magnet" and up_data.has("ranges"):
+						var ranges = up_data.get("ranges", ["3.5m", "5.5m", "8.0m", "12.0m", "17.0m", "24.0m", "32.0m", "45.0m"])
+						var curr_m = ranges[clamp(lvl, 0, ranges.size() - 1)]
 						if lvl >= max_lvl:
-							desc_lbl.text = "Maksimum Enerji: " + str(curr_e) + " Birim"
+							desc_lbl.text = "Maksimum Çekim: " + str(curr_m)
 						else:
-							var next_e = int(100 + ((lvl + 1) * 25))
-							desc_lbl.text = "Mevcut: " + str(curr_e) + " ➔ Yükseltme: " + str(next_e) + " Maksimum Enerji"
-					elif u_id == "energy_regen":
-						var curr_reg = int(38 + (lvl * 10))
-						if lvl >= max_lvl:
-							desc_lbl.text = "Maksimum Dolum Hızı: " + str(curr_reg) + "/sn"
-						else:
-							var next_reg = int(38 + ((lvl + 1) * 10))
-							desc_lbl.text = "Mevcut: " + str(curr_reg) + "/sn ➔ Yükseltme: " + str(next_reg) + "/sn Dolum Hızı"
-					elif u_id == "speed":
-						if lvl >= max_lvl:
-							desc_lbl.text = "Maksimum Hız: +%" + str(lvl * 10)
-						else:
-							desc_lbl.text = "Mevcut: +%" + str(lvl * 10) + " ➔ Yükseltme: +%" + str((lvl + 1) * 10) + " Yürüme/Koşma"
-					elif u_id == "sprint_efficiency":
-						if lvl >= max_lvl:
-							desc_lbl.text = "Maksimum Tasarruf: -%" + str(lvl * 15) + " Sarfiyat"
-						else:
-							desc_lbl.text = "Mevcut: -%" + str(lvl * 15) + "% ➔ Yükseltme: -%" + str((lvl + 1) * 15) + "% Enerji Tasarrufu"
+							var next_m = ranges[clamp(lvl + 1, 0, ranges.size() - 1)]
+							desc_lbl.text = "Mevcut: " + str(curr_m) + " ➔ Yükseltme: " + str(next_m) + " Manyetik Vakum"
 					else:
 						desc_lbl.text = up_data["desc"]
 					desc_lbl.modulate = Color(0.85, 0.88, 0.95)

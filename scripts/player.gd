@@ -75,22 +75,16 @@ func apply_upgrade(upgrade_id: String, level: int) -> void:
 			auto_pop_unlocked = (level > 0)
 			var cooldowns = [0.20, 0.12, 0.075, 0.045, 0.028, 0.018, 0.012, 0.008]
 			auto_pop_cooldown = cooldowns[clamp(level - 1, 0, cooldowns.size() - 1)]
-		"energy_cap":
+		"athlete_training":
 			var old_max = max_energy
 			max_energy = 100.0 + (level * 25.0)
 			current_energy += (max_energy - old_max)
+			energy_regen_rate = 24.0 + (level * 8.0)
+			energy_regen_delay = max(0.20, 0.55 - (level * 0.05))
+			pop_hold_energy_cost = max(1.5, 6.0 - (level * 0.60))
+			walk_speed = base_walk_speed + (level * 0.35)
+			sprint_speed = base_sprint_speed + (level * 0.55)
 			energy_changed.emit(current_energy, max_energy, is_exhausted)
-		"energy_regen":
-			energy_regen_rate = 24.0 + (level * 10.0)
-			energy_regen_delay = max(0.25, 0.60 - (level * 0.05))
-		"sprint_efficiency":
-			pop_hold_energy_cost = max(1.2, 6.0 - (level * 0.65))
-		"speed":
-			walk_speed = base_walk_speed + (level * 0.4)
-			sprint_speed = base_sprint_speed + (level * 0.65)
-		"reach":
-			if interaction_ray:
-				interaction_ray.target_position = Vector3(0, 0, -4.5 - (level * 0.8))
 		"splash_pop":
 			var radii = [0.0, 1.8, 2.4, 3.0, 3.8, 4.6, 5.5, 6.8]
 			var limits = [0, 2, 3, 5, 8, 12, 18, 25]

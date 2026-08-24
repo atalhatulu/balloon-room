@@ -237,18 +237,7 @@ var upgrades: Dictionary = {
 		"req_pops": [0, 20, 75, 200, 500, 1200, 3000, 7500, 18000, 40000, 90000, 200000]
 	},
 
-	# 2. İĞNE / OYUNCU ARAÇLARI
-	"reach": {
-		"category": "upgrades",
-		"unlock_pops": 10,
-		"level": 0,
-		"max_level": 8,
-		"title": "Reach / Uzun İğne",
-		"desc": "İğnenin vuruş ve tıklama menzilini uzatır.",
-		"costs": [12, 35, 90, 250, 700, 2000, 6000, 18000],
-		"req_pops": [10, 40, 150, 500, 1500, 4500, 15000, 45000]
-	},
-
+	# 2. İĞNE / OTOMASYON YETENEKLERİ
 	"auto_pop": {
 		"category": "upgrades",
 		"unlock_pops": 50,
@@ -265,53 +254,23 @@ var upgrades: Dictionary = {
 		"unlock_pops": 200,
 		"level": 0,
 		"max_level": 7,
-		"title": "Splash / Renk Eşleşmeli Alan Patlatma",
+		"title": "Splash / Alan Patlatma",
 		"desc": "İğneyle vurulan balonun çevresinde AYNI RENKTEKİ komşu balonları zincirleme patlatır.",
 		"targets": ["Kapalı", "2 Balon (1.8m)", "3 Balon (2.4m)", "5 Balon (3.0m)", "8 Balon (3.8m)", "12 Balon (4.6m)", "18 Balon (5.5m)", "25 Balon (6.8m)"],
 		"costs": [100, 300, 900, 2800, 8500, 26000, 75000],
 		"req_pops": [200, 800, 3000, 10000, 35000, 100000, 250000]
 	},
 
-	# 3. ENERJİ / KARAKTER
-	"energy_cap": {
+	# 3. KARAKTER KONDİSYONU & ÇEVİKLİK
+	"athlete_training": {
 		"category": "upgrades",
-		"unlock_pops": 0,
+		"unlock_pops": 25,
 		"level": 0,
 		"max_level": 8,
-		"title": "Energy Capacity",
-		"desc": "Maksimum enerji havuzunu +25 birim artırır.",
-		"costs": [10, 30, 80, 220, 600, 1600, 4500, 12000],
-		"req_pops": [0, 50, 200, 700, 2200, 6500, 20000, 60000]
-	},
-	"energy_regen": {
-		"category": "upgrades",
-		"unlock_pops": 0,
-		"level": 0,
-		"max_level": 8,
-		"title": "Energy Regen",
-		"desc": "Dinlenirken enerjinin saniyede dolum hızını artırır.",
-		"costs": [10, 30, 80, 220, 600, 1600, 4500, 12000],
-		"req_pops": [30, 120, 400, 1400, 4500, 14000, 40000, 120000]
-	},
-	"speed": {
-		"category": "upgrades",
-		"unlock_pops": 0,
-		"level": 0,
-		"max_level": 8,
-		"title": "Speed",
-		"desc": "Yürüme ve koşma hızını artırır.",
-		"costs": [20, 60, 160, 420, 1100, 3000, 8000, 22000],
-		"req_pops": [15, 80, 300, 1100, 3800, 12000, 36000, 100000]
-	},
-	"sprint_efficiency": {
-		"category": "upgrades",
-		"unlock_pops": 40,
-		"level": 0,
-		"max_level": 8,
-		"title": "Sprint Efficiency",
-		"desc": "Koşarken tüketilen enerjiyi azaltır.",
-		"costs": [15, 45, 120, 320, 850, 2300, 6000, 16000],
-		"req_pops": [40, 180, 600, 2000, 6500, 20000, 60000, 180000]
+		"title": "Kondisyon & Çeviklik",
+		"desc": "Maksimum dayanıklılığı, enerji dolum hızını ve yürüme/koşma çevikliğini artırır.",
+		"costs": [30, 90, 260, 750, 2200, 6500, 18000, 50000],
+		"req_pops": [25, 120, 500, 1800, 6000, 20000, 65000, 200000]
 	},
 
 	# 4. SİKKE MIKNATISI
@@ -323,6 +282,7 @@ var upgrades: Dictionary = {
 		"title": "Coin Mıknatısı (Vakum Menfezi)",
 		"desc": "Yerdeki altın, gümüş ve kristalleri oyuncunun etrafında otomatik olarak çeker.",
 		"costs": [80, 250, 750, 2200, 6500, 19000, 55000, 160000],
+		"req_pops": [100, 350, 1200, 4500, 15000, 45000, 120000, 300000]
 	}
 }
 
