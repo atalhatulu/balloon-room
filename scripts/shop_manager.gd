@@ -217,9 +217,9 @@ var upgrades: Dictionary = {
 		"unlock_pops": 50,
 		"level": 0,
 		"max_level": 8,
-		"title": "Auto-Pop",
-		"desc": "Sol tıka basılı tutulduğunda aralıksız seri iğne batırma özelliğini açar ve hızlandırır.",
-		"speeds": ["Kapalı", "3.0/sn", "5.0/sn", "8.0/sn", "12.0/sn", "18.0/sn", "26.0/sn", "38.0/sn", "55.0/sn"],
+		"title": "Auto-Pop & Makro İğne",
+		"desc": "Sol tıka basılı tutarak veya [Z] tuşuyla elinizi değmeden otomatik iğne makrosunu açar ve hızlandırır. Seviye arttıkça enerji tüketimi sıfıra iner!",
+		"speeds": ["Kapalı", "5.0/sn", "8.3/sn", "13.3/sn", "22.2/sn", "35.7/sn", "55.5/sn", "83.3/sn", "125.0/sn"],
 		"costs": [50, 180, 600, 2200, 8000, 25000, 80000, 220000],
 		"req_pops": [50, 300, 1500, 6000, 25000, 100000, 300000, 700000]
 	},

@@ -2,6 +2,7 @@ extends CharacterBody3D
 
 signal pop_triggered(is_hit: bool)
 signal energy_changed(current: float, max_energy: float, is_exhausted: bool)
+signal auto_fire_toggled(is_active: bool)
 
 @export var base_walk_speed: float = 5.2
 @export var base_sprint_speed: float = 8.4
@@ -14,17 +15,19 @@ var sprint_speed: float = 8.4
 var max_energy: float = 100.0
 var current_energy: float = 100.0
 
-# Auto-pop (Hold Left Click) is locked at start, purchased from shop
+# Auto-pop & Macro Auto-Fire
 var auto_pop_unlocked: bool = false
+var auto_pop_level: int = 0
+var auto_fire_toggle: bool = false
 var auto_pop_cooldown: float = 0.28
 var auto_pop_timer: float = 0.0
 
 # Energy Rules:
 # - Single Click: 0 Energy (Always available unless exhausted)
-# - Holding Left Click: Only active when Auto-Pop upgrade is bought; drains energy
+# - Auto-Pop: Drains small fixed energy PER SECOND (NOT per hit); drops to 0 at high levels!
 # - Running (Shift): 0 Energy
 # - When Energy hits 0 -> Exhausted: CANNOT POP AT ALL until energy >= 30%!
-var pop_hold_energy_cost: float = 6.0
+var pop_hold_energy_cost: float = 16.0
 var energy_regen_rate: float = 24.0
 var energy_regen_delay: float = 0.60
 var time_since_action: float = 0.0
@@ -73,15 +76,17 @@ func apply_upgrade(upgrade_id: String, level: int) -> void:
 	match upgrade_id:
 		"auto_pop":
 			auto_pop_unlocked = (level > 0)
+			auto_pop_level = level
 			var cooldowns = [0.20, 0.12, 0.075, 0.045, 0.028, 0.018, 0.012, 0.008]
 			auto_pop_cooldown = cooldowns[clamp(level - 1, 0, cooldowns.size() - 1)]
+			# Drain per second (NOT per hit!). At Level 8 -> 0 drain (Infinite free auto-fire)!
+			pop_hold_energy_cost = max(0.0, 16.0 - (level * 2.0))
 		"athlete_training":
 			var old_max = max_energy
 			max_energy = 100.0 + (level * 25.0)
 			current_energy += (max_energy - old_max)
 			energy_regen_rate = 24.0 + (level * 8.0)
-			energy_regen_delay = max(0.20, 0.55 - (level * 0.05))
-			pop_hold_energy_cost = max(1.5, 6.0 - (level * 0.60))
+			energy_regen_delay = max(0.15, 0.50 - (level * 0.05))
 			walk_speed = base_walk_speed + (level * 0.35)
 			sprint_speed = base_sprint_speed + (level * 0.55)
 			energy_changed.emit(current_energy, max_energy, is_exhausted)
@@ -99,6 +104,13 @@ func apply_upgrade(upgrade_id: String, level: int) -> void:
 func _input(event: InputEvent) -> void:
 	if is_ui_open:
 		return
+		
+	# Toggle Auto-Fire Macro Mode with [Z] or [T] key
+	if event is InputEventKey and event.pressed and not event.is_echo():
+		if event.keycode == KEY_Z or event.keycode == KEY_T:
+			if auto_pop_unlocked:
+				auto_fire_toggle = not auto_fire_toggle
+				auto_fire_toggled.emit(auto_fire_toggle)
 			
 	if event is InputEventMouseButton and event.pressed:
 		var main_node = get_node_or_null("/root/Main")
@@ -167,21 +179,29 @@ func _physics_process(delta: float) -> void:
 			var move_factor = clamp(velocity.length() / base_walk_speed, 1.0, 2.5)
 			collider.apply_central_impulse(push_dir * (2.2 * move_factor))
 
-	# Left Click Handling (Hold mode only works if Auto-Pop is bought)
+	# Left Click & Auto-Fire / Macro Handling
 	var is_pressing_left = Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT) and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED
 	if is_pressing_left:
 		left_hold_time += delta
-		if auto_pop_unlocked and left_hold_time > 0.15 and not is_exhausted:
-			auto_pop_timer += delta
-			if auto_pop_timer >= auto_pop_cooldown:
-				auto_pop_timer = 0.0
-				execute_pop_hit(true)
 	else:
 		left_hold_time = 0.0
+		
+	var is_auto_firing = auto_pop_unlocked and (auto_fire_toggle or (is_pressing_left and left_hold_time > 0.12)) and not is_exhausted
+
+	if is_auto_firing:
+		auto_pop_timer += delta
+		# Saniyede sabit enerji tüketimi (vuruş başına değil!)
+		if pop_hold_energy_cost > 0.0:
+			consume_energy(pop_hold_energy_cost * delta)
+			
+		if auto_pop_timer >= auto_pop_cooldown:
+			auto_pop_timer = 0.0
+			execute_pop_hit(false)
+	else:
 		auto_pop_timer = 0.0
 
 	# Energy Regeneration & %30 Exhaustion Unlock
-	var is_actively_spending = (auto_pop_unlocked and is_pressing_left and left_hold_time > 0.20)
+	var is_actively_spending = is_auto_firing and (pop_hold_energy_cost > 0.0)
 	if not is_actively_spending or is_exhausted:
 		time_since_action += delta
 		if time_since_action >= energy_regen_delay:

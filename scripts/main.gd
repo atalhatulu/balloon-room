@@ -89,6 +89,7 @@ var nearby_device: Node3D = null
 @onready var grand_goal_label: Label = get_node_or_null("UI/HUD/TopLeft/Margin/VBox/GrandGoalLabel")
 @onready var playtime_label: Label = get_node_or_null("UI/HUD/TopLeft/Margin/VBox/PlaytimeLabel")
 @onready var desk_prompt: Label = $UI/HUD/DeskPrompt
+@onready var auto_fire_badge: Label = get_node_or_null("UI/HUD/AutoFireBadge")
 @onready var fps_label: Label = get_node_or_null("UI/HUD/FPSPanel/Margin/FPSLabel")
 var fps_update_timer: float = 0.0
 
@@ -229,6 +230,8 @@ func _ready() -> void:
 			player.nudge_triggered.connect(_on_player_nudge_triggered)
 		if player.has_signal("energy_changed"):
 			player.energy_changed.connect(_on_player_energy_changed)
+		if player.has_signal("auto_fire_toggled"):
+			player.auto_fire_toggled.connect(_on_player_auto_fire_toggled)
 		
 	if shop_manager:
 		shop_manager.coins_changed.connect(_on_coins_changed)
@@ -2147,6 +2150,16 @@ func _on_player_energy_changed(current: float, max_energy: float, is_exhausted: 
 				style.bg_color = Color("#ffa502")
 			else:
 				style.bg_color = Color("#2ed573")
+
+func _on_player_auto_fire_toggled(is_active: bool) -> void:
+	if auto_fire_badge:
+		auto_fire_badge.visible = is_active
+	if desk_prompt:
+		desk_prompt.text = "Otomatik İğne Makrosu: " + ("AÇIK [Z]" if is_active else "KAPALI [Z]")
+		desk_prompt.visible = true
+		var t = create_tween()
+		t.tween_interval(2.0)
+		t.tween_callback(func(): if desk_prompt and not is_near_desk and not is_near_grav_terminal: desk_prompt.visible = false)
 
 func format_number(val: int) -> String:
 	var s = str(val)
