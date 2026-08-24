@@ -3,12 +3,12 @@ extends Node3D
 @export var is_active: bool = false
 @export var level: int = 0
 
-var crush_speeds: Array[float] = [4.0, 6.0, 8.5, 12.0, 16.0, 22.0]
-var vacuum_ranges: Array[float] = [2.2, 2.8, 3.5, 4.2, 5.0, 6.0]
-var vacuum_forces: Array[float] = [2.5, 3.8, 5.2, 7.0, 9.0, 11.5]
-var coin_bonuses: Array[int] = [1, 1, 2, 2, 3, 4]
-var cooldown_times: Array[float] = [1.4, 1.1, 0.85, 0.65, 0.48, 0.35]
-var max_batch_limits: Array[int] = [12, 20, 32, 50, 75, 110]
+var crush_speeds: Array[float] = [6.0, 9.0, 13.0, 18.0, 25.0, 35.0]
+var vacuum_ranges: Array[float] = [4.5, 6.5, 9.0, 12.0, 16.0, 21.0]
+var vacuum_forces: Array[float] = [6.0, 9.5, 14.0, 20.0, 28.0, 38.0]
+var coin_bonuses: Array[int] = [1, 2, 3, 5, 8, 12]
+var cooldown_times: Array[float] = [1.0, 0.80, 0.60, 0.45, 0.32, 0.22]
+var max_batch_limits: Array[int] = [25, 50, 90, 150, 240, 380]
 
 var roller_rotation_speed: float = 8.0
 var process_timer: float = 0.0

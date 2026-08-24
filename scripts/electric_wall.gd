@@ -3,11 +3,11 @@ extends Node3D
 @export var is_active: bool = false
 @export var level: int = 1
 
-# EMP Zap radius (horizontal sphere/cylinder reach) and vertical ceiling reach
-var zap_radii: Array[float] = [0.0, 2.5, 3.2, 4.0, 4.8, 5.8, 7.0]
-var zap_heights: Array[float] = [0.0, 2.5, 3.2, 4.0, 4.8, 5.6, 6.5]
-var cooldown_intervals: Array[float] = [0.0, 2.5, 2.0, 1.6, 1.25, 0.95, 0.70]
-var max_burst_caps: Array[int] = [0, 16, 28, 45, 70, 105, 150]
+# EMP Zap radius (horizontal reach) and vertical room-high ceiling reach
+var zap_radii: Array[float] = [0.0, 5.0, 7.0, 9.5, 12.5, 16.0, 21.0]
+var zap_heights: Array[float] = [0.0, 8.0, 11.0, 14.0, 18.0, 22.0, 28.0]
+var cooldown_intervals: Array[float] = [0.0, 2.2, 1.7, 1.3, 0.95, 0.70, 0.50]
+var max_burst_caps: Array[int] = [0, 35, 65, 110, 180, 280, 450]
 
 var cooldown_timer: float = 0.0
 
@@ -41,14 +41,22 @@ func update_visuals() -> void:
 	visible = true
 	var idx = clamp(level, 1, zap_radii.size() - 1)
 	var r = zap_radii[idx]
+	var scale_factor = (r * 2.0) / 7.0
 	
-	if neon_grid and neon_grid.material_override is StandardMaterial3D:
-		var mat = neon_grid.material_override as StandardMaterial3D
-		mat.emission_energy_multiplier = 2.0 + (level * 0.8)
+	if frame_mesh:
+		frame_mesh.scale = Vector3(scale_factor, 1.0, scale_factor)
+	if neon_grid:
+		neon_grid.scale = Vector3(scale_factor, 1.0, scale_factor)
+		if neon_grid.material_override is StandardMaterial3D:
+			var mat = neon_grid.material_override as StandardMaterial3D
+			mat.emission_energy_multiplier = 2.5 + (level * 1.0)
 		
 	if arc_light:
-		arc_light.omni_range = max(5.0, r * 0.9)
-		arc_light.light_energy = 0.4
+		arc_light.omni_range = max(8.0, r * 1.2)
+		arc_light.light_energy = 0.5
+		
+	if spark_particles:
+		spark_particles.emission_box_extents = Vector3(r * 0.75, 0.2, r * 0.75)
 
 func _physics_process(delta: float) -> void:
 	if not is_active or level <= 0:

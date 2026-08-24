@@ -1188,13 +1188,13 @@ layout_mode = 2
 size_flags_vertical = 3
 theme_override_colors/font_color = Color(0.85, 0.88, 0.95, 1)
 theme_override_font_sizes/font_size = 11
-text = "38x38m alan, 8.5m tavan. 1.5x Coin Çarpanı, 2.500 Balon Kapasitesi."
+text = "38x38m alan, 8.5m tavan. 1.3x Coin Çarpanı, 2.500 Balon Kapasitesi."
 autowrap_mode = 3
 
 [node name="BtnBuy" type="Button" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardMediumRoom/Margin/VBox" unique_id=1208465022]
 custom_minimum_size = Vector2(0, 34)
 layout_mode = 2
-text = "12000 Coin"
+text = "15000 Coin"
 
 [node name="CardHangar" type="PanelContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid" unique_id=596651448]
 custom_minimum_size = Vector2(285, 175)
@@ -1226,13 +1226,13 @@ layout_mode = 2
 size_flags_vertical = 3
 theme_override_colors/font_color = Color(0.85, 0.88, 0.95, 1)
 theme_override_font_sizes/font_size = 11
-text = "65x65m dev alan, 13m tavan. 2.5x Coin Çarpanı, 9.000 Balon Kapasitesi."
+text = "65x65m dev alan, 13m tavan. 1.8x Coin Çarpanı, 8.000 Balon Kapasitesi."
 autowrap_mode = 3
 
 [node name="BtnBuy" type="Button" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardHangar/Margin/VBox" unique_id=73321189]
 custom_minimum_size = Vector2(0, 34)
 layout_mode = 2
-text = "150000 Coin"
+text = "180000 Coin"
 
 [node name="CardHyperLab" type="PanelContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid" unique_id=892301984]
 custom_minimum_size = Vector2(285, 175)
@@ -1264,13 +1264,13 @@ layout_mode = 2
 size_flags_vertical = 3
 theme_override_colors/font_color = Color(0.85, 0.88, 0.95, 1)
 theme_override_font_sizes/font_size = 11
-text = "95x95m siber tesis, 18m tavan. 4.5x Hiper Çarpan, 35.000 Balon Kapasitesi."
+text = "95x95m siber tesis, 18m tavan. 2.6x Hiper Çarpan, 25.000 Balon Kapasitesi."
 autowrap_mode = 3
 
 [node name="BtnBuy" type="Button" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardHyperLab/Margin/VBox" unique_id=892301989]
 custom_minimum_size = Vector2(0, 34)
 layout_mode = 2
-text = "550000 Coin"
+text = "650000 Coin"
 
 [node name="CardPipeCount" type="PanelContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid" unique_id=1948291099]
 custom_minimum_size = Vector2(285, 175)
