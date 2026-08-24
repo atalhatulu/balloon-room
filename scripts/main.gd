@@ -246,6 +246,15 @@ func _ready() -> void:
 	if ui_node:
 		ui_node.process_mode = Node.PROCESS_MODE_ALWAYS
 
+	# Strictly enforce PAUSABLE mode on all gameplay trees and managers so pause freezes them
+	if game_manager: game_manager.process_mode = Node.PROCESS_MODE_PAUSABLE
+	if player: player.process_mode = Node.PROCESS_MODE_PAUSABLE
+	if balloon_container: balloon_container.process_mode = Node.PROCESS_MODE_PAUSABLE
+	if coin_container: coin_container.process_mode = Node.PROCESS_MODE_PAUSABLE
+	if sound_manager: sound_manager.process_mode = Node.PROCESS_MODE_PAUSABLE
+	var env_node = get_node_or_null("Environment")
+	if env_node: env_node.process_mode = Node.PROCESS_MODE_PAUSABLE
+
 	update_ceiling_vents()
 	setup_shop_ui_events()
 	setup_startup_modal()
@@ -1458,6 +1467,8 @@ func _notification(what: int) -> void:
 		save_current_data()
 
 func _on_spawn_requested(count: int) -> void:
+	if get_tree().paused:
+		return
 	drop_balloons_from_vent(count)
 
 func _input(event: InputEvent) -> void:
@@ -2199,7 +2210,7 @@ func update_pop_counter(pops: int) -> void:
 		show_victory_screen()
 
 func drop_balloons_from_vent(count: int) -> void:
-	if not balloon_scene or not balloon_container:
+	if not balloon_scene or not balloon_container or get_tree().paused:
 		return
 		
 	if active_vent_positions.is_empty():

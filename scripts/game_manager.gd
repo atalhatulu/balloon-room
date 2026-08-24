@@ -27,6 +27,7 @@ var spawn_accumulator: float = 0.0
 @onready var shop_manager = get_node_or_null("../ShopManager")
 
 func _ready() -> void:
+	process_mode = Node.PROCESS_MODE_PAUSABLE
 	if shop_manager:
 		if shop_manager.has_signal("upgrade_purchased"):
 			shop_manager.upgrade_purchased.connect(_on_upgrade_purchased)
@@ -122,7 +123,7 @@ func get_total_effective_balloons() -> int:
 	return total
 
 func _process(delta: float) -> void:
-	if not is_game_started:
+	if not is_game_started or get_tree().paused:
 		return
 		
 	session_elapsed_time += delta
