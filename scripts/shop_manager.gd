@@ -85,15 +85,15 @@ var devices: Dictionary = {
 		"id": "gravity_regulator",
 		"name": "Yerçekimi & Gaz Regülatörü (Gravity Regulator)",
 		"category": "devices",
-		"unlock_pops": 500,
+		"unlock_pops": 1000,
 		"level": 0,
 		"max_level": 4,
 		"count": 1,
 		"max_count": 1,
 		"desc": "Odadaki balonların düşme hızını ve yerçekimini kontrol eder. Duvardaki [E] butonundan veya [G] tuşundan kontrol edilir.",
-		"modes": ["0.25 G (Standart)", "0.80 G (Ağır Döküm)", "1.80 G (Hızlı Şelale)", "3.50 G (Ağır Çöküş)", "6.00 G (Hiper Yerçekimi)"],
-		"costs": [400, 1800, 8500, 35000],
-		"req_pops": [500, 4000, 25000, 150000]
+		"modes": ["0.25 G (Standart)", "0.75 G (Yoğun Akış)", "1.60 G (Hızlı Şelale)", "3.20 G (Ağır Çöküş)", "6.00 G (Hiper Yerçekimi)"],
+		"costs": [1200, 15000, 90000, 280000],
+		"req_pops": [2500, 30000, 180000, 550000]
 	},
 	"conveyor_crusher": {
 		"id": "conveyor_crusher",

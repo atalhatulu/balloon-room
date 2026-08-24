@@ -1041,7 +1041,7 @@ autowrap_mode = 3
 [node name="BtnBuy" type="Button" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardGravityRegulator/Margin/VBox" unique_id=1163878749]
 custom_minimum_size = Vector2(0, 34)
 layout_mode = 2
-text = "400 Coin"
+text = "1200 Coin"
 
 [node name="CardConveyorCrusher" type="PanelContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid" unique_id=1849201955]
 custom_minimum_size = Vector2(285, 175)

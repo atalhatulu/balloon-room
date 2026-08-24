@@ -1025,11 +1025,16 @@ func update_raycast_interaction() -> void:
 				var d_data = shop_manager.devices.get("gravity_regulator", {}) if shop_manager else {}
 				var cur_lvl = d_data.get("level", 0)
 				var max_lvl = d_data.get("max_level", 4)
-				var costs = d_data.get("costs", [400, 1800, 8500, 35000])
+				var costs = d_data.get("costs", [1200, 15000, 90000, 280000])
+				var req_pops = d_data.get("req_pops", [2500, 30000, 180000, 550000])
 				if cur_lvl < max_lvl:
 					var next_cost = costs[cur_lvl]
+					var next_pops = req_pops[cur_lvl] if cur_lvl < req_pops.size() else 0
 					var next_mode = gravity_mode_names[cur_lvl + 1]
-					desk_prompt.text = "[E] Yerçekimi: [" + g_mode + "]   |   [F] Seviye Yükselt [" + next_mode + "] : " + str(next_cost) + " Coin"
+					if game_manager and game_manager.total_pops < next_pops:
+						desk_prompt.text = "[E] Yerçekimi: [%s]   |   [F] [%s]: %s Coin (%s/%s Pop)" % [g_mode, next_mode, str(next_cost), format_number(game_manager.total_pops), format_number(next_pops)]
+					else:
+						desk_prompt.text = "[E] Yerçekimi: [%s]   |   [F] Seviye Yükselt [%s] : %s Coin" % [g_mode, next_mode, str(next_cost)]
 				else:
 					desk_prompt.text = "[E] Yerçekimi: [" + g_mode + "]   |   [MAX SEVİYE (6.00 G)]"
 			elif raycast_target_type == "device" and best_target_dev:
@@ -1546,8 +1551,18 @@ func upgrade_gravity_terminal() -> void:
 			desk_prompt.text = "Yerçekimi Regülatörü maksimum kademede! (6.00 G)"
 			desk_prompt.visible = true
 		return
-	var costs = d_data.get("costs", [400, 1800, 8500, 35000])
+	var costs = d_data.get("costs", [1200, 15000, 90000, 280000])
+	var req_pops = d_data.get("req_pops", [2500, 30000, 180000, 550000])
 	var cost = costs[cur_lvl]
+	var needed_pops = req_pops[cur_lvl] if cur_lvl < req_pops.size() else 0
+	
+	if game_manager.total_pops < needed_pops:
+		if desk_prompt:
+			var next_mode = gravity_mode_names[cur_lvl + 1] if cur_lvl + 1 < gravity_mode_names.size() else ""
+			desk_prompt.text = "Kilitli! [%s] modu için %s Pop gerekli! (Mevcut: %s/%s)" % [next_mode, format_number(needed_pops), format_number(game_manager.total_pops), format_number(needed_pops)]
+			desk_prompt.visible = true
+		return
+		
 	if shop_manager.coins < cost:
 		if desk_prompt:
 			desk_prompt.text = "Yetersiz Coin! Yeni Yerçekimi Modu için " + str(cost) + " Coin gerekli."
