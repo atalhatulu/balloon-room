@@ -552,19 +552,16 @@ func apply_room_layout(room_id: String) -> void:
 				main_room_light.light_energy = 1.8
 			"medium_room":
 				main_room_light.light_color = Color(0.95, 0.95, 1.0)
-				main_room_light.light_energy = 2.2
-			"large_room":
-				main_room_light.light_color = Color(0.85, 0.95, 1.0)
-				main_room_light.light_energy = 2.6
-			"warehouse":
-				main_room_light.light_color = Color(1.0, 0.88, 0.70)
-				main_room_light.light_energy = 3.0
+				main_room_light.light_energy = 2.4
 			"hangar":
 				main_room_light.light_color = Color(0.90, 0.98, 1.0)
-				main_room_light.light_energy = 3.5
+				main_room_light.light_energy = 3.2
 			"hyper_lab":
 				main_room_light.light_color = Color(0.70, 0.90, 1.0)
 				main_room_light.light_energy = 4.2
+			_:
+				main_room_light.light_color = Color(1.0, 1.0, 1.0)
+				main_room_light.light_energy = 2.0
 				
 	# 6. Configure Progressive Ceiling Vents (Pipes Unlocked: 1 to 9)
 	update_ceiling_vents()
@@ -1211,13 +1208,28 @@ func load_saved_data() -> void:
 	var loaded_player = data.get("player", {})
 	var loaded_balloons = data.get("balloons", [])
 	var loaded_room = data.get("current_room", "small_room")
+	if loaded_room == "large_room": loaded_room = "medium_room"
+	elif loaded_room == "warehouse": loaded_room = "hangar"
+	if not (shop_manager and shop_manager.rooms.has(loaded_room)):
+		loaded_room = "small_room"
+		
 	var loaded_unlocked_rooms = data.get("unlocked_rooms", ["small_room"])
+	var clean_unlocked_rooms: Array = []
+	for r in loaded_unlocked_rooms:
+		var target_r = r
+		if target_r == "large_room": target_r = "medium_room"
+		elif target_r == "warehouse": target_r = "hangar"
+		if shop_manager and shop_manager.rooms.has(target_r) and not clean_unlocked_rooms.has(target_r):
+			clean_unlocked_rooms.append(target_r)
+	if not clean_unlocked_rooms.has("small_room"):
+		clean_unlocked_rooms.append("small_room")
+		
 	var loaded_prestige = int(data.get("prestige_level", 0))
 	var loaded_helium = int(data.get("helium_atoms", 0))
 	
 	# 1. Restore Rooms & Devices
 	if shop_manager:
-		shop_manager.unlocked_rooms = loaded_unlocked_rooms
+		shop_manager.unlocked_rooms = clean_unlocked_rooms
 		shop_manager.current_room = loaded_room
 		shop_manager.coins = loaded_coins
 		shop_manager.prestige_level = loaded_prestige
