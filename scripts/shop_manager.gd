@@ -19,19 +19,19 @@ var helium_atoms: int = 0
 var devices: Dictionary = {
 	"fan": {
 		"id": "fan",
-		"name": "Duvar / Oda Vantilatörü (Air Turbine)",
+		"name": "Endüstriyel Hava Türbini (Industrial Turbine)",
 		"category": "devices",
-		"unlock_pops": 300,
+		"unlock_pops": 18000,
 		"level": 0,
 		"max_level": 6,
 		"count": 0,
 		"max_count": 6,
-		"desc": "Duvara monte edilen güçlü hava türbini. Balonları karşı duvarlara, tuzaklara veya öğütücülere doğru üfler.",
-		"widths": ["7.5m Menzil (3.2 Güç)", "9.5m Menzil (4.4 Güç)", "12.0m Menzil (5.8 Güç)", "15.0m Menzil (7.4 Güç)", "18.5m Menzil (9.2 Güç)", "22.0m Menzil (11.0 Güç)"],
-		"unit_costs": [250, 900, 3500, 12000, 35000, 90000],
-		"unit_req_pops": [300, 2000, 15000, 60000, 180000, 450000],
-		"costs": [500, 1500, 5000, 18000, 60000, 180000],
-		"req_pops": [500, 3000, 15000, 70000, 220000, 500000]
+		"desc": "Duvara monte dev hava türbini. Geniş tesislerde balonları karşıdaki tuzaklara ve pylonlara doğru savurur.",
+		"widths": ["12.0m Menzil (5.5 Güç)", "16.0m Menzil (7.5 Güç)", "22.0m Menzil (10.0 Güç)", "28.0m Menzil (13.5 Güç)", "36.0m Menzil (18.0 Güç)", "45.0m Menzil (24.0 Güç)"],
+		"unit_costs": [1500, 5000, 18000, 60000, 150000, 350000],
+		"unit_req_pops": [18000, 45000, 120000, 280000, 550000, 750000],
+		"costs": [2500, 7500, 25000, 85000, 200000, 450000],
+		"req_pops": [22000, 55000, 150000, 350000, 600000, 800000]
 	},
 	"spike_wall": {
 		"id": "spike_wall",

@@ -875,7 +875,7 @@ theme_override_constants/separation = 6
 layout_mode = 2
 theme_override_colors/font_color = Color(0.3, 0.9, 1, 1)
 theme_override_font_sizes/font_size = 14
-text = "Duvar Vantilatörü"
+text = "Endüstriyel Hava Türbini"
 autowrap_mode = 3
 
 [node name="Desc" type="Label" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardFan/Margin/VBox" unique_id=148192015]
@@ -883,13 +883,13 @@ layout_mode = 2
 size_flags_vertical = 3
 theme_override_colors/font_color = Color(0.85, 0.88, 0.95, 1)
 theme_override_font_sizes/font_size = 11
-text = "Duvara monte edilen güçlü rüzgar türbini. Balonları karşı duvarlara ve tuzaklara doğru üfler."
+text = "Duvara monte dev hava türbini. Geniş tesislerde balonları karşıdaki tuzaklara doğru savurur."
 autowrap_mode = 3
 
 [node name="BtnBuy" type="Button" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardFan/Margin/VBox" unique_id=148192016]
 custom_minimum_size = Vector2(0, 34)
 layout_mode = 2
-text = "250 Coin"
+text = "1500 Coin"
 
 [node name="CardSpikeWall" type="PanelContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid" unique_id=1276190261]
 custom_minimum_size = Vector2(285, 175)

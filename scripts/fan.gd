@@ -4,12 +4,12 @@ extends Node3D
 
 @export var is_active: bool = true
 @export var level: int = 1
-@export var wind_strength: float = 3.2
-@export var wind_range: float = 7.5
-@export var fan_spin_speed: float = 18.0
+@export var wind_strength: float = 5.5
+@export var wind_range: float = 12.0
+@export var fan_spin_speed: float = 20.0
 
-static var ranges: Array[float] = [0.0, 7.5, 9.5, 12.0, 15.0, 18.5, 22.0]
-static var strengths: Array[float] = [0.0, 3.2, 4.4, 5.8, 7.4, 9.2, 11.0]
+static var ranges: Array[float] = [0.0, 12.0, 16.0, 22.0, 28.0, 36.0, 45.0]
+static var strengths: Array[float] = [0.0, 5.5, 7.5, 10.0, 13.5, 18.0, 24.0]
 static var global_fan_multiplier: float = 1.0
 
 @onready var blades_node: Node3D = $Blades
