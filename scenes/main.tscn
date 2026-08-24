@@ -853,44 +853,6 @@ theme_override_constants/h_separation = 16
 theme_override_constants/v_separation = 16
 columns = 3
 
-[node name="CardFan" type="PanelContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid" unique_id=148192011]
-custom_minimum_size = Vector2(285, 175)
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_styles/panel = SubResource("StyleBoxFlat_card")
-metadata/device_id = "fan"
-
-[node name="Margin" type="MarginContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardFan" unique_id=148192012]
-layout_mode = 2
-theme_override_constants/margin_left = 14
-theme_override_constants/margin_top = 12
-theme_override_constants/margin_right = 14
-theme_override_constants/margin_bottom = 12
-
-[node name="VBox" type="VBoxContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardFan/Margin" unique_id=148192013]
-layout_mode = 2
-theme_override_constants/separation = 6
-
-[node name="Title" type="Label" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardFan/Margin/VBox" unique_id=148192014]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.3, 0.9, 1, 1)
-theme_override_font_sizes/font_size = 14
-text = "Endüstriyel Hava Türbini"
-autowrap_mode = 3
-
-[node name="Desc" type="Label" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardFan/Margin/VBox" unique_id=148192015]
-layout_mode = 2
-size_flags_vertical = 3
-theme_override_colors/font_color = Color(0.85, 0.88, 0.95, 1)
-theme_override_font_sizes/font_size = 11
-text = "Duvara monte dev hava türbini. Geniş tesislerde balonları karşıdaki tuzaklara doğru savurur."
-autowrap_mode = 3
-
-[node name="BtnBuy" type="Button" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardFan/Margin/VBox" unique_id=148192016]
-custom_minimum_size = Vector2(0, 34)
-layout_mode = 2
-text = "1500 Coin"
-
 [node name="CardSpikeWall" type="PanelContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid" unique_id=1276190261]
 custom_minimum_size = Vector2(285, 175)
 layout_mode = 2
@@ -1042,82 +1004,6 @@ autowrap_mode = 3
 custom_minimum_size = Vector2(0, 34)
 layout_mode = 2
 text = "1200 Coin"
-
-[node name="CardConveyorCrusher" type="PanelContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid" unique_id=1849201955]
-custom_minimum_size = Vector2(285, 175)
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_styles/panel = SubResource("StyleBoxFlat_card")
-metadata/device_id = "conveyor_crusher"
-
-[node name="Margin" type="MarginContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardConveyorCrusher" unique_id=1849201956]
-layout_mode = 2
-theme_override_constants/margin_left = 14
-theme_override_constants/margin_top = 12
-theme_override_constants/margin_right = 14
-theme_override_constants/margin_bottom = 12
-
-[node name="VBox" type="VBoxContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardConveyorCrusher/Margin" unique_id=1849201957]
-layout_mode = 2
-theme_override_constants/separation = 6
-
-[node name="Title" type="Label" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardConveyorCrusher/Margin/VBox" unique_id=1849201958]
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.55, 0.15, 1)
-theme_override_font_sizes/font_size = 14
-text = "Makaralı Balon Öğütücü"
-autowrap_mode = 3
-
-[node name="Desc" type="Label" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardConveyorCrusher/Margin/VBox" unique_id=1849201959]
-layout_mode = 2
-size_flags_vertical = 3
-theme_override_colors/font_color = Color(0.85, 0.88, 0.95, 1)
-theme_override_font_sizes/font_size = 11
-text = "Çift silindirli döner çelik öğütücü. Önündeki balonları içine çeker ve kıyma yapar."
-autowrap_mode = 3
-
-[node name="BtnBuy" type="Button" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardConveyorCrusher/Margin/VBox" unique_id=1849201960]
-custom_minimum_size = Vector2(0, 34)
-layout_mode = 2
-text = "1500 Coin"
-
-[node name="CardSentryDrone" type="PanelContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid" unique_id=1948291065]
-custom_minimum_size = Vector2(285, 175)
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_styles/panel = SubResource("StyleBoxFlat_card")
-metadata/device_id = "sentry_drone"
-
-[node name="Margin" type="MarginContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardSentryDrone" unique_id=1948291066]
-layout_mode = 2
-theme_override_constants/margin_left = 14
-theme_override_constants/margin_top = 12
-theme_override_constants/margin_right = 14
-theme_override_constants/margin_bottom = 12
-
-[node name="VBox" type="VBoxContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardSentryDrone/Margin" unique_id=1948291067]
-layout_mode = 2
-theme_override_constants/separation = 6
-
-[node name="Title" type="Label" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardSentryDrone/Margin/VBox" unique_id=1948291068]
-layout_mode = 2
-theme_override_colors/font_color = Color(0, 0.9, 1, 1)
-theme_override_font_sizes/font_size = 14
-text = "Uçan Lazer Dronu"
-autowrap_mode = 3
-
-[node name="Desc" type="Label" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardSentryDrone/Margin/VBox" unique_id=1948291069]
-layout_mode = 2
-size_flags_vertical = 3
-theme_override_colors/font_color = Color(0.85, 0.88, 0.95, 1)
-theme_override_font_sizes/font_size = 11
-text = "Oyuncunun yanında süzülen güvenlik dronu. Havadaki balonları lazerle otomatik vurur."
-autowrap_mode = 3
-
-[node name="BtnBuy" type="Button" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardSentryDrone/Margin/VBox" unique_id=1948291070]
-custom_minimum_size = Vector2(0, 34)
-layout_mode = 2
-text = "2500 Coin"
 
 [node name="CardSmallRoom" type="PanelContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid" unique_id=543042405]
 custom_minimum_size = Vector2(285, 175)

@@ -15,55 +15,23 @@ var unlocked_rooms: Array = ["small_room"]
 var prestige_level: int = 0
 var helium_atoms: int = 0
 
-# Devices & Automation Equipment Catalog
+# Devices & Automation Equipment Catalog (3 Distinct Placeable Archetypes + 1 Wall Terminal)
 var devices: Dictionary = {
-	"fan": {
-		"id": "fan",
-		"name": "Endüstriyel Hava Türbini (Industrial Turbine)",
-		"category": "devices",
-		"unlock_pops": 18000,
-		"level": 0,
-		"max_level": 6,
-		"count": 0,
-		"max_count": 6,
-		"desc": "Duvara monte dev hava türbini. Geniş tesislerde balonları karşıdaki tuzaklara ve pylonlara doğru savurur.",
-		"widths": ["12.0m Menzil (5.5 Güç)", "16.0m Menzil (7.5 Güç)", "22.0m Menzil (10.0 Güç)", "28.0m Menzil (13.5 Güç)", "36.0m Menzil (18.0 Güç)", "45.0m Menzil (24.0 Güç)"],
-		"unit_costs": [1500, 5000, 18000, 60000, 150000, 350000],
-		"unit_req_pops": [18000, 45000, 120000, 280000, 550000, 750000],
-		"costs": [2500, 7500, 25000, 85000, 200000, 450000],
-		"req_pops": [22000, 55000, 150000, 350000, 600000, 800000]
-	},
 	"spike_wall": {
 		"id": "spike_wall",
-		"name": "Dikenli Zemin Tuzağı (Floor Spikes)",
+		"name": "Endüstriyel Zemin Kırıcısı (Floor Shredder)",
 		"category": "devices",
 		"unlock_pops": 300,
 		"level": 0,
 		"max_level": 6,
 		"count": 0,
 		"max_count": 6,
-		"desc": "Zemine serilen sivri çelik iğneler. Seviye atladıkça fiziksel alanı büyür ve daha seri darbeler vurur.",
+		"desc": "Zemine serilen sivri çelik kırıcı tuzak. Seviye atladıkça alanı devasa boyutlara ulaşır ve balonları seri öğütür.",
 		"widths": ["2.4m Alan | 0.90s (5 Balon)", "3.0m Alan | 0.70s (10 Balon)", "3.8m Alan | 0.55s (18 Balon)", "4.6m Alan | 0.42s (30 Balon)", "5.6m Alan | 0.32s (50 Balon)", "6.8m Alan | 0.22s (85 Balon)"],
 		"unit_costs": [400, 1500, 6000, 22000, 70000, 180000],
 		"unit_req_pops": [300, 1500, 7000, 30000, 100000, 300000],
 		"costs": [800, 2500, 9000, 32000, 110000, 300000],
 		"req_pops": [450, 2000, 8500, 35000, 120000, 350000]
-	},
-	"electric_wall": {
-		"id": "electric_wall",
-		"name": "Elektrikli Zemin Izgarası (Electric Floor Grid)",
-		"category": "devices",
-		"unlock_pops": 20000,
-		"level": 0,
-		"max_level": 6,
-		"count": 0,
-		"max_count": 6,
-		"desc": "Yüksek voltajlı kondansatör ızgarası. Şarj olduğunda tavana kadar devasa dikey EMP şimşek sütunu patlatır.",
-		"widths": ["5.0m Alan (35 Balon)", "7.0m Alan (65 Balon)", "9.5m Alan (110 Balon)", "12.5m Alan (180 Balon)", "16.0m Alan (280 Balon)", "21.0m Alan (450 Balon)"],
-		"unit_costs": [1200, 4500, 18000, 60000, 150000, 350000],
-		"unit_req_pops": [20000, 45000, 120000, 280000, 550000, 750000],
-		"costs": [2000, 6500, 22000, 80000, 200000, 450000],
-		"req_pops": [25000, 60000, 160000, 400000, 650000, 850000]
 	},
 	"magnet_pylon": {
 		"id": "magnet_pylon",
@@ -74,12 +42,28 @@ var devices: Dictionary = {
 		"max_level": 6,
 		"count": 0,
 		"max_count": 6,
-		"desc": "Dikey elektromanyetik kule. Çevredeki düşen balonları kendi merkezine ve altındaki tuzaklara çeker.",
+		"desc": "Dikey elektromanyetik kule. Çevredeki tüm düşen balonları kendi merkezine ve altındaki tuzaklara çeker.",
 		"widths": ["3.8m Çekim (1.6 Güç)", "5.0m Çekim (2.6 Güç)", "6.5m Çekim (4.0 Güç)", "8.5m Çekim (6.0 Güç)", "11.0m Çekim (8.8 Güç)", "14.0m Çekim (12.5 Güç)"],
 		"unit_costs": [1000, 3000, 12000, 45000, 120000, 280000],
 		"unit_req_pops": [15000, 35000, 90000, 220000, 500000, 750000],
 		"costs": [1500, 4500, 15000, 55000, 150000, 350000],
 		"req_pops": [20000, 50000, 140000, 350000, 600000, 800000]
+	},
+	"electric_wall": {
+		"id": "electric_wall",
+		"name": "Elektrikli EMP Izgarası (Electric EMP Grid)",
+		"category": "devices",
+		"unlock_pops": 25000,
+		"level": 0,
+		"max_level": 6,
+		"count": 0,
+		"max_count": 6,
+		"desc": "Yüksek voltajlı deşarj ızgarası. Şarj olduğunda tavana kadar devasa dikey EMP şimşek sütunu patlatır.",
+		"widths": ["5.0m Alan (35 Balon)", "7.0m Alan (65 Balon)", "9.5m Alan (110 Balon)", "12.5m Alan (180 Balon)", "16.0m Alan (280 Balon)", "21.0m Alan (450 Balon)"],
+		"unit_costs": [1200, 4500, 18000, 60000, 150000, 350000],
+		"unit_req_pops": [25000, 55000, 140000, 300000, 580000, 780000],
+		"costs": [2000, 6500, 22000, 80000, 200000, 450000],
+		"req_pops": [30000, 70000, 180000, 420000, 680000, 880000]
 	},
 	"gravity_regulator": {
 		"id": "gravity_regulator",
@@ -94,38 +78,6 @@ var devices: Dictionary = {
 		"modes": ["0.25 G (Standart)", "0.75 G (Yoğun Akış)", "1.60 G (Hızlı Şelale)", "3.20 G (Ağır Çöküş)", "6.00 G (Hiper Yerçekimi)"],
 		"costs": [1200, 15000, 90000, 280000],
 		"req_pops": [2500, 30000, 180000, 550000]
-	},
-	"conveyor_crusher": {
-		"id": "conveyor_crusher",
-		"name": "Makaralı Balon Öğütücü (Conveyor Crusher)",
-		"category": "devices",
-		"unlock_pops": 25000,
-		"level": 0,
-		"max_level": 6,
-		"count": 0,
-		"max_count": 6,
-		"desc": "Zemine konulan çift silindirli döner çelik öğütücü. Yakındaki balonları güçlü girdapla vakumlayıp silindirlerde kıyma yapar.",
-		"widths": ["4.5m Vakum (25 Balon)", "6.5m Vakum (50 Balon)", "9.0m Vakum (90 Balon)", "12.0m Vakum (150 Balon)", "16.0m Vakum (240 Balon)", "21.0m Vakum (380 Balon)"],
-		"unit_costs": [1500, 6000, 25000, 75000, 180000, 400000],
-		"unit_req_pops": [25000, 60000, 150000, 350000, 600000, 800000],
-		"costs": [3000, 9500, 32000, 110000, 250000, 500000],
-		"req_pops": [30000, 80000, 200000, 450000, 700000, 850000]
-	},
-	"sentry_drone": {
-		"id": "sentry_drone",
-		"name": "Uçan Lazer Dronu (Sentry Drone)",
-		"category": "devices",
-		"unlock_pops": 120000,
-		"level": 0,
-		"max_level": 6,
-		"count": 0,
-		"max_count": 6,
-		"desc": "Oyuncunun yanında süzülen güvenlik dronu. Havadaki balonları çoklu lazer saçılımıyla otomatik vurur.",
-		"widths": ["12m (4x Lazer)", "16m (8x Lazer)", "20m (14x Lazer)", "25m (22x Lazer)", "32m (35x Lazer)", "40m (55x Lazer)"],
-		"unit_costs": [25000, 45000, 80000, 150000, 220000, 350000],
-		"unit_req_pops": [120000, 180000, 280000, 500000, 650000, 800000],
-		"costs": [5000, 16000, 45000, 100000, 200000, 400000],
-		"req_pops": [150000, 250000, 400000, 600000, 750000, 880000]
 	}
 }
 
