@@ -746,7 +746,7 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_colors/font_color = Color(0.25, 0.95, 1, 0.95)
 theme_override_font_sizes/font_size = 11
-text = "⚡ [Z] OTO-İĞNE MAKROSU AÇIK"
+text = "⚡ [Z] SOL TIK MAKROSU AÇIK"
 horizontal_alignment = 1
 
 [node name="ShopModal" type="Control" parent="UI" unique_id=449300953]

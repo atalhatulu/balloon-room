@@ -2,7 +2,7 @@ extends CharacterBody3D
 
 signal pop_triggered(is_hit: bool)
 signal energy_changed(current: float, max_energy: float, is_exhausted: bool)
-signal auto_fire_toggled(is_active: bool)
+signal macro_toggled(is_active: bool)
 
 @export var base_walk_speed: float = 5.2
 @export var base_sprint_speed: float = 8.4
@@ -15,16 +15,20 @@ var sprint_speed: float = 8.4
 var max_energy: float = 100.0
 var current_energy: float = 100.0
 
-# Auto-pop & Macro Auto-Fire
+# Auto-Clicker Macro Mode [Z / T] (Simulates Rapid Left Click Spam, 0 Energy)
+var macro_click_enabled: bool = false
+var macro_click_timer: float = 0.0
+var macro_click_interval: float = 0.05 # 20 clicks/sec
+
+# Auto-pop (Holding Left Mouse Button)
 var auto_pop_unlocked: bool = false
 var auto_pop_level: int = 0
-var auto_fire_toggle: bool = false
 var auto_pop_cooldown: float = 0.28
 var auto_pop_timer: float = 0.0
 
 # Energy Rules:
-# - Single Click: 0 Energy (Always available unless exhausted)
-# - Auto-Pop: Drains small fixed energy PER SECOND (NOT per hit); drops to 0 at high levels!
+# - Single Click / Rapid Macro: 0 Energy (Always available unless exhausted)
+# - Holding Left Click (Auto-Pop): Drains small fixed energy per second; drops to 0 at high levels
 # - Running (Shift): 0 Energy
 # - When Energy hits 0 -> Exhausted: CANNOT POP AT ALL until energy >= 30%!
 var pop_hold_energy_cost: float = 16.0
@@ -105,12 +109,11 @@ func _input(event: InputEvent) -> void:
 	if is_ui_open:
 		return
 		
-	# Toggle Auto-Fire Macro Mode with [Z] or [T] key
+	# Toggle Rapid Left-Click Macro with [Z] or [T] key
 	if event is InputEventKey and event.pressed and not event.is_echo():
 		if event.keycode == KEY_Z or event.keycode == KEY_T:
-			if auto_pop_unlocked:
-				auto_fire_toggle = not auto_fire_toggle
-				auto_fire_toggled.emit(auto_fire_toggle)
+			macro_click_enabled = not macro_click_enabled
+			macro_toggled.emit(macro_click_enabled)
 			
 	if event is InputEventMouseButton and event.pressed:
 		var main_node = get_node_or_null("/root/Main")
@@ -179,29 +182,33 @@ func _physics_process(delta: float) -> void:
 			var move_factor = clamp(velocity.length() / base_walk_speed, 1.0, 2.5)
 			collider.apply_central_impulse(push_dir * (2.2 * move_factor))
 
-	# Left Click & Auto-Fire / Macro Handling
+	# 1. Rapid Left-Click Macro (Spams Left Click 20x/sec with 0 stamina cost)
+	if macro_click_enabled and not is_exhausted and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
+		macro_click_timer += delta
+		if macro_click_timer >= macro_click_interval:
+			macro_click_timer = 0.0
+			execute_pop_hit(false)
+
+	# 2. Holding Left Click (Auto-Pop Upgrade)
 	var is_pressing_left = Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT) and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED
+	var is_holding_auto_pop = false
 	if is_pressing_left:
 		left_hold_time += delta
+		if auto_pop_unlocked and left_hold_time > 0.12 and not is_exhausted:
+			is_holding_auto_pop = true
+			auto_pop_timer += delta
+			if pop_hold_energy_cost > 0.0:
+				consume_energy(pop_hold_energy_cost * delta)
+				
+			if auto_pop_timer >= auto_pop_cooldown:
+				auto_pop_timer = 0.0
+				execute_pop_hit(false)
 	else:
 		left_hold_time = 0.0
-		
-	var is_auto_firing = auto_pop_unlocked and (auto_fire_toggle or (is_pressing_left and left_hold_time > 0.12)) and not is_exhausted
-
-	if is_auto_firing:
-		auto_pop_timer += delta
-		# Saniyede sabit enerji tüketimi (vuruş başına değil!)
-		if pop_hold_energy_cost > 0.0:
-			consume_energy(pop_hold_energy_cost * delta)
-			
-		if auto_pop_timer >= auto_pop_cooldown:
-			auto_pop_timer = 0.0
-			execute_pop_hit(false)
-	else:
 		auto_pop_timer = 0.0
 
 	# Energy Regeneration & %30 Exhaustion Unlock
-	var is_actively_spending = is_auto_firing and (pop_hold_energy_cost > 0.0)
+	var is_actively_spending = is_holding_auto_pop and (pop_hold_energy_cost > 0.0)
 	if not is_actively_spending or is_exhausted:
 		time_since_action += delta
 		if time_since_action >= energy_regen_delay:

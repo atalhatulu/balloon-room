@@ -230,8 +230,8 @@ func _ready() -> void:
 			player.nudge_triggered.connect(_on_player_nudge_triggered)
 		if player.has_signal("energy_changed"):
 			player.energy_changed.connect(_on_player_energy_changed)
-		if player.has_signal("auto_fire_toggled"):
-			player.auto_fire_toggled.connect(_on_player_auto_fire_toggled)
+		if player.has_signal("macro_toggled"):
+			player.macro_toggled.connect(_on_player_macro_toggled)
 		
 	if shop_manager:
 		shop_manager.coins_changed.connect(_on_coins_changed)
@@ -2151,11 +2151,11 @@ func _on_player_energy_changed(current: float, max_energy: float, is_exhausted: 
 			else:
 				style.bg_color = Color("#2ed573")
 
-func _on_player_auto_fire_toggled(is_active: bool) -> void:
+func _on_player_macro_toggled(is_active: bool) -> void:
 	if auto_fire_badge:
 		auto_fire_badge.visible = is_active
 	if desk_prompt:
-		desk_prompt.text = "Otomatik İğne Makrosu: " + ("AÇIK [Z]" if is_active else "KAPALI [Z]")
+		desk_prompt.text = "Sol Tık Makrosu (Auto-Clicker): " + ("AÇIK [Z]" if is_active else "KAPALI [Z]")
 		desk_prompt.visible = true
 		var t = create_tween()
 		t.tween_interval(2.0)
