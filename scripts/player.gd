@@ -99,12 +99,6 @@ func apply_upgrade(upgrade_id: String, level: int) -> void:
 func _input(event: InputEvent) -> void:
 	if is_ui_open:
 		return
-		
-	if event is InputEventKey and event.pressed and event.keycode == KEY_ESCAPE:
-		if Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
-			Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
-		else:
-			Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 			
 	if event is InputEventMouseButton and event.pressed:
 		var main_node = get_node_or_null("/root/Main")

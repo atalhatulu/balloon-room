@@ -1654,5 +1654,87 @@ theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
 theme_override_font_sizes/font_size = 14
 text = "Helyum Dönüşümü (Prestige)"
 
+[node name="PauseModal" type="Control" parent="UI" unique_id=1948293899]
+process_mode = 3
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Backdrop" type="ColorRect" parent="UI/PauseModal" unique_id=1849103980]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.04, 0.05, 0.08, 0.85)
+
+[node name="Panel" type="PanelContainer" parent="UI/PauseModal" unique_id=1849103981]
+custom_minimum_size = Vector2(480, 290)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -240.0
+offset_top = -145.0
+offset_right = 240.0
+offset_bottom = 145.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_glass_panel")
+
+[node name="Margin" type="MarginContainer" parent="UI/PauseModal/Panel" unique_id=1849103982]
+layout_mode = 2
+theme_override_constants/margin_left = 32
+theme_override_constants/margin_top = 28
+theme_override_constants/margin_right = 32
+theme_override_constants/margin_bottom = 28
+
+[node name="VBox" type="VBoxContainer" parent="UI/PauseModal/Panel/Margin" unique_id=1849103983]
+layout_mode = 2
+theme_override_constants/separation = 14
+alignment = 1
+
+[node name="Title" type="Label" parent="UI/PauseModal/Panel/Margin/VBox" unique_id=1849103984]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.85, 1, 1)
+theme_override_font_sizes/font_size = 24
+text = "OYUN DURDURULDU"
+horizontal_alignment = 1
+
+[node name="StatsLabel" type="Label" parent="UI/PauseModal/Panel/Margin/VBox" unique_id=1849103985]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.9, 0.95, 1)
+theme_override_font_sizes/font_size = 13
+text = "Süre: 00:00:00  |  0 Pop  |  0 Coin"
+horizontal_alignment = 1
+
+[node name="BtnResume" type="Button" parent="UI/PauseModal/Panel/Margin/VBox" unique_id=1849103986]
+custom_minimum_size = Vector2(0, 42)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 1, 0.6, 1)
+theme_override_font_sizes/font_size = 14
+text = "Oyuna Devam Et (ESC)"
+
+[node name="BtnRestart" type="Button" parent="UI/PauseModal/Panel/Margin/VBox" unique_id=1849103987]
+custom_minimum_size = Vector2(0, 38)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.75, 0.2, 1)
+theme_override_font_sizes/font_size = 13
+text = "Sıfırdan Başla (Yeni Oyun)"
+
+[node name="BtnQuit" type="Button" parent="UI/PauseModal/Panel/Margin/VBox" unique_id=1849103988]
+custom_minimum_size = Vector2(0, 38)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.45, 0.45, 1)
+theme_override_font_sizes/font_size = 13
+text = "Kaydet ve Çık"
+
 [connection signal="body_entered" from="Environment/SideOffice/ComputerDesk/DeskArea" to="." method="_on_desk_area_entered"]
 [connection signal="body_exited" from="Environment/SideOffice/ComputerDesk/DeskArea" to="." method="_on_desk_area_exited"]

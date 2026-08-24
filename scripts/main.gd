@@ -116,6 +116,13 @@ var highlighted_balloon: Node = null
 @onready var btn_prestige: Button = get_node_or_null("UI/VictoryModal/Panel/Margin/VBox/Buttons/BtnPrestige")
 var is_victory_shown: bool = false
 
+# Pause Modal
+@onready var pause_modal: Control = get_node_or_null("UI/PauseModal")
+@onready var pause_stats_label: Label = get_node_or_null("UI/PauseModal/Panel/Margin/VBox/StatsLabel")
+@onready var btn_pause_resume: Button = get_node_or_null("UI/PauseModal/Panel/Margin/VBox/BtnResume")
+@onready var btn_pause_restart: Button = get_node_or_null("UI/PauseModal/Panel/Margin/VBox/BtnRestart")
+@onready var btn_pause_quit: Button = get_node_or_null("UI/PauseModal/Panel/Margin/VBox/BtnQuit")
+
 # Shop UI Modal
 @onready var shop_modal: Control = $UI/ShopModal
 @onready var shop_coins_label: Label = $UI/ShopModal/Panel/Margin/VBox/Header/CoinsLabel
@@ -231,20 +238,73 @@ func _ready() -> void:
 			shop_manager.device_unit_purchased.connect(_on_device_unit_purchased)
 		shop_manager.device_purchased.connect(_on_device_tech_upgraded)
 		
+	process_mode = Node.PROCESS_MODE_ALWAYS
+	var ui_node = get_node_or_null("UI")
+	if ui_node:
+		ui_node.process_mode = Node.PROCESS_MODE_ALWAYS
+
 	update_ceiling_vents()
 	setup_shop_ui_events()
 	setup_startup_modal()
 	setup_victory_modal()
+	setup_pause_modal()
 	
 	# Setup In-Game Live Debug & Tuning Panel
 	var debug_script = load("res://scripts/debug_panel.gd")
 	if debug_script:
 		debug_panel = debug_script.new()
-		var ui_node = get_node_or_null("UI")
 		if ui_node:
 			ui_node.add_child(debug_panel)
 		else:
 			add_child(debug_panel)
+
+func setup_pause_modal() -> void:
+	if btn_pause_resume:
+		btn_pause_resume.pressed.connect(_on_pause_resume_pressed)
+	if btn_pause_restart:
+		btn_pause_restart.pressed.connect(_on_pause_restart_pressed)
+	if btn_pause_quit:
+		btn_pause_quit.pressed.connect(_on_pause_quit_pressed)
+
+func toggle_pause_modal() -> void:
+	if startup_modal and startup_modal.visible:
+		return
+	if victory_modal and victory_modal.visible:
+		return
+		
+	var is_paused = not get_tree().paused
+	get_tree().paused = is_paused
+	
+	if pause_modal:
+		pause_modal.visible = is_paused
+		if is_paused:
+			if pause_stats_label:
+				var p_str = format_number(game_manager.total_pops) if game_manager else "0"
+				var c_str = format_number(shop_manager.coins) if shop_manager else "0"
+				var pps_str = "%.1f" % game_manager.current_pps if (game_manager and "current_pps" in game_manager) else "0.0"
+				pause_stats_label.text = "Geçen Süre: %s  |  %s Pop  |  %s Coin  |  Hız: %s Pop/sn" % [format_time(playtime_seconds), p_str, c_str, pps_str]
+			Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+			if player and player.has_method("set_ui_open"):
+				player.set_ui_open(true)
+		else:
+			Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+			if player and player.has_method("set_ui_open"):
+				player.set_ui_open(false)
+			save_current_data()
+
+func _on_pause_resume_pressed() -> void:
+	toggle_pause_modal()
+
+func _on_pause_restart_pressed() -> void:
+	if get_tree().paused:
+		get_tree().paused = false
+	if pause_modal:
+		pause_modal.visible = false
+	start_new_game()
+
+func _on_pause_quit_pressed() -> void:
+	save_current_data()
+	get_tree().quit()
 
 func setup_victory_modal() -> void:
 	if btn_close_victory:
@@ -741,7 +801,7 @@ func _process(delta: float) -> void:
 			else:
 				fps_label.add_theme_color_override("font_color", Color("#e74c3c"))
 				
-	if startup_modal and startup_modal.visible:
+	if (startup_modal and startup_modal.visible) or get_tree().paused:
 		return
 		
 	# Playtime & Speedrun Timer Tracking with Total Coins & Real-time PPS
@@ -1453,6 +1513,10 @@ func _input(event: InputEvent) -> void:
 				toggle_debug_panel()
 			elif shop_modal and shop_modal.visible:
 				toggle_shop_modal()
+			elif pause_modal and pause_modal.visible:
+				toggle_pause_modal()
+			elif not (startup_modal and startup_modal.visible) and not (victory_modal and victory_modal.visible):
+				toggle_pause_modal()
 
 func toggle_debug_panel() -> void:
 	if not debug_panel: return
