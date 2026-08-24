@@ -92,8 +92,8 @@ func apply_upgrade(upgrade_id: String, level: int) -> void:
 			if interaction_ray:
 				interaction_ray.target_position = Vector3(0, 0, -4.5 - (level * 0.8))
 		"splash_pop":
-			var radii = [0.0, 2.8, 4.2, 6.0, 8.5, 11.5, 15.5, 22.0]
-			var limits = [0, 15, 30, 55, 90, 140, 220, 350]
+			var radii = [0.0, 1.8, 2.4, 3.0, 3.8, 4.6, 5.5, 6.8]
+			var limits = [0, 2, 3, 5, 8, 12, 18, 25]
 			splash_radius = radii[clamp(level, 0, radii.size() - 1)]
 			splash_max_targets = limits[clamp(level, 0, limits.size() - 1)]
 		"coin_magnet":

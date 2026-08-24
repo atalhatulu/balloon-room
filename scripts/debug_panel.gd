@@ -9,6 +9,9 @@ var game_manager: Node = null
 var player: CharacterBody3D = null
 
 var tab_container: TabContainer = null
+var analytics_summary_lbl: Label = null
+var analytics_minute_box: VBoxContainer = null
+var analytics_events_box: VBoxContainer = null
 
 func _ready() -> void:
 	visible = false
@@ -27,6 +30,7 @@ func toggle_panel() -> void:
 	if visible:
 		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 		_refresh_all_values()
+		_refresh_analytics_view()
 	else:
 		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
@@ -77,11 +81,115 @@ func _build_ui() -> void:
 	tab_container.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	main_vbox.add_child(tab_container)
 	
+	_build_analytics_tab()
 	_build_magnet_tab()
 	_build_balloons_tab()
 	_build_player_tab()
 	_build_devices_tab()
 	_build_cheats_tab()
+
+func _build_analytics_tab() -> void:
+	var scroll = ScrollContainer.new()
+	scroll.name = "📊 Zaman Çizelgesi & Analitik"
+	tab_container.add_child(scroll)
+	
+	var main_box = VBoxContainer.new()
+	main_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	main_box.add_theme_constant_override("separation", 14)
+	scroll.add_child(main_box)
+	
+	# Top Summary Card
+	var card = PanelContainer.new()
+	var card_sb = StyleBoxFlat.new()
+	card_sb.bg_color = Color(0.08, 0.12, 0.18, 0.95)
+	card_sb.corner_radius_top_left = 8
+	card_sb.corner_radius_top_right = 8
+	card_sb.corner_radius_bottom_left = 8
+	card_sb.corner_radius_bottom_right = 8
+	card.add_theme_stylebox_override("panel", card_sb)
+	main_box.add_child(card)
+	
+	var card_margin = MarginContainer.new()
+	card_margin.add_theme_constant_override("margin_left", 16)
+	card_margin.add_theme_constant_override("margin_top", 12)
+	card_margin.add_theme_constant_override("margin_right", 16)
+	card_margin.add_theme_constant_override("margin_bottom", 12)
+	card.add_child(card_margin)
+	
+	var card_vbox = VBoxContainer.new()
+	card_margin.add_child(card_vbox)
+	
+	analytics_summary_lbl = Label.new()
+	analytics_summary_lbl.text = "İstatistikler yükleniyor..."
+	analytics_summary_lbl.add_theme_font_size_override("font_size", 14)
+	card_vbox.add_child(analytics_summary_lbl)
+	
+	var btn_bar = HBoxContainer.new()
+	btn_bar.add_theme_constant_override("separation", 10)
+	card_vbox.add_child(btn_bar)
+	
+	var btn_copy_json = Button.new()
+	btn_copy_json.text = "📋 Tüm Analitik Veriyi Kopyala (JSON)"
+	btn_copy_json.pressed.connect(func():
+		var data = _generate_analytics_dict()
+		DisplayServer.clipboard_set(JSON.stringify(data, "  "))
+		btn_copy_json.text = "✔ Pano'ya Kopyalandı!"
+		get_tree().create_timer(2.0).timeout.connect(func(): if is_instance_valid(btn_copy_json): btn_copy_json.text = "📋 Tüm Analitik Veriyi Kopyala (JSON)")
+	)
+	btn_bar.add_child(btn_copy_json)
+	
+	var btn_refresh = Button.new()
+	btn_refresh.text = "🔄 Listeyi Yenile"
+	btn_refresh.pressed.connect(func(): _refresh_analytics_view())
+	btn_bar.add_child(btn_refresh)
+	
+	# Split View: Left = Minute Snapshots, Right = Purchases Event Log
+	var split = HBoxContainer.new()
+	split.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	split.add_theme_constant_override("separation", 20)
+	main_box.add_child(split)
+	
+	# Left: Minute Snapshots
+	var left_box = VBoxContainer.new()
+	left_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	split.add_child(left_box)
+	
+	var left_title = Label.new()
+	left_title.text = "⏱ Dakika Bazlı İlerleme Çizelgesi (Her 60sn)"
+	left_title.add_theme_font_size_override("font_size", 15)
+	left_title.add_theme_color_override("font_color", Color(0.3, 0.9, 1.0))
+	left_box.add_child(left_title)
+	
+	var left_scroll = ScrollContainer.new()
+	left_scroll.custom_minimum_size = Vector2(0, 320)
+	left_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	left_box.add_child(left_scroll)
+	
+	analytics_minute_box = VBoxContainer.new()
+	analytics_minute_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	analytics_minute_box.add_theme_constant_override("separation", 4)
+	left_scroll.add_child(analytics_minute_box)
+	
+	# Right: Purchase Timeline
+	var right_box = VBoxContainer.new()
+	right_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	split.add_child(right_box)
+	
+	var right_title = Label.new()
+	right_title.text = "🛒 Satın Alma & Yükseltme Kronolojisi"
+	right_title.add_theme_font_size_override("font_size", 15)
+	right_title.add_theme_color_override("font_color", Color(1.0, 0.8, 0.2))
+	right_box.add_child(right_title)
+	
+	var right_scroll = ScrollContainer.new()
+	right_scroll.custom_minimum_size = Vector2(0, 320)
+	right_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	right_box.add_child(right_scroll)
+	
+	analytics_events_box = VBoxContainer.new()
+	analytics_events_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	analytics_events_box.add_theme_constant_override("separation", 4)
+	right_scroll.add_child(analytics_events_box)
 
 func _build_magnet_tab() -> void:
 	var scroll = ScrollContainer.new()
@@ -486,3 +594,85 @@ func _refresh_all_values() -> void:
 		shop_manager = main_node.get("shop_manager")
 		game_manager = main_node.get("game_manager")
 		player = main_node.get("player")
+	_refresh_analytics_view()
+
+func _refresh_analytics_view() -> void:
+	if not game_manager:
+		if not main_node: main_node = get_node_or_null("/root/Main")
+		if main_node: game_manager = main_node.get("game_manager")
+	if not game_manager: return
+	
+	var total_time = game_manager.get("session_elapsed_time") if ("session_elapsed_time" in game_manager) else 0.0
+	var total_p = game_manager.get("total_pops") if ("total_pops" in game_manager) else 0
+	var cur_coins = shop_manager.coins if shop_manager else 0
+	var cur_pps = game_manager.get("smooth_pps") if ("smooth_pps" in game_manager) else 0.0
+	var peak = game_manager.get("peak_pps") if ("peak_pps" in game_manager) else 0.0
+	var cur_r = shop_manager.current_room if shop_manager else "small_room"
+	
+	var mins = int(total_time / 60.0)
+	var secs = int(fmod(total_time, 60.0))
+	var time_str = "%02d dk %02d sn" % [mins, secs]
+	
+	if analytics_summary_lbl:
+		analytics_summary_lbl.text = "⏱ Oynama Süresi: %s  |  🎈 Toplam Patlatma: %s  |  💰 Kasadaki Coin: %s\n⚡ Anlık Hız: %.1f Pop/sn  |  🔥 Zirve Hız: %.1f Pop/sn  |  🏠 Mevcut Alan: %s" % [
+			time_str, _format_number(total_p), _format_number(cur_coins), cur_pps, peak, cur_r
+		]
+		
+	# Populate Minute Snapshots
+	if analytics_minute_box:
+		for c in analytics_minute_box.get_children(): c.queue_free()
+		var snaps = game_manager.get("minute_snapshots") if ("minute_snapshots" in game_manager) else []
+		if snaps.is_empty():
+			var empty_lbl = Label.new()
+			empty_lbl.text = "Henüz 1 dakika dolmadı. Her 60 saniyede bir otomatik snapshot kaydedilir."
+			empty_lbl.add_theme_color_override("font_color", Color(0.6, 0.6, 0.7))
+			analytics_minute_box.add_child(empty_lbl)
+		else:
+			for s in snaps:
+				var row = Label.new()
+				row.text = "[%s] Dakika %d ➔ %s Pop  |  %s Coin  |  %.1f Pop/sn  |  %s" % [
+					s.get("time", "00:00"), s.get("minute", 0), _format_number(s.get("pops", 0)), _format_number(s.get("coins", 0)), s.get("pps", 0.0), s.get("room", "")
+				]
+				row.add_theme_font_size_override("font_size", 12)
+				analytics_minute_box.add_child(row)
+				
+	# Populate Timeline Events
+	if analytics_events_box:
+		for c in analytics_events_box.get_children(): c.queue_free()
+		var evts = game_manager.get("timeline_events") if ("timeline_events" in game_manager) else []
+		if evts.is_empty():
+			var empty_lbl = Label.new()
+			empty_lbl.text = "Henüz bir satın alma veya yükseltme yapılmadı."
+			empty_lbl.add_theme_color_override("font_color", Color(0.6, 0.6, 0.7))
+			analytics_events_box.add_child(empty_lbl)
+		else:
+			for e in evts:
+				var row = Label.new()
+				var lvl_str = " (Sv. %d)" % e.get("lvl_or_count", 1) if e.get("type", "") != "room" else ""
+				row.text = "[%s] %s%s ➔ %s Coin  (%s Pop'ta)" % [
+					e.get("time", "00:00"), e.get("name", ""), lvl_str, _format_number(e.get("cost", 0)), _format_number(e.get("pops_at_time", 0))
+				]
+				row.add_theme_font_size_override("font_size", 12)
+				analytics_events_box.add_child(row)
+
+func _generate_analytics_dict() -> Dictionary:
+	if not game_manager: return {}
+	return {
+		"session_playtime_seconds": game_manager.get("session_elapsed_time"),
+		"total_pops": game_manager.get("total_pops"),
+		"current_coins": shop_manager.coins if shop_manager else 0,
+		"peak_pps": game_manager.get("peak_pps"),
+		"minute_snapshots": game_manager.get("minute_snapshots"),
+		"timeline_events": game_manager.get("timeline_events")
+	}
+
+func _format_number(val: int) -> String:
+	var s = str(val)
+	var res = ""
+	var cnt = 0
+	for i in range(s.length() - 1, -1, -1):
+		res = s[i] + res
+		cnt += 1
+		if cnt % 3 == 0 and i > 0:
+			res = "." + res
+	return res

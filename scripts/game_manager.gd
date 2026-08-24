@@ -75,6 +75,33 @@ var pops_per_second: int = 0
 var smooth_pps: float = 0.0
 var coin_drop_accumulator: int = 0
 
+# Real-Time Telemetry & Session Metrics
+var session_elapsed_time: float = 0.0
+var minute_timer: float = 0.0
+var current_minute: int = 0
+var peak_pps: float = 0.0
+var minute_snapshots: Array[Dictionary] = []
+var timeline_events: Array[Dictionary] = []
+
+func log_timeline_event(event_type: String, item_id: String, item_name: String, level_or_count: int, cost: int) -> void:
+	var event = {
+		"time": format_time(session_elapsed_time),
+		"minute": int(session_elapsed_time / 60.0),
+		"type": event_type,
+		"id": item_id,
+		"name": item_name,
+		"lvl_or_count": level_or_count,
+		"cost": cost,
+		"pops_at_time": total_pops,
+		"coins_after": shop_manager.coins if shop_manager else 0
+	}
+	timeline_events.append(event)
+
+func format_time(seconds: float) -> String:
+	var mins = int(seconds / 60.0)
+	var secs = int(fmod(seconds, 60.0))
+	return "%02d:%02d" % [mins, secs]
+
 func get_eta_to_target(target: int = 1000000) -> float:
 	var remaining = max(0, target - total_pops)
 	if remaining <= 0:
@@ -95,15 +122,35 @@ func get_total_effective_balloons() -> int:
 	return total
 
 func _process(delta: float) -> void:
+	if not is_game_started:
+		return
+		
+	session_elapsed_time += delta
+	minute_timer += delta
+	
 	# Calculate real-time Pops Per Second (rolling 1-second window)
 	var now = Time.get_ticks_msec() / 1000.0
 	while not pop_history.is_empty() and pop_history[0] < (now - 1.0):
 		pop_history.remove_at(0)
 	pops_per_second = pop_history.size()
 	smooth_pps = lerp(smooth_pps, float(pops_per_second), clamp(delta * 1.5, 0.0, 1.0))
-
-	if not is_game_started:
-		return
+	if smooth_pps > peak_pps:
+		peak_pps = smooth_pps
+		
+	# Record minute snapshot
+	if minute_timer >= 60.0:
+		minute_timer -= 60.0
+		current_minute += 1
+		var snap = {
+			"minute": current_minute,
+			"time": format_time(session_elapsed_time),
+			"pops": total_pops,
+			"coins": shop_manager.coins if shop_manager else 0,
+			"pps": round(smooth_pps * 10.0) / 10.0,
+			"room": shop_manager.current_room if shop_manager else "small_room",
+			"active_balloons": active_balloons
+		}
+		minute_snapshots.append(snap)
 		
 	active_balloons = get_total_effective_balloons()
 		

@@ -1047,7 +1047,13 @@ func _get_device_interaction_prompt(d_node: Node3D, d_name: String) -> String:
 			var costs_arr = shop_manager.devices[d_type].get("costs", [500])
 			var c_idx = clamp(cur_lvl - 1, 0, costs_arr.size() - 1)
 			cost = costs_arr[c_idx]
-		prompt += "  |  [F] Seviye Yükselt (Sv. " + str(cur_lvl) + " ➔ " + str(cur_lvl + 1) + ") : " + str(cost) + " Coin"
+			
+		var needed_pops = shop_manager.get_device_tech_req_pops(d_type, cur_lvl) if shop_manager else 0
+		var total_pops = game_manager.total_pops if game_manager else 0
+		if total_pops < needed_pops:
+			prompt += "  |  [🔒 Kilitli: " + str(needed_pops) + " Pop Gerekli]"
+		else:
+			prompt += "  |  [F] Seviye Yükselt (Sv. " + str(cur_lvl) + " ➔ " + str(cur_lvl + 1) + ") : " + str(cost) + " Coin"
 	return prompt
 
 func _clear_balloon_highlight() -> void:
@@ -1479,6 +1485,14 @@ func upgrade_specific_device(d_node: Node3D) -> void:
 	var c_idx = clamp(cur_lvl - 1, 0, costs_arr.size() - 1)
 	var cost = costs_arr[c_idx]
 	
+	var needed_pops = shop_manager.get_device_tech_req_pops(d_type, cur_lvl)
+	var total_pops = game_manager.total_pops if game_manager else 0
+	if total_pops < needed_pops:
+		if desk_prompt:
+			desk_prompt.text = "Kilitli! Bu cihazı Sv. " + str(cur_lvl + 1) + " yapmak için " + str(needed_pops) + " Pop gerekli! (İlerleme: " + str(total_pops) + "/" + str(needed_pops) + ")"
+			desk_prompt.visible = true
+		return
+		
 	if shop_manager.coins < cost:
 		if desk_prompt:
 			desk_prompt.text = "Yetersiz Coin! Bu cihazı Sv. " + str(cur_lvl + 1) + " yapmak için " + str(cost) + " Coin gerekli."
@@ -1497,6 +1511,9 @@ func upgrade_specific_device(d_node: Node3D) -> void:
 	# Play upgrade sound & punchy visual scale pulse
 	if sound_manager and sound_manager.has_method("play_pop"):
 		sound_manager.play_pop(6)
+		
+	if game_manager and game_manager.has_method("log_timeline_event"):
+		game_manager.log_timeline_event("device_tech_inworld", d_type, d_data.get("name", d_type), next_lvl, cost)
 		
 	var tw = create_tween()
 	tw.tween_property(d_node, "scale", Vector3(1.22, 1.22, 1.22), 0.08).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
@@ -1774,14 +1791,22 @@ func update_all_shop_cards() -> void:
 							cost_btn.text = "MAX KAPASİTE (" + str(max_count) + "/" + str(max_count) + ")"
 							cost_btn.disabled = true
 						else:
-							sort_priority = 100
+							var needed_unit_pops = shop_manager.get_device_unit_req_pops(d_id, cur_count) if shop_manager else 0
 							var u_costs = d_data.get("unit_costs", d_data.get("costs", [500]))
 							var u_cost = u_costs[clamp(cur_count, 0, u_costs.size() - 1)]
-							if cur_count == 0:
-								cost_btn.text = "SATIN AL & YERLEŞTİR (1. Adet) : " + str(u_cost) + " Coin"
+							if total_pops < needed_unit_pops:
+								sort_priority = 1000 + needed_unit_pops
+								cost_btn.text = "🔒 " + str(needed_unit_pops) + " POP GEREKLİ"
+								cost_btn.disabled = true
+								if desc_lbl:
+									desc_lbl.text += "\n🔒 Yeni adet için " + str(needed_unit_pops) + " Pop gerekli! (İlerleme: " + str(total_pops) + "/" + str(needed_unit_pops) + ")"
 							else:
-								cost_btn.text = "YENİ ADET AL (" + str(cur_count + 1) + "/" + str(max_count) + ") : " + str(u_cost) + " Coin"
-							cost_btn.disabled = shop_manager.coins < u_cost
+								sort_priority = 100
+								if cur_count == 0:
+									cost_btn.text = "SATIN AL & YERLEŞTİR (1. Adet) : " + str(u_cost) + " Coin"
+								else:
+									cost_btn.text = "YENİ ADET AL (" + str(cur_count + 1) + "/" + str(max_count) + ") : " + str(u_cost) + " Coin"
+								cost_btn.disabled = shop_manager.coins < u_cost
 
 		# 2. Room Expansion Cards (Tab: "rooms")
 		elif child.has_meta("room_id"):
@@ -1872,7 +1897,7 @@ func update_all_shop_cards() -> void:
 			var lvl = up_data["level"]
 			var max_lvl = up_data["max_level"]
 			
-			if not is_unlocked:
+			if not is_unlocked and lvl == 0:
 				sort_priority = 1000 + unlock_req
 				if title_lbl:
 					title_lbl.text = "🔒 " + up_data["title"].to_upper()
@@ -1910,13 +1935,14 @@ func update_all_shop_cards() -> void:
 						else:
 							var next_s = up_data["speeds"][lvl + 1]
 							desc_lbl.text = "Mevcut: " + str(curr_s) + " ➔ Yükseltme: " + str(next_s) + " (Sol Tıka Basılı Tut)"
-					elif u_id == "splash_pop" and up_data.has("radii"):
-						var curr_rad = up_data["radii"][lvl]
+					elif u_id == "splash_pop":
+						var targets_arr = up_data.get("targets", ["Kapalı", "2 Balon (1.8m)", "3 Balon (2.4m)", "5 Balon (3.0m)", "8 Balon (3.8m)", "12 Balon (4.6m)", "18 Balon (5.5m)", "25 Balon (6.8m)"])
+						var curr_t = targets_arr[clamp(lvl, 0, targets_arr.size() - 1)]
 						if lvl >= max_lvl:
-							desc_lbl.text = "Maksimum Şok Dalgası: " + str(curr_rad) + "!"
+							desc_lbl.text = "Maksimum Hedef: " + str(curr_t) + " (Aynı Renk Zincirleme)"
 						else:
-							var next_rad = up_data["radii"][lvl + 1]
-							desc_lbl.text = "Mevcut: " + str(curr_rad) + " ➔ Yükseltme: " + str(next_rad) + " (Şok Dalgası)"
+							var next_t = targets_arr[lvl + 1]
+							desc_lbl.text = "Mevcut: " + str(curr_t) + " ➔ Yükseltme: " + str(next_t) + " (Aynı Renk Zincirleme)"
 					elif u_id == "reach":
 						var curr_reach = 4.5 + (lvl * 1.0)
 						if lvl >= max_lvl:
@@ -1959,13 +1985,20 @@ func update_all_shop_cards() -> void:
 						cost_btn.text = "MAX SEVİYE"
 						cost_btn.disabled = true
 					else:
-						sort_priority = 100
+						var needed_pops = shop_manager.get_upgrade_req_pops(u_id, lvl) if shop_manager else 0
 						var cost = up_data["costs"][lvl]
-						cost_btn.text = ("SATIN AL : " if lvl == 0 else "GELİŞTİR : ") + str(cost) + " Coin"
-						cost_btn.disabled = shop_manager.coins < cost
-						
-						if not cost_btn.is_connected("pressed", Callable(self, "_on_buy_button_pressed")):
-							cost_btn.pressed.connect(Callable(self, "_on_buy_button_pressed").bind(u_id))
+						if total_pops < needed_pops:
+							sort_priority = 1000 + needed_pops
+							cost_btn.text = "🔒 " + str(needed_pops) + " POP GEREKLİ"
+							cost_btn.disabled = true
+							if desc_lbl:
+								desc_lbl.text += "\n🔒 Seviye " + str(lvl + 1) + " için " + str(needed_pops) + " Pop gerekli! (İlerleme: " + str(total_pops) + "/" + str(needed_pops) + ")"
+						else:
+							sort_priority = 100
+							cost_btn.text = ("SATIN AL : " if lvl == 0 else "GELİŞTİR : ") + str(cost) + " Coin"
+							cost_btn.disabled = shop_manager.coins < cost
+							if not cost_btn.is_connected("pressed", Callable(self, "_on_buy_button_pressed")):
+								cost_btn.pressed.connect(Callable(self, "_on_buy_button_pressed").bind(u_id))
 		
 		card_sort_list.append({"node": child, "priority": sort_priority})
 		

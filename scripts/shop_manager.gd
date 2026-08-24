@@ -29,7 +29,9 @@ var devices: Dictionary = {
 		"desc": "Duvara monte edilen güçlü hava türbini. Balonları karşı duvarlara, tuzaklara veya öğütücülere doğru üfler.",
 		"widths": ["7.5m Menzil (3.2 Güç)", "9.5m Menzil (4.4 Güç)", "12.0m Menzil (5.8 Güç)", "15.0m Menzil (7.4 Güç)", "18.5m Menzil (9.2 Güç)", "22.0m Menzil (11.0 Güç)"],
 		"unit_costs": [250, 900, 3500],
-		"costs": [500, 1500, 5000, 18000, 60000, 200000]
+		"unit_req_pops": [300, 1500, 6000],
+		"costs": [500, 1500, 5000, 18000, 60000, 200000],
+		"req_pops": [500, 2000, 8000, 28000, 90000, 250000]
 	},
 	"spike_wall": {
 		"id": "spike_wall",
@@ -43,7 +45,9 @@ var devices: Dictionary = {
 		"desc": "Zemine serilen sivri çelik iğneler. Balonlar üzerine düştükçe sürekli seri darbelerle deler.",
 		"widths": ["0.60s Bekleme (12 Balon)", "0.48s Bekleme (22 Balon)", "0.38s Bekleme (36 Balon)", "0.30s Bekleme (55 Balon)", "0.22s Bekleme (80 Balon)", "0.16s Bekleme (120 Balon)"],
 		"unit_costs": [400, 1500, 6000],
-		"costs": [800, 2500, 9000, 32000, 110000, 350000]
+		"unit_req_pops": [1200, 4500, 18000],
+		"costs": [800, 2500, 9000, 32000, 110000, 350000],
+		"req_pops": [1500, 5500, 20000, 70000, 220000, 600000]
 	},
 	"electric_wall": {
 		"id": "electric_wall",
@@ -57,7 +61,9 @@ var devices: Dictionary = {
 		"desc": "Yüksek voltajlı kondansatör ızgarası. Şarj olduğunda havadaki ve yerdeki balonlara devasa yıldırım EMP patlaması yapar.",
 		"widths": ["2.5s Şarj (16 Balon)", "2.0s Şarj (28 Balon)", "1.6s Şarj (45 Balon)", "1.25s Şarj (70 Balon)", "0.95s Şarj (105 Balon)", "0.70s Şarj (150 Balon)"],
 		"unit_costs": [1000, 4500, 18000],
-		"costs": [2000, 6500, 22000, 80000, 280000, 850000]
+		"unit_req_pops": [3000, 12000, 45000],
+		"costs": [2000, 6500, 22000, 80000, 280000, 850000],
+		"req_pops": [4000, 15000, 50000, 160000, 450000, 1200000]
 	},
 	"magnet_pylon": {
 		"id": "magnet_pylon",
@@ -71,7 +77,9 @@ var devices: Dictionary = {
 		"desc": "Dikey elektromanyetik kule. Çevredeki düşen balonları kendi merkezine ve altındaki tuzaklara çeker.",
 		"widths": ["3.5m Çekim", "4.5m Çekim", "5.8m Çekim", "7.2m Çekim", "8.8m Çekim", "10.5m Çekim"],
 		"unit_costs": [800, 3000, 12000],
-		"costs": [1500, 4500, 15000, 55000, 190000, 550000]
+		"unit_req_pops": [1800, 7500, 30000],
+		"costs": [1500, 4500, 15000, 55000, 190000, 550000],
+		"req_pops": [2500, 9500, 35000, 120000, 380000, 950000]
 	},
 	"gravity_regulator": {
 		"id": "gravity_regulator",
@@ -84,7 +92,8 @@ var devices: Dictionary = {
 		"max_count": 1,
 		"desc": "Odadaki balonların düşme hızını ve yerçekimini kontrol eder. Duvardaki [E] butonundan veya [G] tuşundan kontrol edilir.",
 		"modes": ["0.25 G (Standart)", "0.80 G (Ağır Döküm)", "1.80 G (Hızlı Şelale)", "3.50 G (Ağır Çöküş)", "6.00 G (Hiper Yerçekimi)"],
-		"costs": [400, 1800, 8500, 35000]
+		"costs": [400, 1800, 8500, 35000],
+		"req_pops": [250, 1200, 6000, 25000]
 	},
 	"conveyor_crusher": {
 		"id": "conveyor_crusher",
@@ -98,7 +107,9 @@ var devices: Dictionary = {
 		"desc": "Zemine konulan çift silindirli döner çelik öğütücü. Yakındaki balonları vakumlayıp silindirlerde kıyma yapar.",
 		"widths": ["1.4s Soğuma (12 Balon)", "1.1s Soğuma (20 Balon)", "0.85s Soğuma (32 Balon)", "0.65s Soğuma (50 Balon)", "0.48s Soğuma (75 Balon)", "0.35s Soğuma (110 Balon)"],
 		"unit_costs": [1500, 6000, 25000],
-		"costs": [3000, 9500, 32000, 110000, 380000, 1100000]
+		"unit_req_pops": [5000, 20000, 75000],
+		"costs": [3000, 9500, 32000, 110000, 380000, 1100000],
+		"req_pops": [6500, 25000, 90000, 280000, 800000, 2000000]
 	},
 	"sentry_drone": {
 		"id": "sentry_drone",
@@ -112,7 +123,9 @@ var devices: Dictionary = {
 		"desc": "Oyuncunun yanında süzülen güvenlik dronu. Havadaki balonları lazerle otomatik vurur.",
 		"widths": ["1.4s (1x Hedef)", "1.1s (2x Hedef)", "0.85s (3x Hedef)", "0.65s (4x Hedef)", "0.50s (6x Hedef)", "0.38s (8x Hedef)"],
 		"unit_costs": [2500, 9000, 35000],
-		"costs": [5000, 16000, 55000, 190000, 600000, 1600000]
+		"unit_req_pops": [8000, 30000, 110000],
+		"costs": [5000, 16000, 55000, 190000, 600000, 1600000],
+		"req_pops": [10000, 40000, 140000, 450000, 1200000, 3000000]
 	}
 }
 
@@ -209,7 +222,8 @@ var upgrades: Dictionary = {
 		"title": "Tavan Menfez Sayısı (Boru Hattı)",
 		"desc": "Tavana ek boru hattı çeker. Her yeni boru toplam dökülme akışını katlar (1x ➔ 9x)!",
 		"pipes": ["1 Boru (1x Akış)", "2 Boru (2x Akış)", "3 Boru (3x Akış)", "4 Boru (4x Akış)", "5 Boru (5x Akış)", "6 Boru (6x Akış)", "7 Boru (7x Akış)", "8 Boru (8x Akış)", "9 Boru (9x Matrix)"],
-		"costs": [120, 600, 2500, 9000, 32000, 110000, 350000, 1200000]
+		"costs": [120, 600, 2500, 9000, 32000, 110000, 350000, 1200000],
+		"req_pops": [80, 600, 2500, 10000, 35000, 100000, 250000, 500000]
 	},
 	"vent_rate": {
 		"category": "upgrades",
@@ -219,7 +233,8 @@ var upgrades: Dictionary = {
 		"title": "Balon Dökülme Hızı",
 		"desc": "Tavandan saniyede dökülen balon sayısını artırır.",
 		"rates": [1, 2, 3.5, 6, 10, 16, 26, 42, 70, 110, 180, 280, 450],
-		"costs": [10, 25, 60, 150, 350, 800, 1800, 4000, 8000, 15000, 30000, 60000]
+		"costs": [10, 25, 60, 150, 350, 800, 1800, 4000, 8000, 15000, 30000, 60000],
+		"req_pops": [0, 20, 75, 200, 500, 1200, 3000, 7500, 18000, 40000, 90000, 200000]
 	},
 
 	# 2. İĞNE / OYUNCU ARAÇLARI
@@ -230,7 +245,8 @@ var upgrades: Dictionary = {
 		"max_level": 8,
 		"title": "Reach / Uzun İğne",
 		"desc": "İğnenin vuruş ve tıklama menzilini uzatır.",
-		"costs": [12, 35, 90, 250, 700, 2000, 6000, 18000]
+		"costs": [12, 35, 90, 250, 700, 2000, 6000, 18000],
+		"req_pops": [10, 40, 150, 500, 1500, 4500, 15000, 45000]
 	},
 
 	"auto_pop": {
@@ -241,17 +257,19 @@ var upgrades: Dictionary = {
 		"title": "Auto-Pop",
 		"desc": "Sol tıka basılı tutulduğunda aralıksız seri iğne batırma özelliğini açar ve hızlandırır.",
 		"speeds": ["Kapalı", "3.0/sn", "5.0/sn", "8.0/sn", "12.0/sn", "18.0/sn", "26.0/sn", "38.0/sn", "55.0/sn"],
-		"costs": [50, 150, 450, 1400, 4200, 12000, 35000, 95000]
+		"costs": [50, 150, 450, 1400, 4200, 12000, 35000, 95000],
+		"req_pops": [50, 250, 1000, 3500, 12000, 35000, 100000, 250000]
 	},
 	"splash_pop": {
 		"category": "upgrades",
-		"unlock_pops": 250,
+		"unlock_pops": 200,
 		"level": 0,
 		"max_level": 7,
 		"title": "Splash / Renk Eşleşmeli Alan Patlatma",
-		"desc": "İğneyle vurulan balonun çevresinde şok dalgası oluşturup AYNI RENKTEKİ komşu balonları zincirleme patlatır.",
-		"radii": ["Kapalı", "2.5m (~8 Balon)", "3.8m (~18 Balon)", "5.5m (~32 Balon)", "7.5m (~55 Balon)", "10.0m (~90 Balon)", "14.0m (~150 Balon)", "20.0m (Dev Kozmik Şok)"],
-		"costs": [100, 300, 900, 2800, 8500, 26000, 75000]
+		"desc": "İğneyle vurulan balonun çevresinde AYNI RENKTEKİ komşu balonları zincirleme patlatır.",
+		"targets": ["Kapalı", "2 Balon (1.8m)", "3 Balon (2.4m)", "5 Balon (3.0m)", "8 Balon (3.8m)", "12 Balon (4.6m)", "18 Balon (5.5m)", "25 Balon (6.8m)"],
+		"costs": [100, 300, 900, 2800, 8500, 26000, 75000],
+		"req_pops": [200, 800, 3000, 10000, 35000, 100000, 250000]
 	},
 
 	# 3. ENERJİ / KARAKTER
@@ -262,7 +280,8 @@ var upgrades: Dictionary = {
 		"max_level": 8,
 		"title": "Energy Capacity",
 		"desc": "Maksimum enerji havuzunu +25 birim artırır.",
-		"costs": [10, 30, 80, 220, 600, 1600, 4500, 12000]
+		"costs": [10, 30, 80, 220, 600, 1600, 4500, 12000],
+		"req_pops": [0, 50, 200, 700, 2200, 6500, 20000, 60000]
 	},
 	"energy_regen": {
 		"category": "upgrades",
@@ -271,7 +290,8 @@ var upgrades: Dictionary = {
 		"max_level": 8,
 		"title": "Energy Regen",
 		"desc": "Dinlenirken enerjinin saniyede dolum hızını artırır.",
-		"costs": [10, 30, 80, 220, 600, 1600, 4500, 12000]
+		"costs": [10, 30, 80, 220, 600, 1600, 4500, 12000],
+		"req_pops": [30, 120, 400, 1400, 4500, 14000, 40000, 120000]
 	},
 	"speed": {
 		"category": "upgrades",
@@ -280,7 +300,8 @@ var upgrades: Dictionary = {
 		"max_level": 8,
 		"title": "Speed",
 		"desc": "Yürüme ve koşma hızını artırır.",
-		"costs": [20, 60, 160, 420, 1100, 3000, 8000, 22000]
+		"costs": [20, 60, 160, 420, 1100, 3000, 8000, 22000],
+		"req_pops": [15, 80, 300, 1100, 3800, 12000, 36000, 100000]
 	},
 	"sprint_efficiency": {
 		"category": "upgrades",
@@ -288,18 +309,20 @@ var upgrades: Dictionary = {
 		"level": 0,
 		"max_level": 8,
 		"title": "Sprint Efficiency",
-		"desc": "Basılı tutarak patlatma ve süpürme enerji harcamasını azaltır.",
-		"costs": [15, 45, 120, 320, 850, 2300, 6200, 16000]
+		"desc": "Koşarken tüketilen enerjiyi azaltır.",
+		"costs": [15, 45, 120, 320, 850, 2300, 6000, 16000],
+		"req_pops": [40, 180, 600, 2000, 6500, 20000, 60000, 180000]
 	},
+
+	# 4. SİKKE MIKNATISI
 	"coin_magnet": {
 		"category": "upgrades",
-		"unlock_pops": 25,
+		"unlock_pops": 100,
 		"level": 0,
 		"max_level": 8,
-		"title": "Manyetik Para Çekimi (Coin Magnet)",
-		"desc": "Yerdeki altın madeni paraları çok daha uzak mesafelerden otomatik olarak kendine çeker.",
-		"ranges": ["3.5m Menzil", "5.5m Menzil", "8.0m Menzil", "12.0m Menzil", "17.0m Menzil", "24.0m Menzil", "32.0m Menzil", "45.0m (Oda Çapında Manyetik Çekim)"],
-		"costs": [25, 75, 220, 650, 1900, 5500, 16000, 48000]
+		"title": "Coin Mıknatısı (Vakum Menfezi)",
+		"desc": "Yerdeki altın, gümüş ve kristalleri oyuncunun etrafında otomatik olarak çeker.",
+		"costs": [80, 250, 750, 2200, 6500, 19000, 55000, 160000],
 	}
 }
 
@@ -313,14 +336,39 @@ func is_unlocked(upgrade_id: String, total_pops: int) -> bool:
 		return false
 	return total_pops >= upgrades[upgrade_id]["unlock_pops"]
 
+func get_upgrade_req_pops(upgrade_id: String, target_lvl: int) -> int:
+	if not upgrades.has(upgrade_id): return 0
+	var up = upgrades[upgrade_id]
+	if up.has("req_pops"):
+		var arr = up["req_pops"]
+		return arr[clamp(target_lvl, 0, arr.size() - 1)]
+	return up.get("unlock_pops", 0)
+
+func get_device_unit_req_pops(device_id: String, target_count: int) -> int:
+	if not devices.has(device_id): return 0
+	var d = devices[device_id]
+	if d.has("unit_req_pops"):
+		var arr = d["unit_req_pops"]
+		return arr[clamp(target_count, 0, arr.size() - 1)]
+	return d.get("unlock_pops", 0)
+
+func get_device_tech_req_pops(device_id: String, target_lvl: int) -> int:
+	if not devices.has(device_id): return 0
+	var d = devices[device_id]
+	if d.has("req_pops"):
+		var arr = d["req_pops"]
+		return arr[clamp(target_lvl, 0, arr.size() - 1)]
+	return d.get("unlock_pops", 0)
+
 func buy_upgrade(upgrade_id: String, total_pops: int = 999999) -> bool:
 	if not upgrades.has(upgrade_id):
 		purchase_failed.emit("Bilinmeyen yükseltme")
 		return false
 		
 	var up = upgrades[upgrade_id]
-	if total_pops < up["unlock_pops"]:
-		purchase_failed.emit("Kilitli! " + str(up["unlock_pops"]) + " patlatma gerekiyor.")
+	var needed_pops = get_upgrade_req_pops(upgrade_id, up["level"])
+	if total_pops < needed_pops:
+		purchase_failed.emit("Kilitli! " + str(needed_pops) + " patlatma gerekiyor.")
 		return false
 		
 	if up["level"] >= up["max_level"]:
@@ -336,6 +384,11 @@ func buy_upgrade(upgrade_id: String, total_pops: int = 999999) -> bool:
 	up["level"] += 1
 	coins_changed.emit(coins)
 	upgrade_purchased.emit(upgrade_id, up["level"])
+	
+	var gm = get_node_or_null("../GameManager")
+	if gm and gm.has_method("log_timeline_event"):
+		gm.log_timeline_event("upgrade", upgrade_id, up.get("title", upgrade_id), up["level"], cost)
+		
 	return true
 
 func is_room_unlocked(room_id: String) -> bool:
@@ -366,6 +419,11 @@ func buy_room(room_id: String, total_pops: int = 999999) -> bool:
 	coins_changed.emit(coins)
 	room_unlocked.emit(room_id)
 	room_switched.emit(room_id)
+	
+	var gm = get_node_or_null("../GameManager")
+	if gm and gm.has_method("log_timeline_event"):
+		gm.log_timeline_event("room", room_id, r_data.get("name", room_id), 1, cost)
+		
 	return true
 
 func switch_to_room(room_id: String) -> bool:
@@ -384,14 +442,15 @@ func buy_device_unit(device_id: String, total_pops: int = 999999) -> bool:
 		return false
 		
 	var d_data = devices[device_id]
-	if total_pops < d_data["unlock_pops"]:
-		purchase_failed.emit("Kilitli! " + str(d_data["unlock_pops"]) + " patlatma gerekiyor.")
-		return false
-		
 	var cur_count = d_data.get("count", 0)
 	var max_count = d_data.get("max_count", 6)
 	if cur_count >= max_count:
 		purchase_failed.emit("Maksimum cihaz adedine (" + str(max_count) + "/" + str(max_count) + ") ulaşıldı!")
+		return false
+		
+	var needed_pops = get_device_unit_req_pops(device_id, cur_count)
+	if total_pops < needed_pops:
+		purchase_failed.emit("Kilitli! " + str(needed_pops) + " patlatma gerekiyor.")
 		return false
 		
 	var u_costs = d_data.get("unit_costs", d_data.get("costs", [500]))
@@ -406,6 +465,11 @@ func buy_device_unit(device_id: String, total_pops: int = 999999) -> bool:
 		d_data["level"] = 1
 	coins_changed.emit(coins)
 	device_unit_purchased.emit(device_id, d_data["count"], d_data["level"])
+	
+	var gm = get_node_or_null("../GameManager")
+	if gm and gm.has_method("log_timeline_event"):
+		gm.log_timeline_event("device_unit", device_id, d_data.get("name", device_id), d_data["count"], cost)
+		
 	return true
 
 func buy_device_upgrade(device_id: String, total_pops: int = 999999) -> bool:
@@ -414,12 +478,13 @@ func buy_device_upgrade(device_id: String, total_pops: int = 999999) -> bool:
 		return false
 		
 	var d_data = devices[device_id]
-	if total_pops < d_data["unlock_pops"]:
-		purchase_failed.emit("Kilitli! " + str(d_data["unlock_pops"]) + " patlatma gerekiyor.")
-		return false
-		
 	if d_data["level"] >= d_data["max_level"]:
 		purchase_failed.emit("Cihaz teknolojisi maksimum seviyeye ulaştı!")
+		return false
+		
+	var needed_pops = get_device_tech_req_pops(device_id, d_data["level"])
+	if total_pops < needed_pops:
+		purchase_failed.emit("Kilitli! " + str(needed_pops) + " patlatma gerekiyor.")
 		return false
 		
 	var cost = d_data["costs"][d_data["level"]]
@@ -431,6 +496,11 @@ func buy_device_upgrade(device_id: String, total_pops: int = 999999) -> bool:
 	d_data["level"] += 1
 	coins_changed.emit(coins)
 	device_purchased.emit(device_id, d_data["level"])
+	
+	var gm = get_node_or_null("../GameManager")
+	if gm and gm.has_method("log_timeline_event"):
+		gm.log_timeline_event("device_tech", device_id, d_data.get("name", device_id), d_data["level"], cost)
+		
 	return true
 
 func buy_device(device_id: String, total_pops: int = 999999) -> bool:
