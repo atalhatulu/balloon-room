@@ -43,7 +43,7 @@ var devices: Dictionary = {
 		"count": 0,
 		"max_count": 6,
 		"desc": "Zemine serilen sivri çelik iğneler. Balonlar üzerine düştükçe sürekli seri darbelerle deler.",
-		"widths": ["0.60s Bekleme (12 Balon)", "0.48s Bekleme (22 Balon)", "0.38s Bekleme (36 Balon)", "0.30s Bekleme (55 Balon)", "0.22s Bekleme (80 Balon)", "0.16s Bekleme (120 Balon)"],
+		"widths": ["1.40s Bekleme (2 Balon)", "1.10s Bekleme (4 Balon)", "0.85s Bekleme (7 Balon)", "0.65s Bekleme (12 Balon)", "0.45s Bekleme (20 Balon)", "0.28s Bekleme (35 Balon)"],
 		"unit_costs": [400, 1500, 6000, 22000, 70000, 180000],
 		"unit_req_pops": [800, 4000, 20000, 80000, 220000, 550000],
 		"costs": [800, 2500, 9000, 32000, 110000, 300000],
