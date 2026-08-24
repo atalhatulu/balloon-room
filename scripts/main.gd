@@ -4,7 +4,6 @@ extends Node3D
 @export var coin_scene: PackedScene = preload("res://scenes/coin.tscn")
 
 const DEVICE_SCENES = {
-	"wall_spikes": preload("res://scenes/wall_spikes.tscn"),
 	"spike_wall": preload("res://scenes/spike_wall.tscn"),
 	"electric_wall": preload("res://scenes/electric_wall.tscn"),
 	"magnet_pylon": preload("res://scenes/magnet_pylon.tscn"),
@@ -36,6 +35,8 @@ var carried_original_pos: Vector3 = Vector3.ZERO
 var carried_original_rot_y: float = 0.0
 var carried_placement_pos: Vector3 = Vector3.ZERO
 var carried_placement_rot_y: float = 0.0
+var is_carrying_new_purchase: bool = false
+var carried_device_cost: int = 0
 var nearby_device: Node3D = null
 
 # Environment Nodes for Dynamic Room Expansion
@@ -691,7 +692,10 @@ func _on_device_unit_purchased(device_id: String, new_count: int, level: int) ->
 	if device_id != "sentry_drone" and dev_node and is_instance_valid(dev_node):
 		if shop_modal and shop_modal.visible:
 			toggle_shop_modal()
-		start_carrying_device(dev_node)
+		var d_data = shop_manager.devices.get(device_id, {})
+		var u_costs = d_data.get("unit_costs", d_data.get("costs", [500]))
+		var purchase_cost = u_costs[clamp(new_count - 1, 0, u_costs.size() - 1)]
+		start_carrying_device(dev_node, true, purchase_cost)
 	elif device_id == "sentry_drone":
 		if desk_prompt:
 			desk_prompt.text = "Yeni Güvenlik Dronu (" + str(new_count) + "/6) filoya katıldı!"
@@ -807,7 +811,7 @@ func _process(delta: float) -> void:
 								best_wall_rot = wp["rot"]
 								is_wall_mounted = true
 								
-			if is_wall_mounted and (dev_type == "wall_spikes" or (dev_type == "fan" and best_hit_dist < 18.0)):
+			if is_wall_mounted and dev_type == "fan" and best_hit_dist < 18.0:
 				var snap_y = clamp(round(best_wall_pos.y / 0.8) * 0.8, 0.8, ceiling_h - 1.4)
 				if abs(best_wall_pos.z) >= (half_l - 0.6):
 					var snap_x = clamp(round(best_wall_pos.x / 1.5) * 1.5, -half_w + 1.5, half_w - 1.5)
@@ -1501,9 +1505,11 @@ func upgrade_specific_device(d_node: Node3D) -> void:
 	save_current_data()
 	update_raycast_interaction()
 
-func start_carrying_device(device_node: Node3D) -> void:
+func start_carrying_device(device_node: Node3D, is_new: bool = false, purchase_cost: int = 0) -> void:
 	if not device_node or not is_instance_valid(device_node): return
 	carried_device = device_node
+	is_carrying_new_purchase = is_new
+	carried_device_cost = purchase_cost
 	carried_original_pos = device_node.position
 	carried_original_rot_y = device_node.rotation.y
 	carried_placement_rot_y = device_node.rotation.y
@@ -1523,6 +1529,8 @@ func place_carried_device() -> void:
 	var target_p = carried_placement_pos
 	var target_r_y = carried_placement_rot_y
 	carried_device = null
+	is_carrying_new_purchase = false
+	carried_device_cost = 0
 	
 	var tw = create_tween()
 	tw.set_parallel(true)
@@ -1535,12 +1543,42 @@ func place_carried_device() -> void:
 	
 func cancel_carrying_device() -> void:
 	if not carried_device: return
-	carried_device.position = carried_original_pos
-	carried_device.rotation.y = carried_original_rot_y
-	carried_device.rotation.x = 0.0
-	carried_device.rotation.z = 0.0
 	_destroy_grid_ghost()
-	carried_device = null
+	
+	if is_carrying_new_purchase:
+		# Refund the player and destroy unplaced instance
+		var d_id = carried_device.get_meta("device_type") if carried_device.has_meta("device_type") else ""
+		if shop_manager and shop_manager.devices.has(d_id):
+			var d_data = shop_manager.devices[d_id]
+			d_data["count"] = max(0, d_data.get("count", 1) - 1)
+			if carried_device_cost > 0:
+				shop_manager.coins += carried_device_cost
+				shop_manager.coins_changed.emit(shop_manager.coins)
+				
+		active_placed_devices.erase(carried_device)
+		carried_device.queue_free()
+		carried_device = null
+		
+		if desk_prompt:
+			desk_prompt.text = "Satın alma iptal edildi! " + str(carried_device_cost) + " Coin iade edildi."
+			desk_prompt.visible = true
+			
+		is_carrying_new_purchase = false
+		carried_device_cost = 0
+		update_all_shop_cards()
+		save_current_data()
+	else:
+		# Return existing moved device to its original position
+		carried_device.position = carried_original_pos
+		carried_device.rotation.y = carried_original_rot_y
+		carried_device.rotation.x = 0.0
+		carried_device.rotation.z = 0.0
+		carried_device = null
+		is_carrying_new_purchase = false
+		carried_device_cost = 0
+		if desk_prompt:
+			desk_prompt.text = "Taşıma iptal edildi, cihaz eski yerine bırakıldı."
+			desk_prompt.visible = true
 
 func _get_or_create_grid_ghost() -> MeshInstance3D:
 	if grid_ghost and is_instance_valid(grid_ghost):

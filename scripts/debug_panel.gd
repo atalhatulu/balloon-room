@@ -362,12 +362,6 @@ func _build_devices_tab() -> void:
 		for f in fans:
 			if f and is_instance_valid(f): f.wind_range = val
 	)
-	# Wall Spikes
-	_add_spinbox_row(grid, "Dikenli Duvar Bekleme Süresi (s):", 0.02, 1.0, 0.02, 0.55, func(val):
-		var ws = load("res://scripts/wall_spikes.gd")
-		if ws and "cooldown_intervals" in ws:
-			ws.cooldown_intervals[1] = val
-	)
 
 func _build_cheats_tab() -> void:
 	var scroll = ScrollContainer.new()

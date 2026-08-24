@@ -17,20 +17,6 @@ var helium_atoms: int = 0
 
 # Devices & Automation Equipment Catalog
 var devices: Dictionary = {
-	"wall_spikes": {
-		"id": "wall_spikes",
-		"name": "Dikenli Duvar Paneli (Wall Spikes)",
-		"category": "devices",
-		"unlock_pops": 500,
-		"level": 0,
-		"max_level": 6,
-		"count": 0,
-		"max_count": 3,
-		"desc": "Duvarlara sabitlenen sivri çelik iğne paneli. Vantilatörün karşısına monte edilerek gelen balonları anında deler.",
-		"widths": ["0.55s Bekleme (14 Balon)", "0.44s Bekleme (25 Balon)", "0.35s Bekleme (40 Balon)", "0.26s Bekleme (65 Balon)", "0.19s Bekleme (95 Balon)", "0.14s Bekleme (140 Balon)"],
-		"unit_costs": [350, 1200, 4500],
-		"costs": [700, 2200, 7500, 25000, 90000, 300000]
-	},
 	"fan": {
 		"id": "fan",
 		"name": "Duvar / Oda Vantilatörü (Air Turbine)",
