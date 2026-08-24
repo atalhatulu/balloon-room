@@ -1,0 +1,131 @@
+[gd_scene load_steps=10 format=3]
+
+[ext_resource type="Script" path="res://scripts/wall_spikes.gd" id="1_script"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_plate"]
+size = Vector3(2.4, 2.2, 0.12)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_plate"]
+albedo_color = Color(0.18, 0.20, 0.24, 1)
+metallic = 0.9
+roughness = 0.25
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_spike"]
+top_radius = 0.005
+bottom_radius = 0.08
+height = 0.55
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_spike"]
+albedo_color = Color(0.9, 0.35, 0.15, 1)
+metallic = 0.95
+roughness = 0.15
+emission_enabled = true
+emission = Color(0.8, 0.25, 0.1, 1)
+emission_energy_multiplier = 1.2
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_trigger"]
+size = Vector3(2.5, 2.3, 1.2)
+
+[sub_resource type="BoxMesh" id="BoxMesh_spark"]
+size = Vector3(0.04, 0.04, 0.04)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_spark"]
+albedo_color = Color(1, 0.7, 0.2, 1)
+emission_enabled = true
+emission = Color(1, 0.6, 0.1, 1)
+emission_energy_multiplier = 3.0
+
+[node name="WallSpikes" type="Node3D"]
+script = ExtResource("1_script")
+
+[node name="PlateMesh" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.1, 0.06)
+mesh = SubResource("BoxMesh_plate")
+material_override = SubResource("StandardMaterial3D_plate")
+
+[node name="Spikes" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.1, 0)
+
+[node name="Spike1" type="MeshInstance3D" parent="Spikes"]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, -0.8, 0.6, -0.28)
+mesh = SubResource("CylinderMesh_spike")
+material_override = SubResource("StandardMaterial3D_spike")
+
+[node name="Spike2" type="MeshInstance3D" parent="Spikes"]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, -0.25, 0.6, -0.28)
+mesh = SubResource("CylinderMesh_spike")
+material_override = SubResource("StandardMaterial3D_spike")
+
+[node name="Spike3" type="MeshInstance3D" parent="Spikes"]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0.25, 0.6, -0.28)
+mesh = SubResource("CylinderMesh_spike")
+material_override = SubResource("StandardMaterial3D_spike")
+
+[node name="Spike4" type="MeshInstance3D" parent="Spikes"]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0.8, 0.6, -0.28)
+mesh = SubResource("CylinderMesh_spike")
+material_override = SubResource("StandardMaterial3D_spike")
+
+[node name="Spike5" type="MeshInstance3D" parent="Spikes"]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, -0.8, 0.0, -0.28)
+mesh = SubResource("CylinderMesh_spike")
+material_override = SubResource("StandardMaterial3D_spike")
+
+[node name="Spike6" type="MeshInstance3D" parent="Spikes"]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, -0.25, 0.0, -0.28)
+mesh = SubResource("CylinderMesh_spike")
+material_override = SubResource("StandardMaterial3D_spike")
+
+[node name="Spike7" type="MeshInstance3D" parent="Spikes"]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0.25, 0.0, -0.28)
+mesh = SubResource("CylinderMesh_spike")
+material_override = SubResource("StandardMaterial3D_spike")
+
+[node name="Spike8" type="MeshInstance3D" parent="Spikes"]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0.8, 0.0, -0.28)
+mesh = SubResource("CylinderMesh_spike")
+material_override = SubResource("StandardMaterial3D_spike")
+
+[node name="Spike9" type="MeshInstance3D" parent="Spikes"]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, -0.8, -0.6, -0.28)
+mesh = SubResource("CylinderMesh_spike")
+material_override = SubResource("StandardMaterial3D_spike")
+
+[node name="Spike10" type="MeshInstance3D" parent="Spikes"]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, -0.25, -0.6, -0.28)
+mesh = SubResource("CylinderMesh_spike")
+material_override = SubResource("StandardMaterial3D_spike")
+
+[node name="Spike11" type="MeshInstance3D" parent="Spikes"]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0.25, -0.6, -0.28)
+mesh = SubResource("CylinderMesh_spike")
+material_override = SubResource("StandardMaterial3D_spike")
+
+[node name="Spike12" type="MeshInstance3D" parent="Spikes"]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0.8, -0.6, -0.28)
+mesh = SubResource("CylinderMesh_spike")
+material_override = SubResource("StandardMaterial3D_spike")
+
+[node name="TriggerArea" type="Area3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.1, -0.55)
+collision_layer = 0
+collision_mask = 2
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="TriggerArea"]
+shape = SubResource("BoxShape3D_trigger")
+
+[node name="ImpactParticles" type="CPUParticles3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.1, -0.3)
+emitting = false
+amount = 16
+lifetime = 0.35
+one_shot = true
+explosiveness = 0.85
+mesh = SubResource("BoxMesh_spark")
+material_override = SubResource("StandardMaterial3D_spark")
+emission_shape = 3
+emission_box_extents = Vector3(1.1, 0.9, 0.1)
+direction = Vector3(0, 0, -1)
+spread = 35.0
+initial_velocity_min = 3.0
+initial_velocity_max = 6.5

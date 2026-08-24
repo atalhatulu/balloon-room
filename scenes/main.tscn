@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://jh0svxik88ix"]
 
 [ext_resource type="Script" uid="uid://d3syuw8evr4v7" path="res://scripts/main.gd" id="1_main_script"]
-[ext_resource type="PackedScene" uid="uid://bipgwsbhjamvu" path="res://scenes/player.tscn" id="2_player_scene"]
+[ext_resource type="PackedScene" path="res://scenes/player.tscn" id="2_player_scene"]
 [ext_resource type="Script" uid="uid://fbijudohprqj" path="res://scripts/game_manager.gd" id="7_gm_script"]
 [ext_resource type="Script" uid="uid://816yp32twgfs" path="res://scripts/sound_manager.gd" id="8_sm_script"]
 [ext_resource type="Script" uid="uid://b28ch66u8wmgb" path="res://scripts/shop_manager.gd" id="9_shop_script"]
@@ -831,6 +831,39 @@ size_flags_vertical = 3
 theme_override_constants/h_separation = 12
 theme_override_constants/v_separation = 12
 columns = 2
+
+[node name="CardWallSpikes" type="PanelContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid" unique_id=148192021]
+custom_minimum_size = Vector2(365, 95)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_card")
+metadata/device_id = "wall_spikes"
+
+[node name="Margin" type="MarginContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardWallSpikes" unique_id=148192022]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 8
+
+[node name="VBox" type="VBoxContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardWallSpikes/Margin" unique_id=148192023]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Title" type="Label" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardWallSpikes/Margin/VBox" unique_id=148192024]
+layout_mode = 2
+theme_override_colors/font_color = Color(1.0, 0.45, 0.2, 1)
+theme_override_font_sizes/font_size = 14
+text = "Dikenli Duvar Paneli (Wall Spikes)"
+
+[node name="Desc" type="Label" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardWallSpikes/Margin/VBox" unique_id=148192025]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.85, 0.9, 1)
+theme_override_font_sizes/font_size = 11
+text = "Duvarlara monte edilen çelik iğne paneli. Vantilatörün karşısına yerleştirilerek gelen balonları seri deler."
+
+[node name="BtnBuy" type="Button" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardWallSpikes/Margin/VBox" unique_id=148192026]
+layout_mode = 2
+text = "350 Coin"
 
 [node name="CardFan" type="PanelContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid" unique_id=148192011]
 custom_minimum_size = Vector2(365, 95)

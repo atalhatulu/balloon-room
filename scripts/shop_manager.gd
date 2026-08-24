@@ -17,6 +17,20 @@ var helium_atoms: int = 0
 
 # Devices & Automation Equipment Catalog
 var devices: Dictionary = {
+	"wall_spikes": {
+		"id": "wall_spikes",
+		"name": "Dikenli Duvar Paneli (Wall Spikes)",
+		"category": "devices",
+		"unlock_pops": 500,
+		"level": 0,
+		"max_level": 6,
+		"count": 0,
+		"max_count": 3,
+		"desc": "Duvarlara sabitlenen sivri çelik iğne paneli. Vantilatörün karşısına monte edilerek gelen balonları anında deler.",
+		"widths": ["0.55s Bekleme (14 Balon)", "0.44s Bekleme (25 Balon)", "0.35s Bekleme (40 Balon)", "0.26s Bekleme (65 Balon)", "0.19s Bekleme (95 Balon)", "0.14s Bekleme (140 Balon)"],
+		"unit_costs": [350, 1200, 4500],
+		"costs": [700, 2200, 7500, 25000, 90000, 300000]
+	},
 	"fan": {
 		"id": "fan",
 		"name": "Duvar / Oda Vantilatörü (Air Turbine)",
@@ -128,7 +142,8 @@ var rooms: Dictionary = {
 		"ceiling_height": 6.0,
 		"capacity": 500,
 		"flow_mult": 1.0,
-		"coin_multiplier": 1.0
+		"coin_multiplier": 1.0,
+		"tier_weights": {1: 0.92, 5: 0.08, 10: 0.0, 50: 0.0}
 	},
 	"medium_room": {
 		"id": "medium_room",
@@ -140,7 +155,8 @@ var rooms: Dictionary = {
 		"ceiling_height": 7.5,
 		"capacity": 1500,
 		"flow_mult": 1.25,
-		"coin_multiplier": 1.5
+		"coin_multiplier": 1.5,
+		"tier_weights": {1: 0.65, 5: 0.28, 10: 0.07, 50: 0.0}
 	},
 	"large_room": {
 		"id": "large_room",
@@ -152,7 +168,8 @@ var rooms: Dictionary = {
 		"ceiling_height": 9.0,
 		"capacity": 4000,
 		"flow_mult": 1.6,
-		"coin_multiplier": 2.2
+		"coin_multiplier": 2.2,
+		"tier_weights": {1: 0.40, 5: 0.35, 10: 0.20, 50: 0.05}
 	},
 	"warehouse": {
 		"id": "warehouse",
@@ -164,7 +181,8 @@ var rooms: Dictionary = {
 		"ceiling_height": 11.0,
 		"capacity": 10000,
 		"flow_mult": 2.2,
-		"coin_multiplier": 3.5
+		"coin_multiplier": 3.5,
+		"tier_weights": {1: 0.25, 5: 0.35, 10: 0.30, 50: 0.10}
 	},
 	"hangar": {
 		"id": "hangar",
@@ -176,7 +194,8 @@ var rooms: Dictionary = {
 		"ceiling_height": 14.0,
 		"capacity": 25000,
 		"flow_mult": 3.0,
-		"coin_multiplier": 5.0
+		"coin_multiplier": 5.0,
+		"tier_weights": {1: 0.15, 5: 0.30, 10: 0.35, 50: 0.20}
 	},
 	"hyper_lab": {
 		"id": "hyper_lab",
@@ -188,7 +207,8 @@ var rooms: Dictionary = {
 		"ceiling_height": 18.0,
 		"capacity": 60000,
 		"flow_mult": 4.5,
-		"coin_multiplier": 8.0
+		"coin_multiplier": 8.0,
+		"tier_weights": {1: 0.05, 5: 0.25, 10: 0.40, 50: 0.30}
 	}
 }
 

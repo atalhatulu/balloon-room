@@ -4,6 +4,7 @@ extends Node3D
 @export var coin_scene: PackedScene = preload("res://scenes/coin.tscn")
 
 const DEVICE_SCENES = {
+	"wall_spikes": preload("res://scenes/wall_spikes.tscn"),
 	"spike_wall": preload("res://scenes/spike_wall.tscn"),
 	"electric_wall": preload("res://scenes/electric_wall.tscn"),
 	"magnet_pylon": preload("res://scenes/magnet_pylon.tscn"),
@@ -761,40 +762,83 @@ func _process(delta: float) -> void:
 		auto_save_timer = 0.0
 		save_current_data()
 		
-	# 1. Carrying / Grid Placement Active (First-Person Held in Hands + Holographic Floor Grid Ghost)
+	# 1. Carrying / Grid Placement Active (First-Person Held in Hands + Holographic Floor/Wall Grid Ghost)
 	if carried_device and player and is_instance_valid(player):
 		var cam = player.get_node_or_null("Head/Camera3D")
 		if cam:
-			# Calculate floor placement grid target
 			var ray_orig = cam.global_position
 			var ray_dir = -cam.global_transform.basis.z
-			var floor_plane = Plane(Vector3.UP, 0.05)
-			var intersect = floor_plane.intersects_ray(ray_orig, ray_dir)
-			var hit_pos = player.global_position + ray_dir * 3.5
-			if intersect != null:
-				var dist = ray_orig.distance_to(intersect)
-				if dist < 45.0 and intersect.y <= (ray_orig.y + 0.5):
-					hit_pos = intersect
-					
+			var dev_type = carried_device.get_meta("device_type") if carried_device.has_meta("device_type") else ""
+			
 			var room_w = 16.0
 			var room_l = 16.0
+			var ceiling_h = 6.0
 			if shop_manager and shop_manager.has_method("get_current_room_data"):
 				var r_data = shop_manager.get_current_room_data()
-				if r_data.has("floor_size"):
-					room_w = r_data["floor_size"].x
-					room_l = r_data["floor_size"].y
+				room_w = r_data.get("floor_size", Vector2(16, 16)).x
+				room_l = r_data.get("floor_size", Vector2(16, 16)).y
+				ceiling_h = r_data.get("ceiling_height", 6.0)
 				
-			var max_x = (room_w / 2.0) - 1.5
-			var max_z = (room_l / 2.0) - 1.5
-			var clamped_x = clamp(hit_pos.x, -max_x, max_x)
-			var clamped_z = clamp(hit_pos.z, -max_z, max_z)
+			var half_w = room_w / 2.0
+			var half_l = room_l / 2.0
 			
-			# Snap to 1.5m floor grid
-			var snap_x = round(clamped_x / 1.5) * 1.5
-			var snap_z = round(clamped_z / 1.5) * 1.5
-			carried_placement_pos = Vector3(snap_x, 0.05, snap_z)
+			# Check wall planes for wall mounting (Wall Spikes & Wall Fan)
+			var is_wall_mounted = false
+			var best_hit_dist = 999.0
+			var best_wall_pos = Vector3.ZERO
+			var best_wall_rot = 0.0
 			
-			# Update Holographic Grid Ghost on the floor
+			var wall_planes = [
+				{"p": Plane(Vector3.BACK, -half_l), "rot": 0.0, "axis": "z"},
+				{"p": Plane(Vector3.FORWARD, -half_l), "rot": PI, "axis": "z"},
+				{"p": Plane(Vector3.RIGHT, -half_w), "rot": -PI * 0.5, "axis": "x"},
+				{"p": Plane(Vector3.LEFT, -half_w), "rot": PI * 0.5, "axis": "x"}
+			]
+			
+			for wp in wall_planes:
+				var inter = wp["p"].intersects_ray(ray_orig, ray_dir)
+				if inter != null:
+					var d = ray_orig.distance_to(inter)
+					if d > 0.5 and d < 35.0 and inter.y >= 0.2 and inter.y <= (ceiling_h - 0.2):
+						if abs(inter.x) <= (half_w + 0.15) and abs(inter.z) <= (half_l + 0.15):
+							if d < best_hit_dist:
+								best_hit_dist = d
+								best_wall_pos = inter
+								best_wall_rot = wp["rot"]
+								is_wall_mounted = true
+								
+			if is_wall_mounted and (dev_type == "wall_spikes" or (dev_type == "fan" and best_hit_dist < 18.0)):
+				var snap_y = clamp(round(best_wall_pos.y / 0.8) * 0.8, 0.8, ceiling_h - 1.4)
+				if abs(best_wall_pos.z) >= (half_l - 0.6):
+					var snap_x = clamp(round(best_wall_pos.x / 1.5) * 1.5, -half_w + 1.5, half_w - 1.5)
+					var z_sign = -1.0 if best_wall_pos.z < 0 else 1.0
+					carried_placement_pos = Vector3(snap_x, snap_y, (half_l - 0.08) * z_sign)
+				else:
+					var snap_z = clamp(round(best_wall_pos.z / 1.5) * 1.5, -half_l + 1.5, half_l - 1.5)
+					var x_sign = -1.0 if best_wall_pos.x < 0 else 1.0
+					carried_placement_pos = Vector3((half_w - 0.08) * x_sign, snap_y, snap_z)
+				carried_placement_rot_y = best_wall_rot
+			else:
+				# Floor Placement
+				var floor_plane = Plane(Vector3.UP, 0.05)
+				var intersect = floor_plane.intersects_ray(ray_orig, ray_dir)
+				var hit_pos = player.global_position + ray_dir * 3.5
+				if intersect != null:
+					var dist = ray_orig.distance_to(intersect)
+					if dist < 45.0 and intersect.y <= (ray_orig.y + 0.5):
+						hit_pos = intersect
+						
+				var max_x = half_w - 1.5
+				var max_z = half_l - 1.5
+				var clamped_x = clamp(hit_pos.x, -max_x, max_x)
+				var clamped_z = clamp(hit_pos.z, -max_z, max_z)
+				
+				# Snap to 1.5m floor grid
+				var snap_x = round(clamped_x / 1.5) * 1.5
+				var snap_z = round(clamped_z / 1.5) * 1.5
+				carried_placement_pos = Vector3(snap_x, 0.05, snap_z)
+			
+			# Update Holographic Grid Ghost
 			var g = _get_or_create_grid_ghost()
 			if g:
 				g.global_position = carried_placement_pos
@@ -813,7 +857,8 @@ func _process(delta: float) -> void:
 			carried_device.global_rotation.z = lerp_angle(carried_device.global_rotation.z, 0.0, delta * 18.0)
 			
 			if desk_prompt:
-				desk_prompt.text = "[Sol Tık / E] Zemine Yerleştir  |  [R] 45° Döndür  |  [Q / Sağ Tık] İptal"
+				var target_surface = "Duvara" if is_wall_mounted else "Zemine"
+				desk_prompt.text = "[Sol Tık / E] " + target_surface + " Yerleştir  |  [R] 45° Döndür  |  [Q / Sağ Tık] İptal"
 				desk_prompt.visible = true
 		return
 		
@@ -2024,12 +2069,18 @@ func drop_balloons_from_vent(count: int) -> void:
 		var offset = Vector3(randf_range(-0.35, 0.35), randf_range(-0.1, 0.1), randf_range(-0.35, 0.35))
 		var spawn_pos = chosen_vent + offset
 		
-		# Live Tier Distribution (Configurable via Debug Panel)
+		# Dynamic Room Tier Distribution (Small room starts at 92% 1x, 8% 5x, 0% 10x/50x!)
 		var roll = randf()
 		var b_tier = 1
-		var w50 = debug_tier_weights.get(50, 0.05)
-		var w10 = debug_tier_weights.get(10, 0.20)
-		var w5 = debug_tier_weights.get(5, 0.40)
+		var room_tw = {1: 0.92, 5: 0.08, 10: 0.0, 50: 0.0}
+		if shop_manager and shop_manager.has_method("get_current_room_data"):
+			var r_data = shop_manager.get_current_room_data()
+			if r_data.has("tier_weights"):
+				room_tw = r_data["tier_weights"]
+				
+		var w50 = room_tw.get(50, 0.0)
+		var w10 = room_tw.get(10, 0.0)
+		var w5 = room_tw.get(5, 0.08)
 		
 		if roll < w50:
 			b_tier = 50
