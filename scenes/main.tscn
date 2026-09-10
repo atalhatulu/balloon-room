@@ -819,27 +819,72 @@ custom_minimum_size = Vector2(36, 30)
 layout_mode = 2
 text = "✕"
 
+[node name="TierTabs" type="HBoxContainer" parent="UI/ShopModal/Panel/Margin/VBox" unique_id=193857201]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="BtnTier1" type="Button" parent="UI/ShopModal/Panel/Margin/VBox/TierTabs" unique_id=193857202]
+custom_minimum_size = Vector2(200, 34)
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "1. AŞAMA: ATÖLYE"
+
+[node name="BtnTier2" type="Button" parent="UI/ShopModal/Panel/Margin/VBox/TierTabs" unique_id=193857203]
+custom_minimum_size = Vector2(210, 34)
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "2. AŞAMA: SANAYİ"
+
+[node name="BtnTier3" type="Button" parent="UI/ShopModal/Panel/Margin/VBox/TierTabs" unique_id=193857204]
+custom_minimum_size = Vector2(220, 34)
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "3. AŞAMA: HİPER TEKNO"
+
+[node name="BtnTierAll" type="Button" parent="UI/ShopModal/Panel/Margin/VBox/TierTabs" unique_id=193857205]
+custom_minimum_size = Vector2(160, 34)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 12
+text = "TÜM KATALOG"
+
 [node name="CategoryTabs" type="HBoxContainer" parent="UI/ShopModal/Panel/Margin/VBox" unique_id=752465902]
 layout_mode = 2
-theme_override_constants/separation = 12
+theme_override_constants/separation = 8
+
+[node name="BtnTabAll" type="Button" parent="UI/ShopModal/Panel/Margin/VBox/CategoryTabs" unique_id=193857206]
+custom_minimum_size = Vector2(110, 30)
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "Tüm Tipler"
 
 [node name="BtnTabUpgrades" type="Button" parent="UI/ShopModal/Panel/Margin/VBox/CategoryTabs" unique_id=557391477]
-custom_minimum_size = Vector2(170, 36)
+custom_minimum_size = Vector2(120, 30)
 layout_mode = 2
-theme_override_font_sizes/font_size = 13
+theme_override_font_sizes/font_size = 11
 text = "Karakter & İğne"
 
 [node name="BtnTabDevices" type="Button" parent="UI/ShopModal/Panel/Margin/VBox/CategoryTabs" unique_id=1254069494]
-custom_minimum_size = Vector2(170, 36)
+custom_minimum_size = Vector2(120, 30)
 layout_mode = 2
-theme_override_font_sizes/font_size = 13
-text = "Cihazlar & Otomasyon"
+theme_override_font_sizes/font_size = 11
+text = "Cihazlar"
 
 [node name="BtnTabRooms" type="Button" parent="UI/ShopModal/Panel/Margin/VBox/CategoryTabs" unique_id=749574410]
-custom_minimum_size = Vector2(170, 36)
+custom_minimum_size = Vector2(110, 30)
 layout_mode = 2
-theme_override_font_sizes/font_size = 13
-text = "Mülk & Odalar"
+theme_override_font_sizes/font_size = 11
+text = "Odalar"
+
+[node name="Spacer" type="Control" parent="UI/ShopModal/Panel/Margin/VBox/CategoryTabs" unique_id=193857207]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="DeviceCapLabel" type="Label" parent="UI/ShopModal/Panel/Margin/VBox/CategoryTabs" unique_id=193857208]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.4, 0.9, 1, 1)
+theme_override_font_sizes/font_size = 12
+text = "Oda Cihaz Kapasitesi: 0 / 4"
 
 [node name="Scroll" type="ScrollContainer" parent="UI/ShopModal/Panel/Margin/VBox" unique_id=1712810923]
 layout_mode = 2

@@ -86,12 +86,13 @@ var rooms: Dictionary = {
 	"small_room": {
 		"id": "small_room",
 		"name": "Başlangıç Atölyesi (Workshop)",
-		"desc": "18x18m alan, 6.5m tavan. 1.0x Coin Çarpanı, 600 Balon Kapasitesi.",
+		"desc": "18x18m alan, 6.5m tavan. 1.0x Coin Çarpanı, 600 Balon Kapasitesi, Max 4 Zemin Cihazı.",
 		"cost": 0,
 		"unlock_pops": 0,
 		"floor_size": Vector2(18, 18),
 		"ceiling_height": 6.5,
 		"capacity": 600,
+		"max_devices": 4,
 		"flow_mult": 1.0,
 		"coin_multiplier": 1.0,
 		"tier_weights": {1: 0.94, 5: 0.06, 10: 0.0, 50: 0.0}
@@ -99,12 +100,13 @@ var rooms: Dictionary = {
 	"medium_room": {
 		"id": "medium_room",
 		"name": "Üretim Tesisi (Facility)",
-		"desc": "38x38m alan, 8.5m tavan. 1.3x Coin Çarpanı, 2.500 Balon Kapasitesi.",
+		"desc": "38x38m alan, 8.5m tavan. 1.3x Coin Çarpanı, 2.500 Balon Kapasitesi, Max 12 Zemin Cihazı.",
 		"cost": 15000,
 		"unlock_pops": 15000,
 		"floor_size": Vector2(38, 38),
 		"ceiling_height": 8.5,
 		"capacity": 2500,
+		"max_devices": 12,
 		"flow_mult": 1.25,
 		"coin_multiplier": 1.3,
 		"tier_weights": {1: 0.75, 5: 0.18, 10: 0.06, 50: 0.01}
@@ -112,12 +114,13 @@ var rooms: Dictionary = {
 	"hangar": {
 		"id": "hangar",
 		"name": "Mega Hangar (Hangar)",
-		"desc": "65x65m dev alan, 13m tavan. 1.8x Coin Çarpanı, 8.000 Balon Kapasitesi.",
-		"cost": 180000,
-		"unlock_pops": 120000,
+		"desc": "65x65m dev alan, 13m tavan. 1.8x Coin Çarpanı, 8.000 Balon Kapasitesi, Max 24 Zemin Cihazı.",
+		"cost": 120000,
+		"unlock_pops": 35000,
 		"floor_size": Vector2(65, 65),
 		"ceiling_height": 13.0,
 		"capacity": 8000,
+		"max_devices": 24,
 		"flow_mult": 1.65,
 		"coin_multiplier": 1.8,
 		"tier_weights": {1: 0.55, 5: 0.28, 10: 0.14, 50: 0.03}
@@ -125,12 +128,13 @@ var rooms: Dictionary = {
 	"hyper_lab": {
 		"id": "hyper_lab",
 		"name": "Siber Laboratuvar (Hyper Lab)",
-		"desc": "95x95m siber tesis, 18m tavan. 2.6x Hiper Çarpan, 25.000 Balon Kapasitesi.",
-		"cost": 650000,
-		"unlock_pops": 450000,
+		"desc": "95x95m siber tesis, 18m tavan. 2.6x Hiper Çarpan, 25.000 Balon Kapasitesi, Max 36 Zemin Cihazı.",
+		"cost": 450000,
+		"unlock_pops": 150000,
 		"floor_size": Vector2(95, 95),
 		"ceiling_height": 18.0,
 		"capacity": 25000,
+		"max_devices": 36,
 		"flow_mult": 2.20,
 		"coin_multiplier": 2.6,
 		"tier_weights": {1: 0.35, 5: 0.35, 10: 0.22, 50: 0.08}
@@ -322,6 +326,17 @@ func switch_to_room(room_id: String) -> bool:
 func get_current_room_data() -> Dictionary:
 	return rooms.get(current_room, rooms["small_room"])
 
+func get_total_placed_devices() -> int:
+	var total = 0
+	for d_id in devices:
+		if d_id != "gravity_regulator":
+			total += devices[d_id].get("count", 0)
+	return total
+
+func get_current_room_max_devices() -> int:
+	var r = rooms.get(current_room, rooms["small_room"])
+	return r.get("max_devices", 4)
+
 func buy_device_unit(device_id: String, total_pops: int = 999999) -> bool:
 	if not devices.has(device_id):
 		purchase_failed.emit("Bilinmeyen cihaz")
@@ -333,6 +348,13 @@ func buy_device_unit(device_id: String, total_pops: int = 999999) -> bool:
 	if cur_count >= max_count:
 		purchase_failed.emit("Maksimum cihaz adedine (" + str(max_count) + "/" + str(max_count) + ") ulaşıldı!")
 		return false
+		
+	if device_id != "gravity_regulator":
+		var total_placed = get_total_placed_devices()
+		var max_room_devs = get_current_room_max_devices()
+		if total_placed >= max_room_devs:
+			purchase_failed.emit("Oda cihaz kapasitesi dolu (" + str(total_placed) + "/" + str(max_room_devs) + ")! Daha büyük bir odaya geçin.")
+			return false
 		
 	var needed_pops = get_device_unit_req_pops(device_id, cur_count)
 	if total_pops < needed_pops:

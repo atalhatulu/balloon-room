@@ -130,10 +130,18 @@ var is_victory_shown: bool = false
 @onready var btn_close_shop: Button = $UI/ShopModal/Panel/Margin/VBox/Header/BtnClose
 @onready var upgrades_container: GridContainer = $UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid
 
-# Filter Tabs (3 Primary Categories: Upgrades, Devices, Rooms)
+# Progression Tier Tabs (Aşama 1: Atölye, Aşama 2: Sanayi, Aşama 3: Hiper Tekno, Tüm Katalog)
+@onready var btn_tier_1: Button = $UI/ShopModal/Panel/Margin/VBox/TierTabs/BtnTier1
+@onready var btn_tier_2: Button = $UI/ShopModal/Panel/Margin/VBox/TierTabs/BtnTier2
+@onready var btn_tier_3: Button = $UI/ShopModal/Panel/Margin/VBox/TierTabs/BtnTier3
+@onready var btn_tier_all: Button = $UI/ShopModal/Panel/Margin/VBox/TierTabs/BtnTierAll
+
+# Category Filter Tabs & Room Capacity HUD
+@onready var btn_tab_all: Button = $UI/ShopModal/Panel/Margin/VBox/CategoryTabs/BtnTabAll
 @onready var btn_tab_upgrades: Button = $UI/ShopModal/Panel/Margin/VBox/CategoryTabs/BtnTabUpgrades
 @onready var btn_tab_devices: Button = $UI/ShopModal/Panel/Margin/VBox/CategoryTabs/BtnTabDevices
 @onready var btn_tab_rooms: Button = $UI/ShopModal/Panel/Margin/VBox/CategoryTabs/BtnTabRooms
+@onready var lbl_room_device_cap: Label = $UI/ShopModal/Panel/Margin/VBox/CategoryTabs/DeviceCapLabel
 
 # 3D Gravity Terminal
 @onready var gravity_terminal: Node3D = $Environment/GravityTerminal
@@ -145,7 +153,9 @@ var is_near_grav_terminal: bool = false
 var raycast_target_type: String = "" # "desk", "gravity_terminal", "device", ""
 var raycast_target_device: Node3D = null
 var raycast_target_name: String = ""
-var current_filter: String = "upgrades"
+var current_tier: int = 1 # 1: Atölye, 2: Sanayi, 3: Hiper Tekno, 0: Tüm Katalog
+var current_filter: String = "all" # "all", "upgrades", "devices", "rooms"
+var tier_user_selected: bool = false
 var auto_save_timer: float = 0.0
 var active_vent_positions: Array[Vector3] = []
 
@@ -1747,6 +1757,18 @@ func toggle_shop_modal() -> void:
 	
 	if will_open:
 		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+		if shop_coins_label and shop_manager:
+			shop_coins_label.text = "Coin: " + str(shop_manager.coins) + " 🎈"
+			
+		var total_pops = game_manager.total_pops if game_manager else 0
+		if not tier_user_selected:
+			if total_pops >= 30000:
+				current_tier = 3
+			elif total_pops >= 1000:
+				current_tier = 2
+			else:
+				current_tier = 1
+				
 		update_all_shop_cards()
 	else:
 		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
@@ -1755,6 +1777,20 @@ func toggle_shop_modal() -> void:
 func setup_shop_ui_events() -> void:
 	if btn_close_shop:
 		btn_close_shop.pressed.connect(func(): toggle_shop_modal())
+		
+	# Progression Tier tabs
+	if btn_tier_1:
+		btn_tier_1.pressed.connect(func(): set_tier_filter(1))
+	if btn_tier_2:
+		btn_tier_2.pressed.connect(func(): set_tier_filter(2))
+	if btn_tier_3:
+		btn_tier_3.pressed.connect(func(): set_tier_filter(3))
+	if btn_tier_all:
+		btn_tier_all.pressed.connect(func(): set_tier_filter(0))
+		
+	# Category tabs
+	if btn_tab_all:
+		btn_tab_all.pressed.connect(func(): set_category_filter("all"))
 	if btn_tab_upgrades:
 		btn_tab_upgrades.pressed.connect(func(): set_category_filter("upgrades"))
 	if btn_tab_devices:
@@ -1776,14 +1812,44 @@ func setup_shop_ui_events() -> void:
 				var d_id = card.get_meta("device_id")
 				btn.pressed.connect(func(): _on_buy_device_pressed(d_id))
 
+func set_tier_filter(tier_num: int) -> void:
+	current_tier = tier_num
+	tier_user_selected = true
+	update_all_shop_cards()
+
 func set_category_filter(filter_name: String) -> void:
 	current_filter = filter_name
-	
-	if btn_tab_upgrades: btn_tab_upgrades.modulate = Color(0.2, 0.9, 1.2) if filter_name == "upgrades" else Color(0.7, 0.7, 0.7)
-	if btn_tab_devices: btn_tab_devices.modulate = Color(0.3, 1.2, 0.6) if filter_name == "devices" else Color(0.7, 0.7, 0.7)
-	if btn_tab_rooms: btn_tab_rooms.modulate = Color(1.1, 0.4, 1.1) if filter_name == "rooms" else Color(0.7, 0.7, 0.7)
-	
 	update_all_shop_cards()
+
+func get_card_tier(card: Control) -> int:
+	if card.has_meta("upgrade_id"):
+		return 1
+	elif card.has_meta("device_id"):
+		var d_id = card.get_meta("device_id")
+		if d_id == "spike_wall":
+			return 1
+		elif d_id in ["gravity_regulator", "magnet_pylon", "electric_wall"]:
+			return 2
+		return 2
+	elif card.has_meta("room_id"):
+		var r_id = card.get_meta("room_id")
+		if r_id == "small_room":
+			return 1
+		elif r_id == "medium_room":
+			return 2
+		elif r_id in ["hangar", "hyper_lab"]:
+			return 3
+		return 1
+	return 1
+
+func get_card_category(card: Control) -> String:
+	if card.has_meta("upgrade_id"):
+		return "upgrades"
+	elif card.has_meta("device_id"):
+		return "devices"
+	elif card.has_meta("room_id"):
+		return "rooms"
+	return ""
 
 func _on_desk_area_entered(body: Node3D) -> void:
 	if body.is_in_group("player"):
@@ -1827,19 +1893,72 @@ func update_all_shop_cards() -> void:
 	if not upgrades_container or not shop_manager: return
 	
 	var total_pops = game_manager.total_pops if game_manager else 0
+	
+	# Update Room Device Capacity label
+	if lbl_room_device_cap and shop_manager:
+		var total_placed = shop_manager.get_total_placed_devices()
+		var max_cap = shop_manager.get_current_room_max_devices()
+		var r_data = shop_manager.get_current_room_data()
+		var r_name = r_data.get("name", "Oda").split("(")[0].strip_edges()
+		if total_placed >= max_cap:
+			lbl_room_device_cap.text = "Oda Cihaz Sınırı: " + str(total_placed) + " / " + str(max_cap) + " [" + r_name + "] (DOLU - Yeni Oda Gerekli)"
+			lbl_room_device_cap.modulate = Color(1.0, 0.4, 0.4)
+		else:
+			lbl_room_device_cap.text = "Oda Cihaz Sınırı: " + str(total_placed) + " / " + str(max_cap) + " [" + r_name + "]"
+			lbl_room_device_cap.modulate = Color(0.4, 0.9, 1.0)
+			
+	# Update Tier button texts and highlights
+	var tier2_unlocked = (total_pops >= 1000)
+	var tier3_unlocked = (total_pops >= 30000)
+	
+	if btn_tier_1:
+		btn_tier_1.text = "1. AŞAMA: ATÖLYE"
+		btn_tier_1.modulate = Color(0.3, 1.2, 0.8) if current_tier == 1 else Color(0.7, 0.7, 0.7)
+		
+	if btn_tier_2:
+		if tier2_unlocked:
+			btn_tier_2.text = "2. AŞAMA: SANAYİ"
+			btn_tier_2.modulate = Color(0.3, 1.0, 1.3) if current_tier == 2 else Color(0.7, 0.7, 0.7)
+		else:
+			btn_tier_2.text = "🔒 2. AŞAMA (1.000 Pop)"
+			btn_tier_2.modulate = Color(1.0, 0.65, 0.3) if current_tier == 2 else Color(0.5, 0.5, 0.5)
+			
+	if btn_tier_3:
+		if tier3_unlocked:
+			btn_tier_3.text = "3. AŞAMA: HİPER TEKNO"
+			btn_tier_3.modulate = Color(1.2, 0.4, 1.2) if current_tier == 3 else Color(0.7, 0.7, 0.7)
+		else:
+			btn_tier_3.text = "🔒 3. AŞAMA (30.000 Pop)"
+			btn_tier_3.modulate = Color(1.0, 0.65, 0.3) if current_tier == 3 else Color(0.5, 0.5, 0.5)
+			
+	if btn_tier_all:
+		btn_tier_all.text = "TÜM KATALOG"
+		btn_tier_all.modulate = Color(1.2, 1.1, 0.4) if current_tier == 0 else Color(0.7, 0.7, 0.7)
+
+	# Update Category button highlights
+	if btn_tab_all: btn_tab_all.modulate = Color(1.2, 1.1, 0.5) if current_filter == "all" else Color(0.7, 0.7, 0.7)
+	if btn_tab_upgrades: btn_tab_upgrades.modulate = Color(0.3, 0.9, 1.2) if current_filter == "upgrades" else Color(0.7, 0.7, 0.7)
+	if btn_tab_devices: btn_tab_devices.modulate = Color(0.4, 1.2, 0.7) if current_filter == "devices" else Color(0.7, 0.7, 0.7)
+	if btn_tab_rooms: btn_tab_rooms.modulate = Color(1.1, 0.5, 1.1) if current_filter == "rooms" else Color(0.7, 0.7, 0.7)
+
 	var card_sort_list: Array = []
 	
 	for child in upgrades_container.get_children():
+		var card_tier = get_card_tier(child)
+		var card_cat = get_card_category(child)
+		
+		var matches_tier = (current_tier == 0 or card_tier == current_tier)
+		var matches_cat = (current_filter == "all" or card_cat == current_filter)
+		var is_card_visible = matches_tier and matches_cat
+		child.visible = is_card_visible
+		
 		var sort_priority: int = 0
 		
-		# 1. Device Equipment Cards (Tab: "devices")
+		# 1. Device Equipment Cards
 		if child.has_meta("device_id"):
 			var d_id = child.get_meta("device_id")
 			var d_data = shop_manager.devices.get(d_id)
-			var matches_filter = (current_filter == "devices")
-			child.visible = matches_filter
-			
-			if not matches_filter or not d_data:
+			if not is_card_visible or not d_data:
 				continue
 				
 			var title_lbl = child.get_node_or_null("Margin/VBox/Title")
@@ -1851,10 +1970,14 @@ func update_all_shop_cards() -> void:
 			var cur_count = d_data.get("count", 0)
 			var max_count = d_data.get("max_count", 6)
 			
+			var total_placed = shop_manager.get_total_placed_devices()
+			var max_room_cap = shop_manager.get_current_room_max_devices()
+			var room_is_full = (d_id != "gravity_regulator" and total_placed >= max_room_cap)
+			
 			if not is_unlocked and cur_count == 0:
 				sort_priority = 1000000 + unlock_req
 				if title_lbl:
-					title_lbl.text = "🔒 " + d_data["name"].to_upper()
+					title_lbl.text = "🔒 [AŞAMA " + str(card_tier) + "] " + d_data["name"].to_upper()
 					title_lbl.modulate = Color(0.65, 0.68, 0.72)
 				if desc_lbl:
 					var pct = int(clamp(float(total_pops) / float(max(1, unlock_req)), 0.0, 1.0) * 100)
@@ -1871,7 +1994,7 @@ func update_all_shop_cards() -> void:
 					var modes = d_data.get("modes", ["0.25 G (Standart)", "0.80 G (Ağır Döküm)", "1.80 G (Hızlı Şelale)", "3.50 G (Ağır Çöküş)", "6.00 G (Hiper Yerçekimi)"])
 					
 					if title_lbl:
-						title_lbl.text = "Yerçekimi & Gaz Regülatörü  [" + format_level_pips(lvl, max_lvl) + "] (Sv. " + str(lvl) + "/" + str(max_lvl) + ")"
+						title_lbl.text = "[AŞAMA " + str(card_tier) + "] Yerçekimi & Gaz Regülatörü  [" + format_level_pips(lvl, max_lvl) + "] (Sv. " + str(lvl) + "/" + str(max_lvl) + ")"
 						title_lbl.modulate = Color(0.35, 0.9, 1.0) if lvl > 0 else Color(1, 1, 1)
 					if desc_lbl:
 						var curr_mode = modes[clamp(lvl, 0, modes.size() - 1)]
@@ -1893,7 +2016,7 @@ func update_all_shop_cards() -> void:
 							cost_btn.disabled = (shop_manager.coins < next_cost)
 				else:
 					if title_lbl:
-						title_lbl.text = d_data["name"] + "  |  Sahada: " + str(cur_count) + " / " + str(max_count) + " Adet"
+						title_lbl.text = "[AŞAMA " + str(card_tier) + "] " + d_data["name"] + "  |  Sahada: " + str(cur_count) + " / " + str(max_count) + " Adet"
 						title_lbl.modulate = Color(0.3, 0.95, 0.6) if cur_count > 0 else Color(1, 1, 1)
 					if desc_lbl:
 						if d_id == "sentry_drone":
@@ -1907,6 +2030,12 @@ func update_all_shop_cards() -> void:
 							sort_priority = 500000 + unlock_req
 							cost_btn.text = "MAX KAPASİTE (" + str(max_count) + "/" + str(max_count) + ")"
 							cost_btn.disabled = true
+						elif room_is_full:
+							sort_priority = unlock_req
+							cost_btn.text = "🔒 ODA KAPASİTESİ DOLU (" + str(total_placed) + "/" + str(max_room_cap) + ")"
+							cost_btn.disabled = true
+							if desc_lbl:
+								desc_lbl.text += "\n⚠️ Oda cihaz kapasitesi dolu! Yeni cihaz yerleştirmek için odayı büyütün."
 						else:
 							sort_priority = unlock_req
 							var needed_unit_pops = shop_manager.get_device_unit_req_pops(d_id, cur_count) if shop_manager else 0
@@ -1923,15 +2052,12 @@ func update_all_shop_cards() -> void:
 								else:
 									cost_btn.text = "YENİ ADET AL (" + str(cur_count + 1) + "/" + str(max_count) + ") : " + str(u_cost) + " Coin"
 								cost_btn.disabled = shop_manager.coins < u_cost
-
-		# 2. Room Expansion Cards (Tab: "rooms")
+								
+		# 2. Room Expansion Cards
 		elif child.has_meta("room_id"):
 			var r_id = child.get_meta("room_id")
 			var r_data = shop_manager.rooms.get(r_id)
-			var matches_filter = (current_filter == "rooms")
-			child.visible = matches_filter
-			
-			if not matches_filter or not r_data:
+			if not is_card_visible or not r_data:
 				continue
 				
 			var title_lbl = child.get_node_or_null("Margin/VBox/Title")
@@ -1946,8 +2072,9 @@ func update_all_shop_cards() -> void:
 			sort_priority = unlock_req
 			
 			if not is_unlocked and not is_owned:
+				sort_priority = 1000000 + unlock_req
 				if title_lbl:
-					title_lbl.text = "🔒 " + r_data["name"].to_upper()
+					title_lbl.text = "🔒 [AŞAMA " + str(card_tier) + "] " + r_data["name"].to_upper()
 					title_lbl.modulate = Color(0.65, 0.68, 0.72)
 				if desc_lbl:
 					var pct = int(clamp(float(total_pops) / float(max(1, unlock_req)), 0.0, 1.0) * 100)
@@ -1959,13 +2086,13 @@ func update_all_shop_cards() -> void:
 			else:
 				if title_lbl:
 					if is_current:
-						title_lbl.text = r_data["name"] + "  [AKTİF KULLANIMDA]"
+						title_lbl.text = "[AŞAMA " + str(card_tier) + "] " + r_data["name"] + "  [AKTİF]"
 						title_lbl.modulate = Color(0.3, 1.0, 0.6)
 					elif is_owned:
-						title_lbl.text = r_data["name"] + "  [AÇIK / SAHİPSİN]"
+						title_lbl.text = "[AŞAMA " + str(card_tier) + "] " + r_data["name"] + "  [SAHİPSİN]"
 						title_lbl.modulate = Color(0.5, 0.85, 1.0)
 					else:
-						title_lbl.text = r_data["name"]
+						title_lbl.text = "[AŞAMA " + str(card_tier) + "] " + r_data["name"]
 						title_lbl.modulate = Color(1, 1, 1)
 						
 				if desc_lbl:
@@ -1988,18 +2115,11 @@ func update_all_shop_cards() -> void:
 						if not cost_btn.is_connected("pressed", Callable(self, "_on_buy_room_pressed")):
 							cost_btn.pressed.connect(Callable(self, "_on_buy_room_pressed").bind(r_id))
 
-		# 3. Standard Upgrade Cards (Tab: "upgrades")
+		# 3. Standard Upgrade Cards
 		elif child.has_meta("upgrade_id"):
 			var u_id = child.get_meta("upgrade_id")
 			var up_data = shop_manager.upgrades.get(u_id)
-			if up_data == null:
-				child.visible = false
-				continue
-				
-			var matches_filter = (current_filter == "upgrades")
-			child.visible = matches_filter
-			
-			if not matches_filter:
+			if not is_card_visible or up_data == null:
 				continue
 				
 			var title_lbl = child.get_node_or_null("Margin/VBox/Title")
@@ -2028,7 +2148,7 @@ func update_all_shop_cards() -> void:
 			if not is_unlocked and lvl == 0:
 				sort_priority = 1000000 + base_priority
 				if title_lbl:
-					title_lbl.text = "🔒 " + up_data["title"].to_upper()
+					title_lbl.text = "🔒 [AŞAMA " + str(card_tier) + "] " + up_data["title"].to_upper()
 					title_lbl.modulate = Color(0.65, 0.68, 0.72)
 				if desc_lbl:
 					var pct = int(clamp(float(total_pops) / float(max(1, unlock_req)), 0.0, 1.0) * 100)
@@ -2039,32 +2159,36 @@ func update_all_shop_cards() -> void:
 					cost_btn.disabled = true
 			else:
 				if title_lbl:
-					title_lbl.text = up_data["title"] + "  [" + format_level_pips(lvl, max_lvl) + "] (Sv. " + str(lvl) + "/" + str(max_lvl) + ")"
-					title_lbl.modulate = Color(0.35, 0.9, 1.0) if lvl > 0 else Color(1, 1, 1)
+					title_lbl.text = "[AŞAMA " + str(card_tier) + "] " + up_data["title"] + "  [" + format_level_pips(lvl, max_lvl) + "] (Sv. " + str(lvl) + "/" + str(max_lvl) + ")"
+					title_lbl.modulate = Color(0.3, 0.85, 1) if lvl > 0 else Color(1, 1, 1)
+					
 				if desc_lbl:
-					if u_id == "pipe_count" and up_data.has("pipes"):
-						var curr_p = up_data["pipes"][lvl]
+					if u_id == "vent_rate" and up_data.has("rates"):
+						var rates_arr = up_data["rates"]
+						var curr_r = rates_arr[clamp(lvl, 0, rates_arr.size() - 1)]
 						if lvl >= max_lvl:
-							desc_lbl.text = "Maksimum Hat: " + str(curr_p) + " (Tüm 3x3 Izgara Açık!)"
+							desc_lbl.text = "Maksimum Akış: " + str(curr_r) + " Balon/sn"
 						else:
-							var next_p = up_data["pipes"][lvl + 1]
-							desc_lbl.text = "Mevcut: " + str(curr_p) + " ➔ Yükseltme: " + str(next_p) + " (Tavana Yeni Boru)"
-					elif u_id == "vent_rate" and up_data.has("rates"):
-						var curr_r = up_data["rates"][lvl]
+							var next_r = rates_arr[lvl + 1]
+							desc_lbl.text = "Mevcut: " + str(curr_r) + " Balon/sn ➔ Yükseltme: " + str(next_r) + " Balon/sn"
+					elif u_id == "pipe_count" and up_data.has("pipes"):
+						var pipes_arr = up_data["pipes"]
+						var curr_p = pipes_arr[clamp(lvl, 0, pipes_arr.size() - 1)]
 						if lvl >= max_lvl:
-							desc_lbl.text = "Maksimum Hız: Saniyede " + str(curr_r) + " Balon!"
+							desc_lbl.text = "Maksimum Boru: " + str(curr_p)
 						else:
-							var next_r = up_data["rates"][lvl + 1]
-							desc_lbl.text = "Mevcut: " + str(curr_r) + "/sn ➔ Yükseltme: " + str(next_r) + "/sn (Tavandan Akış)"
+							var next_p = pipes_arr[lvl + 1]
+							desc_lbl.text = "Mevcut: " + str(curr_p) + " ➔ Yükseltme: " + str(next_p)
 					elif u_id == "auto_pop" and up_data.has("speeds"):
-						var curr_s = up_data["speeds"][lvl]
+						var speeds_arr = up_data["speeds"]
+						var curr_s = speeds_arr[clamp(lvl, 0, speeds_arr.size() - 1)]
 						if lvl >= max_lvl:
-							desc_lbl.text = "Maksimum Seri Hız: " + str(curr_s) + "!"
+							desc_lbl.text = "Maksimum Hız: " + str(curr_s) + " (0 Enerji Tüketimi)"
 						else:
-							var next_s = up_data["speeds"][lvl + 1]
-							desc_lbl.text = "Mevcut: " + str(curr_s) + " ➔ Yükseltme: " + str(next_s) + " (Sol Tıka Basılı Tut)"
-					elif u_id == "splash_pop":
-						var targets_arr = up_data.get("targets", ["Kapalı", "2 Balon (1.8m)", "3 Balon (2.4m)", "5 Balon (3.0m)", "8 Balon (3.8m)", "12 Balon (4.6m)", "18 Balon (5.5m)", "25 Balon (6.8m)"])
+							var next_s = speeds_arr[lvl + 1]
+							desc_lbl.text = "Mevcut: " + str(curr_s) + " ➔ Yükseltme: " + str(next_s)
+					elif u_id == "splash_pop" and up_data.has("targets"):
+						var targets_arr = up_data["targets"]
 						var curr_t = targets_arr[clamp(lvl, 0, targets_arr.size() - 1)]
 						if lvl >= max_lvl:
 							desc_lbl.text = "Maksimum Hedef: " + str(curr_t) + " (Aynı Renk Zincirleme)"
