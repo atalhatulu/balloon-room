@@ -891,43 +891,43 @@ custom_minimum_size = Vector2(0, 34)
 layout_mode = 2
 text = "400 Coin"
 
-[node name="CardElectricWall" type="PanelContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid" unique_id=1139058110]
+[node name="CardGravityRegulator" type="PanelContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid" unique_id=986285921]
 custom_minimum_size = Vector2(285, 175)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_styles/panel = SubResource("StyleBoxFlat_card")
-metadata/device_id = "electric_wall"
+metadata/device_id = "gravity_regulator"
 
-[node name="Margin" type="MarginContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardElectricWall" unique_id=506932181]
+[node name="Margin" type="MarginContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardGravityRegulator" unique_id=796235990]
 layout_mode = 2
 theme_override_constants/margin_left = 14
 theme_override_constants/margin_top = 12
 theme_override_constants/margin_right = 14
 theme_override_constants/margin_bottom = 12
 
-[node name="VBox" type="VBoxContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardElectricWall/Margin" unique_id=421360221]
+[node name="VBox" type="VBoxContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardGravityRegulator/Margin" unique_id=657095559]
 layout_mode = 2
 theme_override_constants/separation = 6
 
-[node name="Title" type="Label" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardElectricWall/Margin/VBox" unique_id=1227134046]
+[node name="Title" type="Label" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardGravityRegulator/Margin/VBox" unique_id=981333646]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.2, 0.85, 1, 1)
+theme_override_colors/font_color = Color(1, 0.65, 0.25, 1)
 theme_override_font_sizes/font_size = 14
-text = "Elektrikli Zemin Izgarası"
+text = "Yerçekimi & Gaz Regülatörü"
 autowrap_mode = 3
 
-[node name="Desc" type="Label" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardElectricWall/Margin/VBox" unique_id=172498709]
+[node name="Desc" type="Label" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardGravityRegulator/Margin/VBox" unique_id=1130457651]
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_colors/font_color = Color(0.85, 0.88, 0.95, 1)
 theme_override_font_sizes/font_size = 11
-text = "Yüksek voltajlı deşarj ızgarası. Şarj olduğunda havadaki ve yerdeki balonlara devasa EMP şoku atar."
+text = "Balonların düşme hızını ve yerçekimini ayarlar. [G] tuşuyla anında modlar arasında geçiş yapılır."
 autowrap_mode = 3
 
-[node name="BtnBuy" type="Button" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardElectricWall/Margin/VBox" unique_id=1038963032]
+[node name="BtnBuy" type="Button" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardGravityRegulator/Margin/VBox" unique_id=1163878749]
 custom_minimum_size = Vector2(0, 34)
 layout_mode = 2
-text = "1000 Coin"
+text = "1200 Coin"
 
 [node name="CardMagnetPylon" type="PanelContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid" unique_id=624114632]
 custom_minimum_size = Vector2(285, 175)
@@ -967,43 +967,43 @@ custom_minimum_size = Vector2(0, 34)
 layout_mode = 2
 text = "800 Coin"
 
-[node name="CardGravityRegulator" type="PanelContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid" unique_id=986285921]
+[node name="CardElectricWall" type="PanelContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid" unique_id=1139058110]
 custom_minimum_size = Vector2(285, 175)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_styles/panel = SubResource("StyleBoxFlat_card")
-metadata/device_id = "gravity_regulator"
+metadata/device_id = "electric_wall"
 
-[node name="Margin" type="MarginContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardGravityRegulator" unique_id=796235990]
+[node name="Margin" type="MarginContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardElectricWall" unique_id=506932181]
 layout_mode = 2
 theme_override_constants/margin_left = 14
 theme_override_constants/margin_top = 12
 theme_override_constants/margin_right = 14
 theme_override_constants/margin_bottom = 12
 
-[node name="VBox" type="VBoxContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardGravityRegulator/Margin" unique_id=657095559]
+[node name="VBox" type="VBoxContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardElectricWall/Margin" unique_id=421360221]
 layout_mode = 2
 theme_override_constants/separation = 6
 
-[node name="Title" type="Label" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardGravityRegulator/Margin/VBox" unique_id=981333646]
+[node name="Title" type="Label" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardElectricWall/Margin/VBox" unique_id=1227134046]
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.65, 0.25, 1)
+theme_override_colors/font_color = Color(0.2, 0.85, 1, 1)
 theme_override_font_sizes/font_size = 14
-text = "Yerçekimi & Gaz Regülatörü"
+text = "Elektrikli Zemin Izgarası"
 autowrap_mode = 3
 
-[node name="Desc" type="Label" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardGravityRegulator/Margin/VBox" unique_id=1130457651]
+[node name="Desc" type="Label" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardElectricWall/Margin/VBox" unique_id=172498709]
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_colors/font_color = Color(0.85, 0.88, 0.95, 1)
 theme_override_font_sizes/font_size = 11
-text = "Balonların düşme hızını ve yerçekimini ayarlar. [G] tuşuyla anında modlar arasında geçiş yapılır."
+text = "Yüksek voltajlı deşarj ızgarası. Şarj olduğunda havadaki ve yerdeki balonlara devasa EMP şoku atar."
 autowrap_mode = 3
 
-[node name="BtnBuy" type="Button" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardGravityRegulator/Margin/VBox" unique_id=1163878749]
+[node name="BtnBuy" type="Button" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardElectricWall/Margin/VBox" unique_id=1038963032]
 custom_minimum_size = Vector2(0, 34)
 layout_mode = 2
-text = "1200 Coin"
+text = "1000 Coin"
 
 [node name="CardSmallRoom" type="PanelContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid" unique_id=543042405]
 custom_minimum_size = Vector2(285, 175)
@@ -1158,44 +1158,6 @@ custom_minimum_size = Vector2(0, 34)
 layout_mode = 2
 text = "650000 Coin"
 
-[node name="CardPipeCount" type="PanelContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid" unique_id=1948291099]
-custom_minimum_size = Vector2(285, 175)
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_styles/panel = SubResource("StyleBoxFlat_card")
-metadata/upgrade_id = "pipe_count"
-
-[node name="Margin" type="MarginContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardPipeCount" unique_id=1948291100]
-layout_mode = 2
-theme_override_constants/margin_left = 14
-theme_override_constants/margin_top = 12
-theme_override_constants/margin_right = 14
-theme_override_constants/margin_bottom = 12
-
-[node name="VBox" type="VBoxContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardPipeCount/Margin" unique_id=1948291101]
-layout_mode = 2
-theme_override_constants/separation = 6
-
-[node name="Title" type="Label" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardPipeCount/Margin/VBox" unique_id=1948291102]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.3, 0.85, 1, 1)
-theme_override_font_sizes/font_size = 14
-text = "Tavan Menfez Sayısı"
-autowrap_mode = 3
-
-[node name="Desc" type="Label" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardPipeCount/Margin/VBox" unique_id=1948291103]
-layout_mode = 2
-size_flags_vertical = 3
-theme_override_colors/font_color = Color(0.85, 0.88, 0.95, 1)
-theme_override_font_sizes/font_size = 11
-text = "Tavana ek boru hattı çeker. Her yeni boru toplam dökülme akışını katlar (1x ➔ 9x)!"
-autowrap_mode = 3
-
-[node name="BtnBuy" type="Button" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardPipeCount/Margin/VBox" unique_id=1948291104]
-custom_minimum_size = Vector2(0, 34)
-layout_mode = 2
-text = "120 Coin"
-
 [node name="CardVentRate" type="PanelContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid" unique_id=1215316992]
 custom_minimum_size = Vector2(285, 175)
 layout_mode = 2
@@ -1233,82 +1195,6 @@ autowrap_mode = 3
 custom_minimum_size = Vector2(0, 34)
 layout_mode = 2
 text = "10 Coin"
-
-[node name="CardAutoPop" type="PanelContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid" unique_id=908788476]
-custom_minimum_size = Vector2(285, 175)
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_styles/panel = SubResource("StyleBoxFlat_card")
-metadata/upgrade_id = "auto_pop"
-
-[node name="Margin" type="MarginContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardAutoPop" unique_id=1283828676]
-layout_mode = 2
-theme_override_constants/margin_left = 14
-theme_override_constants/margin_top = 12
-theme_override_constants/margin_right = 14
-theme_override_constants/margin_bottom = 12
-
-[node name="VBox" type="VBoxContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardAutoPop/Margin" unique_id=1318204969]
-layout_mode = 2
-theme_override_constants/separation = 6
-
-[node name="Title" type="Label" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardAutoPop/Margin/VBox" unique_id=1950473916]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.3, 0.85, 1, 1)
-theme_override_font_sizes/font_size = 14
-text = "Auto-Pop"
-autowrap_mode = 3
-
-[node name="Desc" type="Label" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardAutoPop/Margin/VBox" unique_id=334657747]
-layout_mode = 2
-size_flags_vertical = 3
-theme_override_colors/font_color = Color(0.85, 0.88, 0.95, 1)
-theme_override_font_sizes/font_size = 11
-text = "Sol tıka basılı tutulduğunda aralıksız seri iğne batırma özelliğini açar ve hızlandırır."
-autowrap_mode = 3
-
-[node name="BtnBuy" type="Button" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardAutoPop/Margin/VBox" unique_id=1758340303]
-custom_minimum_size = Vector2(0, 34)
-layout_mode = 2
-text = "50 Coin"
-
-[node name="CardSplashPop" type="PanelContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid" unique_id=894782266]
-custom_minimum_size = Vector2(285, 175)
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_styles/panel = SubResource("StyleBoxFlat_card")
-metadata/upgrade_id = "splash_pop"
-
-[node name="Margin" type="MarginContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardSplashPop" unique_id=1809357997]
-layout_mode = 2
-theme_override_constants/margin_left = 14
-theme_override_constants/margin_top = 12
-theme_override_constants/margin_right = 14
-theme_override_constants/margin_bottom = 12
-
-[node name="VBox" type="VBoxContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardSplashPop/Margin" unique_id=738864603]
-layout_mode = 2
-theme_override_constants/separation = 6
-
-[node name="Title" type="Label" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardSplashPop/Margin/VBox" unique_id=1979203738]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.3, 0.85, 1, 1)
-theme_override_font_sizes/font_size = 14
-text = "Splash / Alan Patlatma"
-autowrap_mode = 3
-
-[node name="Desc" type="Label" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardSplashPop/Margin/VBox" unique_id=818201387]
-layout_mode = 2
-size_flags_vertical = 3
-theme_override_colors/font_color = Color(0.85, 0.88, 0.95, 1)
-theme_override_font_sizes/font_size = 11
-text = "İğneyle vurulan balonun çevresinde AYNI RENKTEKİ komşu balonları zincirleme patlatır."
-autowrap_mode = 3
-
-[node name="BtnBuy" type="Button" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardSplashPop/Margin/VBox" unique_id=495833993]
-custom_minimum_size = Vector2(0, 34)
-layout_mode = 2
-text = "100 Coin"
 
 [node name="CardAthleteTraining" type="PanelContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid" unique_id=1111990068]
 custom_minimum_size = Vector2(285, 175)
@@ -1348,6 +1234,82 @@ custom_minimum_size = Vector2(0, 34)
 layout_mode = 2
 text = "30 Coin"
 
+[node name="CardPipeCount" type="PanelContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid" unique_id=1948291099]
+custom_minimum_size = Vector2(285, 175)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_card")
+metadata/upgrade_id = "pipe_count"
+
+[node name="Margin" type="MarginContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardPipeCount" unique_id=1948291100]
+layout_mode = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 12
+
+[node name="VBox" type="VBoxContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardPipeCount/Margin" unique_id=1948291101]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Title" type="Label" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardPipeCount/Margin/VBox" unique_id=1948291102]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.85, 1, 1)
+theme_override_font_sizes/font_size = 14
+text = "Tavan Menfez Sayısı"
+autowrap_mode = 3
+
+[node name="Desc" type="Label" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardPipeCount/Margin/VBox" unique_id=1948291103]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_colors/font_color = Color(0.85, 0.88, 0.95, 1)
+theme_override_font_sizes/font_size = 11
+text = "Tavana ek boru hattı çeker. Her yeni boru toplam dökülme akışını katlar (1x ➔ 9x)!"
+autowrap_mode = 3
+
+[node name="BtnBuy" type="Button" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardPipeCount/Margin/VBox" unique_id=1948291104]
+custom_minimum_size = Vector2(0, 34)
+layout_mode = 2
+text = "120 Coin"
+
+[node name="CardAutoPop" type="PanelContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid" unique_id=908788476]
+custom_minimum_size = Vector2(285, 175)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_card")
+metadata/upgrade_id = "auto_pop"
+
+[node name="Margin" type="MarginContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardAutoPop" unique_id=1283828676]
+layout_mode = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 12
+
+[node name="VBox" type="VBoxContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardAutoPop/Margin" unique_id=1318204969]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Title" type="Label" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardAutoPop/Margin/VBox" unique_id=1950473916]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.85, 1, 1)
+theme_override_font_sizes/font_size = 14
+text = "Auto-Pop"
+autowrap_mode = 3
+
+[node name="Desc" type="Label" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardAutoPop/Margin/VBox" unique_id=334657747]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_colors/font_color = Color(0.85, 0.88, 0.95, 1)
+theme_override_font_sizes/font_size = 11
+text = "Sol tıka basılı tutulduğunda aralıksız seri iğne batırma özelliğini açar ve hızlandırır."
+autowrap_mode = 3
+
+[node name="BtnBuy" type="Button" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardAutoPop/Margin/VBox" unique_id=1758340303]
+custom_minimum_size = Vector2(0, 34)
+layout_mode = 2
+text = "50 Coin"
+
 [node name="CardCoinMagnet" type="PanelContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid" unique_id=1948291188]
 custom_minimum_size = Vector2(285, 175)
 layout_mode = 2
@@ -1385,6 +1347,44 @@ autowrap_mode = 3
 custom_minimum_size = Vector2(0, 34)
 layout_mode = 2
 text = "80 Coin"
+
+[node name="CardSplashPop" type="PanelContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid" unique_id=894782266]
+custom_minimum_size = Vector2(285, 175)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_card")
+metadata/upgrade_id = "splash_pop"
+
+[node name="Margin" type="MarginContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardSplashPop" unique_id=1809357997]
+layout_mode = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 12
+
+[node name="VBox" type="VBoxContainer" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardSplashPop/Margin" unique_id=738864603]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Title" type="Label" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardSplashPop/Margin/VBox" unique_id=1979203738]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.85, 1, 1)
+theme_override_font_sizes/font_size = 14
+text = "Splash / Alan Patlatma"
+autowrap_mode = 3
+
+[node name="Desc" type="Label" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardSplashPop/Margin/VBox" unique_id=818201387]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_colors/font_color = Color(0.85, 0.88, 0.95, 1)
+theme_override_font_sizes/font_size = 11
+text = "İğneyle vurulan balonun çevresinde AYNI RENKTEKİ komşu balonları zincirleme patlatır."
+autowrap_mode = 3
+
+[node name="BtnBuy" type="Button" parent="UI/ShopModal/Panel/Margin/VBox/Scroll/UpgradesGrid/CardSplashPop/Margin/VBox" unique_id=495833993]
+custom_minimum_size = Vector2(0, 34)
+layout_mode = 2
+text = "100 Coin"
 
 [node name="StartupModal" type="Control" parent="UI" unique_id=1709316011]
 visible = false
