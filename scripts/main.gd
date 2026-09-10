@@ -872,7 +872,7 @@ func _process(delta: float) -> void:
 				var inter = wp["p"].intersects_ray(ray_orig, ray_dir)
 				if inter != null:
 					var d = ray_orig.distance_to(inter)
-					if d > 0.5 and d < 35.0 and inter.y >= 0.2 and inter.y <= (ceiling_h - 0.2):
+					if d > 0.5 and d < 120.0 and inter.y >= 0.2 and inter.y <= (ceiling_h - 0.2):
 						if abs(inter.x) <= (half_w + 0.15) and abs(inter.z) <= (half_l + 0.15):
 							if d < best_hit_dist:
 								best_hit_dist = d
@@ -880,7 +880,7 @@ func _process(delta: float) -> void:
 								best_wall_rot = wp["rot"]
 								is_wall_mounted = true
 								
-			if is_wall_mounted and dev_type == "fan" and best_hit_dist < 18.0:
+			if is_wall_mounted and dev_type == "fan" and best_hit_dist < 40.0:
 				var snap_y = clamp(round(best_wall_pos.y / 0.8) * 0.8, 0.8, ceiling_h - 1.4)
 				if abs(best_wall_pos.z) >= (half_l - 0.6):
 					var snap_x = clamp(round(best_wall_pos.x / 1.5) * 1.5, -half_w + 1.5, half_w - 1.5)
@@ -898,7 +898,7 @@ func _process(delta: float) -> void:
 				var hit_pos = player.global_position + ray_dir * 3.5
 				if intersect != null:
 					var dist = ray_orig.distance_to(intersect)
-					if dist < 45.0 and intersect.y <= (ray_orig.y + 0.5):
+					if dist < 120.0 and intersect.y <= (ray_orig.y + 0.5):
 						hit_pos = intersect
 						
 				var max_x = half_w - 1.5
@@ -1000,7 +1000,7 @@ func update_raycast_interaction() -> void:
 			var d_pos = d_node.global_position + Vector3(0, 0.35, 0)
 			var to_d = d_pos - cam_pos
 			var dist = to_d.length()
-			if dist <= 6.5 and dist > 0.3:
+			if dist <= 18.0 and dist > 0.3:
 				var dot = look_dir.dot(to_d / dist)
 				if dot > best_dot:
 					var d_type = d_node.get_meta("device_type") if d_node.has_meta("device_type") else ""
@@ -1019,7 +1019,7 @@ func update_raycast_interaction() -> void:
 		
 		if desk_prompt:
 			if raycast_target_type == "desk":
-				desk_prompt.text = "[E] Bilgisayarı Aç / Dükkana Gir"
+				desk_prompt.text = "[E] Bilgisayar Masası  |  [TAB / B] Seyyar Tablet"
 			elif raycast_target_type == "gravity_terminal":
 				var g_mode = gravity_mode_names[clamp(current_gravity_idx, 0, gravity_mode_names.size() - 1)]
 				var d_data = shop_manager.devices.get("gravity_regulator", {}) if shop_manager else {}
@@ -1507,7 +1507,11 @@ func _input(event: InputEvent) -> void:
 				
 	# 2. Normal Interactions (Raycast crosshair aiming & distance reach)
 	if event is InputEventKey and event.pressed and not event.is_echo():
-		if event.keycode == KEY_E:
+		if event.keycode == KEY_TAB or event.keycode == KEY_B:
+			toggle_shop_modal()
+			get_viewport().set_input_as_handled()
+			return
+		elif event.keycode == KEY_E:
 			if raycast_target_type == "desk" or is_near_desk:
 				toggle_shop_modal()
 			elif raycast_target_type == "device" and raycast_target_device != null and is_instance_valid(raycast_target_device):
