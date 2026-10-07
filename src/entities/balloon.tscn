@@ -1,0 +1,48 @@
+[gd_scene load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://src/entities/balloon.gd" id="1_script"]
+
+[sub_resource type="PhysicsMaterial" id="PhysicsMaterial_balloon"]
+friction = 0.45
+bounce = 0.0
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_balloon"]
+radius = 0.42
+
+[sub_resource type="SphereMesh" id="SphereMesh_optimized"]
+radius = 0.42
+height = 0.90
+radial_segments = 16
+rings = 8
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_knot"]
+top_radius = 0.035
+bottom_radius = 0.075
+height = 0.08
+radial_segments = 8
+rings = 1
+
+[node name="Balloon" type="RigidBody3D"]
+collision_layer = 2
+collision_mask = 3
+mass = 0.08
+physics_material_override = SubResource("PhysicsMaterial_balloon")
+gravity_scale = 0.25
+linear_damp = 1.0
+angular_damp = 2.0
+can_sleep = true
+lock_rotation = false
+continuous_cd = false
+script = ExtResource("1_script")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("SphereShape3D_balloon")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+cast_shadow = 0
+mesh = SubResource("SphereMesh_optimized")
+
+[node name="Knot" type="MeshInstance3D" parent="MeshInstance3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.47, 0)
+cast_shadow = 0
+mesh = SubResource("CylinderMesh_knot")

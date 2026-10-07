@@ -1,0 +1,29 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://src/entities/pop_particle.gd" id="1_script"]
+
+[sub_resource type="Curve" id="Curve_scale"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(0.6, 0.75), -0.6, -0.6, 0, 0, Vector2(1, 0), -2.2, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="BoxMesh" id="BoxMesh_shard"]
+size = Vector3(0.045, 0.045, 0.01)
+
+[node name="PopParticle" type="CPUParticles3D"]
+emitting = false
+amount = 8
+lifetime = 0.22
+one_shot = true
+explosiveness = 0.98
+mesh = SubResource("BoxMesh_shard")
+direction = Vector3(0, 1, 0)
+spread = 180.0
+gravity = Vector3(0, -5.0, 0)
+initial_velocity_min = 2.5
+initial_velocity_max = 5.0
+damping_min = 3.0
+damping_max = 6.0
+scale_amount_min = 0.6
+scale_amount_max = 1.0
+scale_amount_curve = SubResource("Curve_scale")
+script = ExtResource("1_script")

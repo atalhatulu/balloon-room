@@ -1,0 +1,211 @@
+[gd_scene format=3 uid="uid://cdapeeintknu5"]
+
+[ext_resource type="Script" path="res://src/entities/player_hands.gd" id="1_script"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_skin"]
+roughness = 0.55
+albedo_color = Color(0.88, 0.68, 0.46, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_palm"]
+size = Vector3(0.10, 0.025, 0.09)
+
+[sub_resource type="BoxMesh" id="BoxMesh_thumb"]
+size = Vector3(0.024, 0.024, 0.05)
+
+[sub_resource type="BoxMesh" id="BoxMesh_finger_main"]
+size = Vector3(0.020, 0.020, 0.04)
+
+[sub_resource type="BoxMesh" id="BoxMesh_finger_tip"]
+size = Vector3(0.018, 0.018, 0.03)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_tool_dark"]
+roughness = 0.55
+albedo_color = Color(0.18, 0.19, 0.22, 1)
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_handle"]
+top_radius = 0.022
+bottom_radius = 0.022
+height = 0.22
+radial_segments = 10
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_tool_orange"]
+roughness = 0.55
+albedo_color = Color(0.95, 0.52, 0.12, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_steel"]
+roughness = 0.55
+albedo_color = Color(0.88, 0.92, 0.98, 1)
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_needle"]
+top_radius = 0.003
+bottom_radius = 0.008
+height = 0.32
+radial_segments = 8
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_tablet_case"]
+shading_mode = 0
+albedo_color = Color(0.12, 0.14, 0.18, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_tablet_case"]
+size = Vector3(0.24, 0.014, 0.16)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_tablet_screen"]
+shading_mode = 0
+albedo_color = Color(0.05, 0.55, 0.65, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_tablet_screen"]
+size = Vector3(0.21, 0.005, 0.13)
+
+
+[node name="Hands" type="Node3D" unique_id=1928752170]
+script = ExtResource("1_script")
+
+[node name="RightHand" type="Node3D" parent="." unique_id=932296860]
+transform = Transform3D(0.965926, -0.0669873, 0.25, 0, 0.965926, 0.258819, -0.258819, -0.25, 0.933013, 0.26, -0.22, -0.42)
+
+[node name="Palm" type="MeshInstance3D" parent="RightHand" unique_id=1078069546]
+material_override = SubResource("StandardMaterial3D_skin")
+mesh = SubResource("BoxMesh_palm")
+
+[node name="Thumb" type="MeshInstance3D" parent="RightHand" unique_id=1057822326]
+transform = Transform3D(0.707107, 0, 0.707107, 0.5, 0.707107, -0.5, -0.5, 0.707107, 0.5, -0.055, 0.015, -0.01)
+material_override = SubResource("StandardMaterial3D_skin")
+mesh = SubResource("BoxMesh_thumb")
+
+[node name="Finger1" type="Node3D" parent="RightHand" unique_id=1210234623]
+transform = Transform3D(1, 0, 0, 0, 0.866025, 0.5, 0, -0.5, 0.866025, -0.038, -0.015, -0.055)
+
+[node name="Base" type="MeshInstance3D" parent="RightHand/Finger1" unique_id=786010347]
+material_override = SubResource("StandardMaterial3D_skin")
+mesh = SubResource("BoxMesh_finger_main")
+
+[node name="Tip" type="MeshInstance3D" parent="RightHand/Finger1" unique_id=223410823]
+transform = Transform3D(1, 0, 0, 0, 0.707107, 0.707107, 0, -0.707107, 0.707107, 0, -0.015, -0.03)
+material_override = SubResource("StandardMaterial3D_skin")
+mesh = SubResource("BoxMesh_finger_tip")
+
+[node name="Finger2" type="Node3D" parent="RightHand" unique_id=1763126939]
+transform = Transform3D(1, 0, 0, 0, 0.866025, 0.5, 0, -0.5, 0.866025, -0.013, -0.015, -0.060)
+
+[node name="Base" type="MeshInstance3D" parent="RightHand/Finger2" unique_id=470983892]
+material_override = SubResource("StandardMaterial3D_skin")
+mesh = SubResource("BoxMesh_finger_main")
+
+[node name="Tip" type="MeshInstance3D" parent="RightHand/Finger2" unique_id=317815637]
+transform = Transform3D(1, 0, 0, 0, 0.707107, 0.707107, 0, -0.707107, 0.707107, 0, -0.015, -0.03)
+material_override = SubResource("StandardMaterial3D_skin")
+mesh = SubResource("BoxMesh_finger_tip")
+
+[node name="Finger3" type="Node3D" parent="RightHand" unique_id=1928138415]
+transform = Transform3D(1, 0, 0, 0, 0.866025, 0.5, 0, -0.5, 0.866025, 0.012, -0.015, -0.055)
+
+[node name="Base" type="MeshInstance3D" parent="RightHand/Finger3" unique_id=830390675]
+material_override = SubResource("StandardMaterial3D_skin")
+mesh = SubResource("BoxMesh_finger_main")
+
+[node name="Tip" type="MeshInstance3D" parent="RightHand/Finger3" unique_id=1643578418]
+transform = Transform3D(1, 0, 0, 0, 0.707107, 0.707107, 0, -0.707107, 0.707107, 0, -0.015, -0.03)
+material_override = SubResource("StandardMaterial3D_skin")
+mesh = SubResource("BoxMesh_finger_tip")
+
+[node name="Finger4" type="Node3D" parent="RightHand" unique_id=1928138499]
+transform = Transform3D(1, 0, 0, 0, 0.866025, 0.5, 0, -0.5, 0.866025, 0.037, -0.015, -0.045)
+
+[node name="Base" type="MeshInstance3D" parent="RightHand/Finger4" unique_id=830390699]
+material_override = SubResource("StandardMaterial3D_skin")
+mesh = SubResource("BoxMesh_finger_main")
+
+[node name="Tip" type="MeshInstance3D" parent="RightHand/Finger4" unique_id=1643578499]
+transform = Transform3D(1, 0, 0, 0, 0.707107, 0.707107, 0, -0.707107, 0.707107, 0, -0.015, -0.03)
+material_override = SubResource("StandardMaterial3D_skin")
+mesh = SubResource("BoxMesh_finger_tip")
+
+[node name="Tool" type="Node3D" parent="RightHand" unique_id=1624627091]
+transform = Transform3D(1, 0, 0, 0, 0.258819, 0.965926, 0, -0.965926, 0.258819, 0, -0.02, -0.06)
+
+[node name="HandleDark" type="MeshInstance3D" parent="RightHand/Tool" unique_id=766714399]
+material_override = SubResource("StandardMaterial3D_tool_dark")
+mesh = SubResource("CylinderMesh_handle")
+
+[node name="AccentOrange" type="MeshInstance3D" parent="RightHand/Tool" unique_id=27295703]
+transform = Transform3D(1.05, 0, 0, 0, 0.2, 0, 0, 0, 1.05, 0, 0.04, 0)
+material_override = SubResource("StandardMaterial3D_tool_orange")
+mesh = SubResource("CylinderMesh_handle")
+
+[node name="Needle" type="MeshInstance3D" parent="RightHand/Tool" unique_id=1082490701]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.24, 0)
+material_override = SubResource("StandardMaterial3D_steel")
+mesh = SubResource("CylinderMesh_needle")
+
+[node name="LeftHand" type="Node3D" parent="." unique_id=1054401160]
+transform = Transform3D(0.965926, 0.0669873, -0.25, 0, 0.965926, 0.258819, 0.258819, -0.25, 0.933013, -0.26, -0.22, -0.42)
+
+[node name="Palm" type="MeshInstance3D" parent="LeftHand" unique_id=350523685]
+material_override = SubResource("StandardMaterial3D_skin")
+mesh = SubResource("BoxMesh_palm")
+
+[node name="Thumb" type="MeshInstance3D" parent="LeftHand" unique_id=202086202]
+transform = Transform3D(0.707107, 0, -0.707107, -0.5, 0.707107, -0.5, 0.5, 0.707107, 0.5, 0.055, 0.015, -0.01)
+material_override = SubResource("StandardMaterial3D_skin")
+mesh = SubResource("BoxMesh_thumb")
+
+[node name="Finger1" type="Node3D" parent="LeftHand" unique_id=1369581159]
+transform = Transform3D(1, 0, 0, 0, 0.939693, 0.34202, 0, -0.34202, 0.939693, 0.038, -0.01, -0.055)
+
+[node name="Base" type="MeshInstance3D" parent="LeftHand/Finger1" unique_id=1749743374]
+material_override = SubResource("StandardMaterial3D_skin")
+mesh = SubResource("BoxMesh_finger_main")
+
+[node name="Tip" type="MeshInstance3D" parent="LeftHand/Finger1" unique_id=600843735]
+transform = Transform3D(1, 0, 0, 0, 0.866025, 0.5, 0, -0.5, 0.866025, 0, -0.015, -0.03)
+material_override = SubResource("StandardMaterial3D_skin")
+mesh = SubResource("BoxMesh_finger_tip")
+
+[node name="Finger2" type="Node3D" parent="LeftHand" unique_id=681689925]
+transform = Transform3D(1, 0, 0, 0, 0.939693, 0.34202, 0, -0.34202, 0.939693, 0.013, -0.01, -0.060)
+
+[node name="Base" type="MeshInstance3D" parent="LeftHand/Finger2" unique_id=1794531402]
+material_override = SubResource("StandardMaterial3D_skin")
+mesh = SubResource("BoxMesh_finger_main")
+
+[node name="Tip" type="MeshInstance3D" parent="LeftHand/Finger2" unique_id=2146113763]
+transform = Transform3D(1, 0, 0, 0, 0.866025, 0.5, 0, -0.5, 0.866025, 0, -0.015, -0.03)
+material_override = SubResource("StandardMaterial3D_skin")
+mesh = SubResource("BoxMesh_finger_tip")
+
+[node name="Finger3" type="Node3D" parent="LeftHand" unique_id=1922148344]
+transform = Transform3D(1, 0, 0, 0, 0.939693, 0.34202, 0, -0.34202, 0.939693, -0.012, -0.01, -0.055)
+
+[node name="Base" type="MeshInstance3D" parent="LeftHand/Finger3" unique_id=55279239]
+material_override = SubResource("StandardMaterial3D_skin")
+mesh = SubResource("BoxMesh_finger_main")
+
+[node name="Tip" type="MeshInstance3D" parent="LeftHand/Finger3" unique_id=11040107]
+transform = Transform3D(1, 0, 0, 0, 0.866025, 0.5, 0, -0.5, 0.866025, 0, -0.015, -0.03)
+material_override = SubResource("StandardMaterial3D_skin")
+mesh = SubResource("BoxMesh_finger_tip")
+
+[node name="Finger4" type="Node3D" parent="LeftHand" unique_id=1922148499]
+transform = Transform3D(1, 0, 0, 0, 0.939693, 0.34202, 0, -0.34202, 0.939693, -0.037, -0.01, -0.045)
+
+[node name="Base" type="MeshInstance3D" parent="LeftHand/Finger4" unique_id=55279299]
+material_override = SubResource("StandardMaterial3D_skin")
+mesh = SubResource("BoxMesh_finger_main")
+
+[node name="Tip" type="MeshInstance3D" parent="LeftHand/Finger4" unique_id=11040199]
+transform = Transform3D(1, 0, 0, 0, 0.866025, 0.5, 0, -0.5, 0.866025, 0, -0.015, -0.03)
+material_override = SubResource("StandardMaterial3D_skin")
+mesh = SubResource("BoxMesh_finger_tip")
+
+[node name="TabletDevice" type="Node3D" parent="LeftHand" unique_id=1948293911]
+transform = Transform3D(0.984808, -0.173648, 0, 0.173648, 0.984808, 0, 0, 0, 1, 0.05, 0.05, -0.06)
+visible = false
+
+[node name="Case" type="MeshInstance3D" parent="LeftHand/TabletDevice" unique_id=1948293912]
+material_override = SubResource("StandardMaterial3D_tablet_case")
+mesh = SubResource("BoxMesh_tablet_case")
+
+[node name="Screen" type="MeshInstance3D" parent="LeftHand/TabletDevice" unique_id=1948293913]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.008, 0)
+material_override = SubResource("StandardMaterial3D_tablet_screen")
+mesh = SubResource("BoxMesh_tablet_screen")
